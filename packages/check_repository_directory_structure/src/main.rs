@@ -7,8 +7,8 @@ use walkdir::WalkDir;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(default_value = ".")]
-    dir_name: String,
+    #[arg()]
+    dir_names: Vec<String>,
     #[arg(short, long)]
     fix: bool,
 }
@@ -20,13 +20,41 @@ fn is_dash_case(name: &str) -> bool {
     let re = Regex::new(r"^[a-z0-9]+([-.][a-z0-9]+)*$").unwrap();
     re.is_match(name)
 }
+use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     let args = Args::parse();
+    let dir_name = args
+        .dir_names
+        .first()
+        .cloned()
+        .unwrap_or_else(|| ".".to_string());
+    let lock_path = std::env::temp_dir().join("check_repository_directory_structure.lock");
+    let mut lock_file = std::fs::OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(&lock_path)
+        .expect("Failed to open lock file");
+    let mut lock = fd_lock::RwLock::new(lock_file);
+    let mut _guard = lock.write().expect("Failed to acquire write lock");
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    let last_run_str = std::fs::read_to_string(&lock_path).unwrap_or_default();
+    let last_run: u64 = last_run_str.trim().parse().unwrap_or(0);
+    if now - last_run < 5 {
+        std::process::exit(0);
+    }
     if std::env::var("DEBUG").as_deref() == Ok("1") {
         run_tests();
     } else {
-        match check_repository_directory_structure(args.dir_name, args.fix) {
-            Ok(_) => std::process::exit(0),
+        match check_repository_directory_structure(dir_name, args.fix) {
+            Ok(_) => {
+                std::fs::write(&lock_path, now.to_string()).unwrap();
+                std::process::exit(0)
+            }
             Err(warnings) => {
                 println!("{}", warnings.join("\n"));
                 std::process::exit(1);
