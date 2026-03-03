@@ -7,15 +7,24 @@ use std::path::Path;
 fn main() -> Result<()> {
     if std::env::var("DEBUG").as_deref() == Ok("1") {
         run_tests()?;
-    } else {
-        process_repo(Path::new("."))?;
+        return Ok(());
     }
+
+    let args: Vec<String> = std::env::args().skip(1).collect();
+
+    if args.is_empty() {
+        process_path(Path::new("."))?;
+    } else {
+        for arg in args {
+            process_path(Path::new(&arg))?;
+        }
+    }
+
     Ok(())
 }
 
-fn process_repo(root: &Path) -> Result<()> {
+fn process_path(root: &Path) -> Result<()> {
     // Set require_git(false) so it works even if we are not in a git repo
-    // (e.g. in tests or source tarballs with .gitignore)
     let walker = WalkBuilder::new(root).require_git(false).build();
 
     for result in walker {
@@ -28,7 +37,7 @@ fn process_repo(root: &Path) -> Result<()> {
                     }
                 }
             }
-            Err(err) => eprintln!("Error walking directory: {}", err),
+            Err(err) => eprintln!("Error walking path: {}", err),
         }
     }
     Ok(())
@@ -84,8 +93,8 @@ fn run_tests() -> Result<()> {
     let binary_path = root.join("binary.bin");
     fs::write(&binary_path, [0, 15, 255, 0, 1, 2, 3])?;
 
-    // Run the processor
-    process_repo(root)?;
+    // Run the processor on the root directory
+    process_path(root)?;
 
     // Verify file1: empty lines removed
     let content1 = fs::read_to_string(&file1_path)?;
