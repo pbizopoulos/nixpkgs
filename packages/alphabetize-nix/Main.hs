@@ -54,8 +54,8 @@ import Prelude
     (.),
     (||),
   )
-noCanonicalizeTag :: Text
-noCanonicalizeTag = pack "# no-canonicalize"
+noAlphabetizeTag :: Text
+noAlphabetizeTag = pack "# no-alphabetize"
 main :: IO ()
 main = do
   args <- getArgs
@@ -73,7 +73,7 @@ main = do
 writeFormattedFile :: FilePath -> NExprLoc -> IO ()
 writeFormattedFile filePath expr = do
   fileContent <- readFile filePath
-  unless (noCanonicalizeTag `isInfixOf` fileContent) $ do
+  unless (noAlphabetizeTag `isInfixOf` fileContent) $ do
     let sortedExpr = sortExpression expr
         outputText =
           renderStrict $
@@ -186,9 +186,9 @@ getAllFormattingTests =
         (pack "{ b.z.b = 1; b.z.a = 2; }")
         (pack "{ b.z = { a = 2; b = 1; }; }"),
       makeFormattingTest
-        "no-canonicalize comment"
-        (pack "# no-canonicalize\n{ a = [ \"c\" \"a\" ]; }")
-        (pack "# no-canonicalize\n{ a = [ \"c\" \"a\" ]; }"),
+        "no-alphabetize comment"
+        (pack "# no-alphabetize\n{ a = [ \"c\" \"a\" ]; }")
+        (pack "# no-alphabetize\n{ a = [ \"c\" \"a\" ]; }"),
       makeFormattingTest
         "let expression sorting"
         (pack "let c = 1; a = 2; b = 3; in a + b + c")

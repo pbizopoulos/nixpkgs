@@ -1,9 +1,9 @@
-name:                canonicalize-nix
+name:                alphabetize-nix
 version:             0.0.0
 synopsis:            Sorts attributes alphabetically, using dotted notation for attributes with sets or lists, and nested notation otherwise.
 cabal-version:       >=1.2
 build-type:          Simple
-executable canonicalize-nix
+executable alphabetize-nix
   main-is: Main.hs
   build-depends:
     HUnit,
