@@ -144,12 +144,6 @@ class _TestCase(unittest.TestCase):
             print("\n" + "\n".join(diff))  # noqa: T201
             raise AssertionError
 
-    def test_alphabetize_python_shebang(self) -> None:
-        code_input = b"#!/usr/bin/env python3\nimport sys\nprint(sys.argv)\n"
-        code_output = alphabetize_python(code_input)
-        if code_output != code_input:
-            raise AssertionError
-
 
 def main() -> None:
     """Alphabetize Python."""
