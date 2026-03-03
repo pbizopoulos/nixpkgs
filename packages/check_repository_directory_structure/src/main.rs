@@ -16,8 +16,6 @@ struct Args {
 }
 
 fn is_valid_fqdn(name: &str) -> bool {
-    // Simple FQDN check: labels separated by dots, at least two labels, etc.
-    // Following a basic pattern for simplicity.
     let re = Regex::new(r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$").unwrap();
     re.is_match(name)
 }
@@ -261,11 +259,9 @@ fn test_check_repository_directory_structure_standalone() {
     Command::new("git").arg("add").arg("README").current_dir(&temp_dir).output().expect("Failed to add README");
     Command::new("git").arg("commit").arg("-m").arg("initial commit").current_dir(&temp_dir).output().expect("Failed to commit");
 
-    // Should be Ok
     let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
     assert!(result.is_ok(), "Expected Ok, but got Err: {:?}", result.err());
 
-    // Add an unallowed file
     fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
     let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
     assert!(result.is_err());
@@ -332,11 +328,9 @@ mod tests {
         Command::new("git").arg("add").arg("README").current_dir(&temp_dir).output().expect("Failed to add README");
         Command::new("git").arg("commit").arg("-m").arg("initial commit").current_dir(&temp_dir).output().expect("Failed to commit");
 
-        // Should be Ok
         let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
         assert!(result.is_ok(), "Expected Ok, but got Err: {:?}", result.err());
 
-        // Add an unallowed file
         fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
         let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
         assert!(result.is_err());

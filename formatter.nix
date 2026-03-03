@@ -40,6 +40,15 @@ let
     settings = {
       formatter = {
         biome.options = [ "--max-diagnostics=none" ];
+        canonicalize-nix = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.canonicalize-nix;
+          includes = [ "*.nix" ];
+          priority = 0;
+        };
+        check_repository_directory_structure = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
+          includes = [ "." ];
+        };
         mypy = {
           command = pkgs.mypy;
           includes = [ "*.py" ];
@@ -56,6 +65,10 @@ let
         ];
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         shfmt.options = [ "--posix" ];
+        uncomment = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
+          includes = [ "*" ];
+        };
       };
       global.excludes = [
         "*/prm/**"
