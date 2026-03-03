@@ -145,32 +145,6 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
         modified_tree = cst.visit(cst_transformer)
         code_unparsed: str = modified_tree.code
         code_unparsed = ssort.ssort(code_unparsed)
-        process = subprocess.run(  # noqa: S603
-            [
-                shutil.which("ruff") or "ruff",
-                "check",
-                "--select",
-                "ALL",
-                "--fix",
-                "--unsafe-fixes",
-                "-",
-            ],
-            input=code_unparsed,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if process.stdout:
-            code_unparsed = process.stdout
-        process = subprocess.run(  # noqa: S603
-            [shutil.which("ruff") or "ruff", "format", "-"],
-            input=code_unparsed,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if process.stdout:
-            code_unparsed = process.stdout
         if isinstance(input_str_or_bytes, str):
             with Path(input_str_or_bytes).open("w") as file:
                 file.write(code_unparsed)
@@ -183,16 +157,6 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
             ) as tf:
                 tf.write(code_unparsed)
                 file_path = tf.name
-        subprocess.run(  # noqa: S603
-            [
-                shutil.which("mypy") or "mypy",
-                "--explicit-package-bases",
-                "--ignore-missing-imports",
-                "--strict",
-                file_path,
-            ],
-            check=False,
-        )
         subprocess.run(  # noqa: S603
             [shutil.which("vulture") or "vulture", file_path],
             check=False,
@@ -226,10 +190,7 @@ class _TestCase(unittest.TestCase):
     def test_canonicalize_python_shebang(self) -> None:
         code_input = b"#!/usr/bin/env python3\nimport sys\nprint(sys.argv)\n"
         code_output = canonicalize_python(code_input)
-        if (
-            not isinstance(code_output, bytes)
-            or b"#!/usr/bin/env python3" not in code_output
-        ):
+        if code_output != code_input:
             raise AssertionError
 
 

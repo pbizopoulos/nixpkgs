@@ -1,14 +1,11 @@
-"""Docstring."""
+"""Docstring."""  # noqa: INP001
 
 from __future__ import annotations
 
 import functools
 import os
 from pathlib import Path
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from collections.abc import Callable
+from typing import Callable
 
 variable_top = 10
 
@@ -64,6 +61,7 @@ def retrieve_arg(arg: str) -> str:
 
 
 class _ClassSecond:  # inline function comment
+
     class_attribute_second: int | None = 2  # inline attribute comment
 
     class_attribute_third: str = "value"
