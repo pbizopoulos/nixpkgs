@@ -84,9 +84,8 @@ fn check_repository_directory_structure(dir_name: String, fix: bool) -> Result<(
         ));
     }
     let dir_name_str = working_dir.file_name().unwrap().to_str().unwrap();
-    if dir_name_str == dir_name_str.to_lowercase()
-        && !is_valid_fqdn(dir_name_str)
-        && !is_dash_case(dir_name_str)
+    if dir_name_str != dir_name_str.to_lowercase()
+        || (!is_valid_fqdn(dir_name_str) && !is_dash_case(dir_name_str))
     {
         warnings.push(format!(
             "{}: should be lower-case and valid FQDN or in dash-case",
