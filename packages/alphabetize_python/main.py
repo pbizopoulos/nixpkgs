@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Canonicalize Python."""
+"""Alphabetize Python."""
 
 from __future__ import annotations
 
@@ -33,17 +33,6 @@ def _get_sort_key(node: libcst.FunctionDef) -> str:
     return node_name_value
 
 
-def _is_docstring(node: libcst.CSTNode) -> bool:
-    if not isinstance(node, libcst.SimpleStatementLine):
-        return False
-    if len(node.body) != 1:
-        return False
-    expr = node.body[0]
-    if not isinstance(expr, libcst.Expr):
-        return False
-    return isinstance(expr.value, (libcst.SimpleString, libcst.ConcatenatedString))
-
-
 class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
     def leave_ClassDef(  # noqa: N802
         self,
@@ -51,9 +40,6 @@ class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
         updated_node: libcst.ClassDef,
     ) -> libcst.ClassDef:
         body = updated_node.body
-        if updated_node.name.value.startswith("_"):  # noqa: SIM102
-            if body.body and _is_docstring(body.body[0]):
-                body = body.with_changes(body=body.body[1:])
         statements = list(body.body)
         if not statements:
             return updated_node.with_changes(body=body)
@@ -84,12 +70,6 @@ class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
         original_node: libcst.FunctionDef,  # noqa: ARG002
         updated_node: libcst.FunctionDef,
     ) -> libcst.FunctionDef:
-        if updated_node.name.value.startswith("_"):
-            body = updated_node.body
-            if body.body and _is_docstring(body.body[0]):
-                return updated_node.with_changes(
-                    body=body.with_changes(body=body.body[1:]),
-                )
         return updated_node
 
     def leave_Module(  # noqa: N802
@@ -125,8 +105,8 @@ class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
         return updated_node.with_changes(body=tuple(new_statements))
 
 
-def canonicalize_python(*args: str | bytes) -> str | bytes | None:
-    """Canonicalize Python."""
+def alphabetize_python(*args: str | bytes) -> str | bytes | None:
+    """Alphabetize Python."""
     for input_str_or_bytes in args:
         if isinstance(input_str_or_bytes, str):
             with Path(input_str_or_bytes).open() as file:
@@ -148,10 +128,10 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
 
 
 class _TestCase(unittest.TestCase):
-    def test_canonicalize_python_bytes_input(self) -> None:
+    def test_alphabetize_python_bytes_input(self) -> None:
         parent_path = Path(__file__).resolve().parent
         with (parent_path / "prm/main_before.py").open() as file:
-            code_output_before = canonicalize_python(file.read().encode())
+            code_output_before = alphabetize_python(file.read().encode())
         with (parent_path / "prm/main_after.py").open() as file:
             code_output_after = file.read()
         if code_output_before.decode() != code_output_after:  # type: ignore[union-attr]
@@ -164,16 +144,16 @@ class _TestCase(unittest.TestCase):
             print("\n" + "\n".join(diff))  # noqa: T201
             raise AssertionError
 
-    def test_canonicalize_python_shebang(self) -> None:
+    def test_alphabetize_python_shebang(self) -> None:
         code_input = b"#!/usr/bin/env python3\nimport sys\nprint(sys.argv)\n"
-        code_output = canonicalize_python(code_input)
+        code_output = alphabetize_python(code_input)
         if code_output != code_input:
             raise AssertionError
 
 
 def main() -> None:
-    """Canonicalize Python."""
-    fire.Fire(canonicalize_python)
+    """Alphabetize Python."""
+    fire.Fire(alphabetize_python)
 
 
 if __name__ == "__main__":

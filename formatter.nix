@@ -41,15 +41,15 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
+        alphabetize_python = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize_python;
+          includes = [ "*.py" ];
+          priority = 0;
+        };
         biome.options = [ "--max-diagnostics=none" ];
         canonicalize-nix = {
           command = inputs.self.packages.${pkgs.stdenv.system}.canonicalize-nix;
           includes = [ "*.nix" ];
-          priority = 0;
-        };
-        canonicalize_python = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.canonicalize_python;
-          includes = [ "*.py" ];
           priority = 0;
         };
         check_repository_directory_structure = {

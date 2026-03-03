@@ -29,9 +29,11 @@ class ClassFirst:
     class_attribute: list[str]
 
     def __init__(self: ClassFirst) -> None:
+        """Docstring in public method."""
         self.instance_attribute_another = 1
 
     def __getitem__(self: ClassFirst, index: int) -> int:
+        """Docstring in public method."""
         self.instance_attribute_other = 1
         return index
 
@@ -55,6 +57,7 @@ class _ClassFourth:
 
 
 class _ClassSecond:  # inline function comment
+    """Docstring in private class."""
 
     class_attribute_second: int | None = 2  # inline attribute comment
 
@@ -63,6 +66,7 @@ class _ClassSecond:  # inline function comment
     class_attribute_first: list[str]
 
     def __init__(self: _ClassSecond) -> None:
+        """Docstring in method in private class."""
         # comment inside method
         self.instance_attribute = 1
 
