@@ -13,13 +13,19 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ python ];
   installPhase = ''
     mkdir -p $out/bin
-    cp main.py $out/bin/canonicalize_dynamic_python
-    chmod +x $out/bin/canonicalize_dynamic_python
-    wrapProgram $out/bin/canonicalize_dynamic_python \
-      --prefix PATH : ${pkgs.lib.makeBinPath [ python pkgs.nix ]}
+    cp main.py $out/bin/py-audit
+    chmod +x $out/bin/py-audit
+    wrapProgram $out/bin/py-audit \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.nix
+          python
+        ]
+      }
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = "canonicalize_dynamic_python";
+  pname = builtins.baseNameOf src;
   src = ./.;
   version = "0.0.0";
 }
