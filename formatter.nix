@@ -10,10 +10,6 @@ let
     programs = {
       actionlint.enable = true;
       beautysh.enable = true;
-      biome = {
-        enable = true;
-        formatUnsafe = true;
-      };
       clang-format.enable = true;
       deadnix.enable = true;
       hlint.enable = true;
@@ -22,7 +18,6 @@ let
         strict = true;
       };
       ormolu.enable = true;
-      prettier.enable = true;
       ruff-check = {
         enable = true;
         extendSelect = [ "ALL" ];
@@ -51,7 +46,6 @@ let
           includes = [ "*.py" ];
           priority = 0;
         };
-        biome.options = [ "--max-diagnostics=none" ];
         check_repository_directory_structure = {
           command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
           includes = [ "flake.nix" ];
