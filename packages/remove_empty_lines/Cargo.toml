@@ -1,8 +1,7 @@
 [package]
-name = "rust"
+name = "remove_empty_lines"
 version = "0.1.0"
 edition = "2021"
-
 [dependencies]
 ignore = "0.4"
 anyhow = "1.0"

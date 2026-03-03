@@ -1,5 +1,4 @@
 #!/bin/sh
-
 main_py="$(realpath "${1%%#*}")/packages/${1##*#}/main.py"
 coverage_dir="$(dirname "$main_py")/tmp/coverage"
 scalene_dir="$(dirname "$main_py")/tmp/scalene"

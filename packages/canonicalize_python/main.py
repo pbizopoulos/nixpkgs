@@ -131,12 +131,7 @@ class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
 
 
 def canonicalize_python(*args: str | bytes) -> str | bytes | None:
-    """Canonicalize Python.
-
-    It does the following:
-    1. Sorts alphabetically classes and functions in that order.
-    2. Exception is the __init__ method which is placed in the top.
-    """
+    """Canonicalize Python."""
     env = os.environ.copy()
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     for input_str_or_bytes in args:

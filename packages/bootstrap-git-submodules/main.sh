@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-
 repository_domain=github.com
 git init "$HOME"
 printf '*\n!.gitignore\n' >"$HOME/.gitignore"

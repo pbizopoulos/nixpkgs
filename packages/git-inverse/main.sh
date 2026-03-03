@@ -20,7 +20,6 @@ if [ -d "$repo_root/.gitinverse" ]; then
   git --git-dir="$repo_root/.gitinverse" --work-tree="$repo_root" config diff.tool imagemagick
   # shellcheck disable=SC2016
   git --git-dir="$repo_root/.gitinverse" --work-tree="$repo_root" config difftool.imagemagick.cmd 'compare "$LOCAL" "$REMOTE" "$LOCAL-diff.png"'
-
 fi
 if [ -f "$repo_root/.gitignore" ]; then
   mv "$repo_root/.gitignore" "/tmp/.gitignore.orig"

@@ -28,6 +28,7 @@ let
         extendSelect = [ "ALL" ];
       };
       ruff-format.enable = true;
+      rustfmt.enable = true;
       shellcheck.enable = true;
       shfmt = {
         enable = true;
@@ -58,6 +59,11 @@ let
             "--ignore-missing-imports"
             "--strict"
           ];
+        };
+        remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
+          includes = [ "*" ];
+          priority = 0;
         };
         ruff-check.options = [
           "--cache-dir=/tmp/.ruff_cache"

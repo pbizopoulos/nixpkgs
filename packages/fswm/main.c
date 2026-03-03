@@ -5,25 +5,20 @@
 #include <unistd.h>
 #include <xcb/xcb.h>
 #include <xcb/xcb_keysyms.h>
-
 typedef struct List {
   struct Client *head;
   struct Client *tail;
 } List;
-
 typedef struct Client {
   struct Client *next;
   struct Client *previous;
   struct List *parent;
   xcb_window_t window;
 } Client;
-
 static void update_client(Client *client, xcb_connection_t *connection);
-
 static Client *client_current = NULL;
 static Client *client_previous_focus = NULL;
 static List clients;
-
 static Client *remove_client(Client *client) {
   if (client == client->parent->head) {
     client->parent->head = client->parent->head->next;
@@ -43,7 +38,6 @@ static Client *remove_client(Client *client) {
   client->parent = NULL;
   return client;
 }
-
 void update_client(Client *client_focus, xcb_connection_t *connection) {
   unsigned int key_press_value_list[] = {XCB_STACK_MODE_ABOVE};
   Client *client_head = clients.head;
@@ -83,7 +77,6 @@ void update_client(Client *client_focus, xcb_connection_t *connection) {
   xcb_set_input_focus(connection, XCB_INPUT_FOCUS_POINTER_ROOT,
                       client_current->window, XCB_CURRENT_TIME);
 }
-
 int main(int argc, char *argv[]) {
   Client *client = calloc(1, sizeof(Client));
   unsigned int map_request_configure_value_list[4];
