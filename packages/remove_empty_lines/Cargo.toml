@@ -1,9 +1,10 @@
-[package]
-name = "remove_empty_lines"
-version = "0.1.0"
-edition = "2021"
 [dependencies]
 ignore = "0.4"
 anyhow = "1.0"
 content_inspector = "0.2"
 tempfile = "3.8"
+
+[package]
+name = "remove_empty_lines"
+version = "0.1.0"
+edition = "2021"

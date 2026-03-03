@@ -35,6 +35,7 @@ let
         simplify = true;
       };
       statix.enable = true;
+      toml-sort.enable = true;
       yamlfmt.enable = true;
     };
     projectRootFile = "flake.nix";
@@ -70,6 +71,7 @@ let
           "--unsafe-fixes"
         ];
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
+        rustfmt.priority = 1;
         shfmt.options = [ "--posix" ];
         uncomment = {
           command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
