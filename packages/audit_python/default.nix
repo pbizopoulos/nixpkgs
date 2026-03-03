@@ -13,9 +13,9 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ python ];
   installPhase = ''
     mkdir -p $out/bin
-    cp main.py $out/bin/py-audit
-    chmod +x $out/bin/py-audit
-    wrapProgram $out/bin/py-audit \
+    cp main.py $out/bin/${pname}
+    chmod +x $out/bin/${pname}
+    wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nix
@@ -23,7 +23,10 @@ pkgs.stdenv.mkDerivation rec {
         ]
       }
   '';
-  meta.mainProgram = pname;
+  meta = {
+    mainProgram = pname;
+    platforms = [ "x86_64-linux" ];
+  };
   nativeBuildInputs = [ pkgs.makeWrapper ];
   pname = builtins.baseNameOf src;
   src = ./.;

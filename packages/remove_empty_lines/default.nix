@@ -3,7 +3,7 @@
 }:
 pkgs.rustPlatform.buildRustPackage rec {
   buildInputs = [ ];
-  cargoHash = "sha256-aT64u3Tqrk+XXPptAtVs2EnVeOU2NCwSHg1XYeadZHs=";
+  cargoHash = "sha256-/9P6dTTwhBnzLMY7LgS4Me+gVZWM9CZ7glPg8Q9P76M=";
   meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.pkg-config
