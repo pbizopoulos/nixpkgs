@@ -12,8 +12,6 @@ pkgs.python313Packages.buildPythonPackage rec {
   propagatedBuildInputs = [
     pkgs.python313Packages.fire
     pkgs.python313Packages.libcst
-    pkgs.python313Packages.ssort
-    pkgs.python313Packages.vulture
   ];
   pyproject = false;
   src = ./.;

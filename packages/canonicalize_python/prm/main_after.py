@@ -31,13 +31,13 @@ class ClassFirst:
     def __init__(self: ClassFirst) -> None:
         self.instance_attribute_another = 1
 
-    def method_in_class_first(self: ClassFirst) -> None:
-        """Docstring in public method."""
-        self.instance_attribute = 1
-
     def __getitem__(self: ClassFirst, index: int) -> int:
         self.instance_attribute_other = 1
         return index
+
+    def method_in_class_first(self: ClassFirst) -> None:
+        """Docstring in public method."""
+        self.instance_attribute = 1
 
     # this is a comment inside a class in the footer
 
@@ -52,12 +52,6 @@ class ClassThird:
 class _ClassFourth:
     def method_in_class_fourth(self: _ClassFourth) -> None:
         self.instance_attribute = 1
-
-
-@functools.lru_cache(maxsize=128)
-def retrieve_arg(arg: str) -> str:
-    """Docstring in public function."""
-    return arg
 
 
 class _ClassSecond:  # inline function comment
@@ -92,6 +86,12 @@ class _MyDecorator:
 def function_first(path: Path) -> Path:
     """Docstring in public function."""
     return path
+
+
+@functools.lru_cache(maxsize=128)
+def retrieve_arg(arg: str) -> str:
+    """Docstring in public function."""
+    return arg
 
 
 def main(arg: int) -> None:  # inline function comment

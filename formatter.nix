@@ -80,6 +80,11 @@ let
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         rustfmt.priority = 1;
         shfmt.options = [ "--posix" ];
+        ssort = {
+          command = pkgs.python3Packages.ssort;
+          includes = [ "*.py" ];
+          priority = 1;
+        };
         uncomment = {
           command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
           includes = [ "*" ];

@@ -5,16 +5,11 @@ from __future__ import annotations
 
 import difflib
 import os
-import shutil
-import subprocess
-import sys
-import tempfile
 import unittest
 from pathlib import Path
 
 import fire
 import libcst
-import ssort
 
 
 def _get_sort_key(node: libcst.FunctionDef) -> str:
@@ -132,8 +127,6 @@ class _CSTTransformer(libcst.CSTTransformer):  # type: ignore[misc]
 
 def canonicalize_python(*args: str | bytes) -> str | bytes | None:
     """Canonicalize Python."""
-    env = os.environ.copy()
-    env["PYTHONPATH"] = os.pathsep.join(sys.path)
     for input_str_or_bytes in args:
         if isinstance(input_str_or_bytes, str):
             with Path(input_str_or_bytes).open() as file:
@@ -144,25 +137,9 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
         cst_transformer = _CSTTransformer()
         modified_tree = cst.visit(cst_transformer)
         code_unparsed: str = modified_tree.code
-        code_unparsed = ssort.ssort(code_unparsed)
         if isinstance(input_str_or_bytes, str):
             with Path(input_str_or_bytes).open("w") as file:
                 file.write(code_unparsed)
-            file_path = input_str_or_bytes
-        else:
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                suffix=".py",
-                delete=False,
-            ) as tf:
-                tf.write(code_unparsed)
-                file_path = tf.name
-        subprocess.run(  # noqa: S603
-            [shutil.which("vulture") or "vulture", file_path],
-            check=False,
-        )
-        if not isinstance(input_str_or_bytes, str):
-            Path(file_path).unlink()
         if len(args) == 1:
             return (
                 None if isinstance(input_str_or_bytes, str) else code_unparsed.encode()
