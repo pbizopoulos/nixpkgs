@@ -1,39 +1,46 @@
 #!/usr/bin/env python3
+"""Audit Python package."""
+
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
 
 import typer
-from rich import print
+from rich import print as rprint
 
-app = typer.Typer()
+app: typer.Typer = typer.Typer()
 
 
-def _run_command(cmd, env=None):
-    process = subprocess.Popen(
+def _run_command(cmd: list[str], env: dict[str, str] | None = None) -> int:
+    """Run command and print output."""
+    process = subprocess.Popen(  # noqa: S603
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         env=env,
         text=True,
     )
-    for line in process.stdout:
-        print(line, end="")
+    if process.stdout:
+        for line in process.stdout:
+            rprint(line, end="")
     process.wait()
     return process.returncode
 
 
-@app.command()
+@app.command()  # type: ignore[untyped-decorator]
 def profile(
     nixpkgs_url: str,
 ) -> None:
     """Run `DEBUG=1 <url>` under scalene and coverage, showing results in stdout."""
-    print(f"[bold green]Resolving {nixpkgs_url}[/bold green]")
+    nix_bin = shutil.which("nix") or "nix"
+    python_bin = shutil.which("python3") or "python3"
+    rprint(f"[bold green]Resolving {nixpkgs_url}[/bold green]")
     try:
-        res = subprocess.run(
-            ["nix", "build", "--no-link", "--print-out-paths", nixpkgs_url],
+        res = subprocess.run(  # noqa: S603
+            [nix_bin, "build", "--no-link", "--print-out-paths", nixpkgs_url],
             capture_output=True,
             text=True,
             check=True,
@@ -49,19 +56,19 @@ def profile(
             wrapped_path = bin_path.parent / f".{bin_path.name}-wrapped"
             base_cmd = [str(wrapped_path)] if wrapped_path.exists() else [str(bin_path)]
         else:
-            base_cmd = ["nix", "run", nixpkgs_url]
+            base_cmd = [nix_bin, "run", nixpkgs_url]
     except subprocess.CalledProcessError:
-        print(
-            "[yellow]Could not resolve nixpkgs_url to a path, using `nix run`[/yellow]"
+        rprint(
+            "[yellow]Could not resolve nixpkgs_url to a path, using `nix run`[/yellow]",
         )
-        base_cmd = ["nix", "run", nixpkgs_url]
+        base_cmd = [nix_bin, "run", nixpkgs_url]
     with tempfile.TemporaryDirectory() as tmp_dir:
         env = os.environ.copy()
         env["DEBUG"] = "1"
         env["COVERAGE_FILE"] = str(Path(tmp_dir) / ".coverage")
-        print(f"[bold green]Running Scalene on {base_cmd}[/bold green]")
+        rprint(f"[bold green]Running Scalene on {base_cmd}[/bold green]")
         scalene_cmd = [
-            "python3",
+            python_bin,
             "-m",
             "scalene",
             "--cli",
@@ -70,11 +77,11 @@ def profile(
         ]
         rc = _run_command(scalene_cmd, env=env)
         if rc != 0:
-            print("[red]Scalene run failed[/red]")
+            rprint("[red]Scalene run failed[/red]")
             sys.exit(rc)
-        print("\n[bold green]Running Coverage + Scalene[/bold green]")
+        rprint("\n[bold green]Running Coverage + Scalene[/bold green]")
         coverage_cmd = [
-            "python3",
+            python_bin,
             "-m",
             "coverage",
             "run",
@@ -86,12 +93,12 @@ def profile(
         ]
         rc = _run_command(coverage_cmd, env=env)
         if rc != 0:
-            print("[red]Coverage run failed[/red]")
+            rprint("[red]Coverage run failed[/red]")
             sys.exit(rc)
-        print("\n[bold blue]Coverage Report:[/bold blue]")
-        subprocess.run(["python3", "-m", "coverage", "report"], env=env)
-        print("\n[bold blue]Dead Code Detection (Vulture):[/bold blue]")
-        vulture_cmd = ["python3", "-m", "vulture", *base_cmd]
+        rprint("\n[bold blue]Coverage Report:[/bold blue]")
+        subprocess.run([python_bin, "-m", "coverage", "report"], env=env, check=False)  # noqa: S603
+        rprint("\n[bold blue]Dead Code Detection (Vulture):[/bold blue]")
+        vulture_cmd = [python_bin, "-m", "vulture", *base_cmd]
         _run_command(vulture_cmd, env=env)
 
 
