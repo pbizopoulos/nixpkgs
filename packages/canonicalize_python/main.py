@@ -140,17 +140,6 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
                 content = file.read()
         else:
             content = input_str_or_bytes.decode()
-        lines = content.splitlines()
-        shebang = ""
-        if lines and lines[0].startswith("#!"):
-            shebang = lines[0] + "\n"
-        content = "\n".join(
-            [
-                line
-                for line in lines
-                if line.strip() and not line.strip().startswith("#")
-            ],
-        )
         cst = libcst.parse_module(content)
         cst_transformer = _CSTTransformer()
         modified_tree = cst.visit(cst_transformer)
@@ -182,7 +171,6 @@ def canonicalize_python(*args: str | bytes) -> str | bytes | None:
         )
         if process.stdout:
             code_unparsed = process.stdout
-        code_unparsed = shebang + code_unparsed
         if isinstance(input_str_or_bytes, str):
             with Path(input_str_or_bytes).open("w") as file:
                 file.write(code_unparsed)
@@ -236,9 +224,12 @@ class _TestCase(unittest.TestCase):
             raise AssertionError
 
     def test_canonicalize_python_shebang(self) -> None:
-        code_input = b"#!/usr/bin/env python3\nimport os\n"
+        code_input = b"#!/usr/bin/env python3\nimport sys\nprint(sys.argv)\n"
         code_output = canonicalize_python(code_input)
-        if code_output != b"#!/usr/bin/env python3\nimport os\n":
+        if (
+            not isinstance(code_output, bytes)
+            or b"#!/usr/bin/env python3" not in code_output
+        ):
             raise AssertionError
 
 

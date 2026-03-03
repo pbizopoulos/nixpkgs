@@ -11,9 +11,19 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 variable_top = 10
+
+
+# standalone comment
+
+
 variable = 0
+
 while variable < variable_top:
+    # comment in while header
+
     variable += 1
+
+    # comment in while footer
 
 
 class ClassFirst:
@@ -31,6 +41,8 @@ class ClassFirst:
     def __getitem__(self: ClassFirst, index: int) -> int:
         self.instance_attribute_other = 1
         return index
+
+    # this is a comment inside a class in the footer
 
 
 class ClassThird:
@@ -53,11 +65,15 @@ def retrieve_arg(arg: str) -> str:
 
 class _ClassSecond:  # inline function comment
     class_attribute_second: int | None = 2  # inline attribute comment
+
     class_attribute_third: str = "value"
+
     class_attribute_first: list[str]
 
     def __init__(self: _ClassSecond) -> None:
+        # comment inside method
         self.instance_attribute = 1
+
         retrieve_arg("string")
 
     @functools.lru_cache(maxsize=128)  # noqa: B019
@@ -83,29 +99,58 @@ def function_first(path: Path) -> Path:
 def main(arg: int) -> None:  # inline function comment
     """Docstring in public function."""
     os.getenv("HOME")
+    # standalone comment
+
+    # comment before if
     if True:
+        # comment inside if
+
         pass
     else:
         pass
+
+        # comment inside if
     magic_number = 10
     while arg < magic_number:
         arg += 1
+
+        # comment inside a while in the footer
+
     variable_list: list[int] = []
+
     magic_number_2 = 3
+
     magic_number_3 = 5
+
     for i in range(10):
+        # comment inside a for loop
+
         if i > magic_number_2 and i < magic_number_3:
             variable_list.pop(0)
+
         else:
             variable_list.append(i + 1)
+
+        # comment inside a for loop in the footer
+
     try:
+        # comment inside a try
+
         pass
+
+        # comment inside a try in the footer
     except AssertionError:
         print("assertion error")  # noqa: T201
+
     path = Path("non-existent/")
     function_first(path)
 
+    # comment inside a function in the footer
+
 
 variable_bottom = 2
+
+# this is a comment before the if __name__ block
+
 if __name__ == "__main__":
     main(1)

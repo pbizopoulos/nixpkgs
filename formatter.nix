@@ -47,6 +47,11 @@ let
           includes = [ "*.nix" ];
           priority = 0;
         };
+        canonicalize_python = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.canonicalize_python;
+          includes = [ "*.py" ];
+          priority = 0;
+        };
         check_repository_directory_structure = {
           command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
           includes = [ "flake.nix" ];
