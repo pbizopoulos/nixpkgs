@@ -86,6 +86,7 @@ let
           includes = [ "flake.nix" ];
           priority = 0;
         };
+        fantomas.excludes = [ "*.ml" ];
         mypy = {
           command = pkgs.mypy;
           includes = [ "*.py" ];
