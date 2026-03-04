@@ -69,13 +69,13 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
-        alphabetize-nix = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize-nix;
+        nix_alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.nix_alphabetize;
           includes = [ "*.nix" ];
           priority = 0;
         };
-        alphabetize_python = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize_python;
+        python_alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.python_alphabetize;
           includes = [ "*.py" ];
           priority = 0;
         };
@@ -92,8 +92,8 @@ let
           ];
         };
         biome.options = [ "--max-diagnostics=none" ];
-        check_repository_directory_structure = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
+        all_check_repository_directory_structure = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_check_repository_directory_structure;
           includes = [ "flake.nix" ];
           priority = 0;
         };
@@ -107,8 +107,8 @@ let
             "--strict"
           ];
         };
-        remove_empty_lines = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
+        all_remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_remove_empty_lines;
           includes = [ "*" ];
           priority = 0;
         };
@@ -133,8 +133,6 @@ let
       global.excludes = [
         "*/prm/**"
         "*/tmp/**"
-        "templates/packages/packages/ocaml/main.ml"
-        "templates/packages/packages/pandoc/main.md"
       ];
     };
   };
