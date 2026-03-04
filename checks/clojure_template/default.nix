@@ -1,15 +1,16 @@
 { pkgs, ... }:
 let
-  mockClojure = pkgs.writeShellScriptBin "clojure" ''
+  mockPackage = pkgs.writeShellScriptBin name ''
     if [ "$DEBUG" == "1" ]; then
       echo "test math ... ok"
     else
-      echo "Hello Clojure!"
+      echo "Hello ${name}!"
     fi
   '';
+  name = baseNameOf ./.;
 in
 pkgs.testers.runNixOSTest {
-  name = baseNameOf ./.;
-  nodes.machine.environment.systemPackages = [ mockClojure ];
-  testScript = ''machine.succeed("DEBUG=1 clojure")'';
+  inherit name;
+  nodes.machine.environment.systemPackages = [ mockPackage ];
+  testScript = ''machine.succeed("DEBUG=1 ${name}")'';
 }

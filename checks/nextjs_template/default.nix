@@ -4,12 +4,13 @@ let
     echo "Mock supabase called with: $@"
     exit 0
   '';
-  nextjs-mocked = inputs.self.packages.${pkgs.stdenv.system}.nextjs_template.override {
+  name = baseNameOf ./.;
+  nextjs-mocked = inputs.self.packages.${pkgs.stdenv.system}.${name}.override {
     supabase-cli = mockSupabase;
   };
 in
-pkgs.testers.runNixOSTest rec {
-  name = baseNameOf ./.;
+pkgs.testers.runNixOSTest {
+  inherit name;
   nodes.machine = {
     environment.systemPackages = [
       mockSupabase

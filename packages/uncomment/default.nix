@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [ pkgs.autoPatchelfHook ];
-  pname = "uncomment";
+  pname = baseNameOf ./.;
   sourceRoot = ".";
   src = pkgs.fetchurl {
     sha256 = "sha256-EuRPTjg30QpIVw6ANblMtk9Rfwdnu+eWpCxdfOXIyvc=";
