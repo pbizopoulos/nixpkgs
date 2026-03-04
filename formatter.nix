@@ -44,7 +44,6 @@ let
       odinfmt.enable = false;
       ormolu.enable = true;
       perltidy.enable = true;
-      php-cs-fixer.enable = false;
       prettier.enable = true;
       ruff-check = {
         enable = true;
@@ -74,18 +73,18 @@ let
           includes = [ "flake.nix" ];
           priority = 0;
         };
-        all_nix_alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_nix_alphabetize;
+        nix-alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
           includes = [ "*.nix" ];
           priority = 0;
         };
-        all_python_alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_python_alphabetize;
+        python_alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.python_alphabetize;
           includes = [ "*.py" ];
           priority = 0;
         };
-        all_remove_empty_lines = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_remove_empty_lines;
+        remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
           includes = [ "*" ];
           priority = 0;
         };

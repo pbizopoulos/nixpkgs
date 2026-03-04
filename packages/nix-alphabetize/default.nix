@@ -13,7 +13,7 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.text
   ];
   license = pkgs.lib.licenses.mit;
-  mainProgram = "all-nix-alphabetize";
+  mainProgram = pname;
   pname = baseNameOf src;
   src = ./.;
   version = "0.0.0";
