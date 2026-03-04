@@ -238,6 +238,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             ],
         ),
         (
+            r"packages/[^/]+/main\.go",
+            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/go\.mod"],
+        ),
+        (
             r"packages/[^/]+/main\.sh",
             vec![r"packages/[^/]+/default\.nix"],
         ),
