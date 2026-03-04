@@ -182,13 +182,27 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         (
             r"packages/[^/]+/package\.json",
             vec![
+                r"packages/[^/]+/\.dependency-cruiser\.cjs",
+                r"packages/[^/]+/\.env\.example",
+                r"packages/[^/]+/\.gitignore",
+                r"packages/[^/]+/\.jscpd\.json",
                 r"packages/[^/]+/app(/.*)?",
+                r"packages/[^/]+/components(/.*)?",
                 r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/lib(/.*)?",
                 r"packages/[^/]+/next\.config\.mjs",
+                r"packages/[^/]+/next\.config\.ts",
                 r"packages/[^/]+/package-lock\.json",
+                r"packages/[^/]+/playwright\.config\.ts",
                 r"packages/[^/]+/postcss\.config\.mjs",
+                r"packages/[^/]+/public(/.*)?",
+                r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/stryker\.config\.mjs",
+                r"packages/[^/]+/supabase(/.*)?",
                 r"packages/[^/]+/tailwind\.config\.ts",
+                r"packages/[^/]+/tests(/.*)?",
                 r"packages/[^/]+/tsconfig\.json",
+                r"packages/[^/]+/vitest\.config\.ts",
             ],
         ),
         (
@@ -225,6 +239,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         ),
         (
             r"packages/[^/]+/main\.sh",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.md",
             vec![r"packages/[^/]+/default\.nix"],
         ),
     ];
@@ -353,6 +371,29 @@ fn test_check_repository_directory_structure_standalone() {
     .unwrap();
     let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(result.is_err());
+    fs::remove_file(temp_dir.join("templates/my-template/packages/my-pkg/unallowed.txt")).unwrap();
+    fs::write(
+        temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
+        "test",
+    )
+    .unwrap();
+    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/tests")).unwrap();
+    fs::write(
+        temp_dir.join("templates/my-template/packages/my-pkg/tests/test.ts"),
+        "test",
+    )
+    .unwrap();
+    Command::new("git")
+        .args(["add", "templates"])
+        .current_dir(&temp_dir)
+        .output()
+        .unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(
+        result.is_ok(),
+        "Expected Ok for package.json tests, but got Err: {:?}",
+        result.err()
+    );
     fs::remove_dir_all(&temp_dir).unwrap();
     println!("test check_repository_directory_structure ... ok");
 }
