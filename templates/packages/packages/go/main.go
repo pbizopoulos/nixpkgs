@@ -1,5 +1,18 @@
 package main
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
+func runTests() {
+	if 1+1 != 2 {
+		panic("test math failed")
+	}
+	fmt.Println("test math ... ok")
+}
 func main() {
-	fmt.Println("Hello Nix!")
+	if os.Getenv("DEBUG") == "1" {
+		runTests()
+	} else {
+		fmt.Println("Hello Nix!")
+	}
 }
