@@ -7,8 +7,8 @@ use walkdir::WalkDir;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg()]
-    dir_names: Vec<String>,
+    #[arg(default_value = "flake.nix")]
+    flake_nix_path: String,
 }
 fn is_valid_fqdn(name: &str) -> bool {
     let re = Regex::new(r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$").unwrap();
@@ -21,11 +21,7 @@ fn is_dash_case(name: &str) -> bool {
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     let args = Args::parse();
-    let dir_name = args
-        .dir_names
-        .first()
-        .cloned()
-        .unwrap_or_else(|| ".".to_string());
+    let flake_nix_path = args.flake_nix_path;
     let lock_path = std::env::temp_dir().join("check_repository_directory_structure.lock");
     let lock_file = std::fs::OpenOptions::new()
         .read(true)
@@ -48,7 +44,7 @@ fn main() {
     if std::env::var("DEBUG").as_deref() == Ok("1") {
         run_tests();
     } else {
-        match check_repository_directory_structure(dir_name) {
+        match check_repository_directory_structure(flake_nix_path) {
             Ok(_) => {
                 std::fs::write(&lock_path, now.to_string()).unwrap();
                 std::process::exit(0)
@@ -60,9 +56,9 @@ fn main() {
         }
     }
 }
-fn check_repository_directory_structure(dir_name: String) -> Result<(), Vec<String>> {
+fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Vec<String>> {
     let mut warnings = Vec::new();
-    let dir_path = Path::new(&dir_name)
+    let dir_path = Path::new(&flake_nix_path)
         .canonicalize()
         .expect("Failed to canonicalize path");
     let repo = Repository::discover(&dir_path).expect("Not a git repository");
@@ -231,19 +227,17 @@ fn check_repository_directory_structure(dir_name: String) -> Result<(), Vec<Stri
             vec![r"packages/[^/]+/default\.nix"],
         ),
     ];
+    let prefix = r"(templates/[^/]+/)?";
     let compiled_names_allowed: Vec<Regex> = names_allowed
         .iter()
-        .map(|p| Regex::new(&format!("^{}$", p)).unwrap())
+        .map(|p| Regex::new(&format!("^{}{}$", prefix, p)).unwrap())
         .collect();
-    let compiled_file_dependencies: Vec<(Regex, Vec<Regex>)> = file_dependencies
+    let compiled_file_dependencies: Vec<(Regex, Vec<String>)> = file_dependencies
         .iter()
         .map(|(trigger, patterns)| {
             (
-                Regex::new(&format!("^{}$", trigger)).unwrap(),
-                patterns
-                    .iter()
-                    .map(|p| Regex::new(&format!("^{}$", p)).unwrap())
-                    .collect(),
+                Regex::new(&format!("^{}({})$", prefix, trigger)).unwrap(),
+                patterns.iter().map(|s| s.to_string()).collect(),
             )
         })
         .collect();
@@ -251,8 +245,12 @@ fn check_repository_directory_structure(dir_name: String) -> Result<(), Vec<Stri
     for path in &dir_and_file_names {
         let path_str = path.to_str().unwrap();
         for (trigger_re, deps) in &compiled_file_dependencies {
-            if trigger_re.is_match(path_str) {
-                allowed_patterns.extend(deps.clone());
+            if let Some(caps) = trigger_re.captures(path_str) {
+                let captured_prefix = caps.get(1).map_or("", |m| m.as_str());
+                for dep in deps {
+                    let full_dep = format!("^{}{}$", captured_prefix, dep);
+                    allowed_patterns.push(Regex::new(&full_dep).unwrap());
+                }
                 allowed_patterns.push(trigger_re.clone());
             }
         }
@@ -306,13 +304,13 @@ fn test_check_repository_directory_structure_standalone() {
         .current_dir(&temp_dir)
         .output()
         .unwrap();
-    fs::write(temp_dir.join("README"), "test").unwrap();
+    fs::write(temp_dir.join("flake.nix"), "test").unwrap();
     Command::new("git")
         .arg("add")
-        .arg("README")
+        .arg("flake.nix")
         .current_dir(&temp_dir)
         .output()
-        .expect("Failed to add README");
+        .expect("Failed to add flake.nix");
     Command::new("git")
         .arg("commit")
         .arg("-m")
@@ -320,14 +318,40 @@ fn test_check_repository_directory_structure_standalone() {
         .current_dir(&temp_dir)
         .output()
         .expect("Failed to commit");
-    let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
+    let flake_nix_path = temp_dir.join("flake.nix");
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(
         result.is_ok(),
         "Expected Ok, but got Err: {:?}",
         result.err()
     );
     fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-    let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(result.is_err());
+    fs::remove_file(temp_dir.join("unallowed.txt")).unwrap();
+    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg")).unwrap();
+    fs::write(
+        temp_dir.join("templates/my-template/packages/my-pkg/default.nix"),
+        "test",
+    )
+    .unwrap();
+    Command::new("git")
+        .args(["add", "templates"])
+        .current_dir(&temp_dir)
+        .output()
+        .unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(
+        result.is_ok(),
+        "Expected Ok for templates, but got Err: {:?}",
+        result.err()
+    );
+    fs::write(
+        temp_dir.join("templates/my-template/packages/my-pkg/unallowed.txt"),
+        "test",
+    )
+    .unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(result.is_err());
     fs::remove_dir_all(&temp_dir).unwrap();
     println!("test check_repository_directory_structure ... ok");
@@ -393,13 +417,13 @@ mod tests {
             .current_dir(&temp_dir)
             .output()
             .unwrap();
-        fs::write(temp_dir.join("README"), "test").unwrap();
+        fs::write(temp_dir.join("flake.nix"), "test").unwrap();
         Command::new("git")
             .arg("add")
-            .arg("README")
+            .arg("flake.nix")
             .current_dir(&temp_dir)
             .output()
-            .expect("Failed to add README");
+            .expect("Failed to add flake.nix");
         Command::new("git")
             .arg("commit")
             .arg("-m")
@@ -407,15 +431,37 @@ mod tests {
             .current_dir(&temp_dir)
             .output()
             .expect("Failed to commit");
-        let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(
             result.is_ok(),
             "Expected Ok, but got Err: {:?}",
             result.err()
         );
         fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-        let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
+        fs::remove_file(temp_dir.join("unallowed.txt")).unwrap();
+        fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg")).unwrap();
+        fs::write(
+            temp_dir.join("templates/my-template/packages/my-pkg/default.nix"),
+            "test",
+        )
+        .unwrap();
+        Command::new("git")
+            .args(["add", "templates"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for templates, but got Err: {:?}",
+            result.err()
+        );
         fs::remove_dir_all(&temp_dir).unwrap();
     }
 }
