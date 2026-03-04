@@ -15,10 +15,6 @@ pkgs.stdenv.mkDerivation rec {
       --pdf-engine=xelatex \
       -o $out/README.pdf
   '';
-  phases = [
-    "buildPhase"
-    "unpackPhase"
-  ];
   pname = builtins.baseNameOf src;
   src = ./.;
   version = "0.0.0";
