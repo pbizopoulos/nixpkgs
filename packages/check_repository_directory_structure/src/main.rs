@@ -71,9 +71,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     for entry in statuses.iter() {
         if entry.status().is_wt_new() {
             warnings.push(format!(
-                "{}/{}: is untracked",
-                working_dir.display(),
-                entry.path().unwrap()
+                "{}: is untracked",
+                working_dir.join(entry.path().unwrap()).display()
             ));
         }
     }
@@ -146,6 +145,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"prm(/.*)?",
         r"result",
         r"secrets(/.*)?",
+        r"spec\.json",
+        r"spec\.schema\.json",
     ];
     let file_dependencies = [
         (
@@ -262,9 +263,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         let name_str = name.to_str().unwrap();
         if !allowed_patterns.iter().any(|re| re.is_match(name_str)) {
             final_warnings.push(format!(
-                "{}/{}: is not allowed",
-                working_dir.display(),
-                name.display()
+                "{}: is not allowed",
+                working_dir.join(name).display()
             ));
         }
     }

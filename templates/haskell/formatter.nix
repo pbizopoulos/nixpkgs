@@ -20,10 +20,33 @@ let
       yamlfmt.enable = true;
     };
     projectRootFile = "flake.nix";
-    settings.global.excludes = [
-      "*/prm/**"
-      "*/tmp/**"
-    ];
+    settings = {
+      formatter = {
+        alphabetize-nix = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize-nix;
+          includes = [ "*.nix" ];
+          priority = 0;
+        };
+        check_repository_directory_structure = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
+          includes = [ "flake.nix" ];
+          priority = 0;
+        };
+        remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
+          includes = [ "*" ];
+          priority = 0;
+        };
+        uncomment = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
+          includes = [ "*" ];
+        };
+      };
+      global.excludes = [
+        "*/prm/**"
+        "*/tmp/**"
+      ];
+    };
   };
 in
 formatter

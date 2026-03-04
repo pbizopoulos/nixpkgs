@@ -4,6 +4,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:numtide/blueprint";
     };
+    canonicalization = {
+      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:pbizopoulos/canonicalization";
+    };
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     treefmt-nix = {
       inputs.nixpkgs.follows = "nixpkgs";
