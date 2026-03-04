@@ -5,8 +5,7 @@ pkgs.python312Packages.buildPythonPackage rec {
   installPhase = "mkdir -p $out/bin && cp ./main.py $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = builtins.baseNameOf src;
-  propagatedBuildInputs = [
-  ];
+  propagatedBuildInputs = [ ];
   pyproject = false;
   shellHook = ''
     cd $(git rev-parse --show-toplevel)/secrets || exit 1
