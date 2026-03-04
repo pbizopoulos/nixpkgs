@@ -15,6 +15,7 @@ let
         formatUnsafe = true;
       };
       clang-format.enable = true;
+      rufo.enable = true;
       deadnix.enable = true;
       hlint.enable = true;
       nixfmt = {

@@ -28,6 +28,7 @@ let
         extendSelect = [ "ALL" ];
       };
       ruff-format.enable = true;
+      rufo.enable = true;
       rustfmt.enable = true;
       shellcheck.enable = true;
       shfmt = {
