@@ -68,10 +68,33 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
-        all_check_repository_directory_structure = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_check_repository_directory_structure;
+        bibtex-tidy = {
+          command = pkgs.bibtex-tidy;
+          includes = [ "*.bib" ];
+          options = [
+            "--duplicates"
+            "--no-align"
+            "--no-wrap"
+            "--sort"
+            "--sort-fields"
+            "--v2"
+          ];
+        };
+        biome.options = [ "--max-diagnostics=none" ];
+        check_repository_directory_structure = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
           includes = [ "flake.nix" ];
           priority = 0;
+        };
+        mypy = {
+          command = pkgs.mypy;
+          includes = [ "*.py" ];
+          options = [
+            "--cache-dir=/tmp/.mypy_cache"
+            "--explicit-package-bases"
+            "--ignore-missing-imports"
+            "--strict"
+          ];
         };
         nix-alphabetize = {
           command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
@@ -87,29 +110,6 @@ let
           command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
           includes = [ "*" ];
           priority = 0;
-        };
-        bibtex-tidy = {
-          command = pkgs.bibtex-tidy;
-          includes = [ "*.bib" ];
-          options = [
-            "--duplicates"
-            "--no-align"
-            "--no-wrap"
-            "--sort"
-            "--sort-fields"
-            "--v2"
-          ];
-        };
-        biome.options = [ "--max-diagnostics=none" ];
-        mypy = {
-          command = pkgs.mypy;
-          includes = [ "*.py" ];
-          options = [
-            "--cache-dir=/tmp/.mypy_cache"
-            "--explicit-package-bases"
-            "--ignore-missing-imports"
-            "--strict"
-          ];
         };
         ruff-check.options = [
           "--cache-dir=/tmp/.ruff_cache"

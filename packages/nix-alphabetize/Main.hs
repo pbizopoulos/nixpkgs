@@ -1,8 +1,6 @@
 {-# LANGUAGE Trustworthy #-}
 {-# OPTIONS_GHC -Wno-unsafe #-}
-
 module Main (main) where
-
 import           Control.Monad             (unless, void)
 import           Data.Fix                  (Fix (Fix))
 import           Data.Function             (on)
@@ -38,10 +36,8 @@ import           System.IO.Temp            (withSystemTempFile)
 import           Test.HUnit                (Test (TestCase, TestList),
                                             assertEqual, assertFailure,
                                             runTestTT)
-
 noAlphabetizeTag :: Text
 noAlphabetizeTag = pack "# no-alphabetize"
-
 main :: IO ()
 main = do
   args <- getArgs
@@ -56,7 +52,6 @@ main = do
               Right expr -> writeFormattedFile filePath expr
         )
         args
-
 writeFormattedFile :: FilePath -> NExprLoc -> IO ()
 writeFormattedFile filePath expr = do
   fileContent <- readFile filePath
@@ -68,11 +63,9 @@ writeFormattedFile filePath expr = do
               prettyNix $
                 stripAnnotation sortedExpr
     writeFile filePath outputText
-
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
   renderStrict . layoutPretty defaultLayoutOptions . prettyNix . stripAnnotation
-
 sortExpression :: NExprLoc -> NExprLoc
 sortExpression (Fix (Compose (AnnUnit span exprF))) =
   Fix . Compose . AnnUnit span $ case exprF of
@@ -89,18 +82,15 @@ sortExpression (Fix (Compose (AnnUnit span exprF))) =
     NLet bindings body ->
       NLet (sortAndCollapseBindings bindings) (sortExpression body)
     otherExpr -> fmap sortExpression otherExpr
-
 getBindingName :: Binding r -> Text
 getBindingName (NamedVar (StaticKey (VarName keyText) :| _) _ _) = keyText
 getBindingName (NamedVar (DynamicKey (Plain (DoubleQuoted [Plain keyText])) :| _) _ _) = keyText
 getBindingName _ = empty
-
 sortAndCollapseBindings :: [Binding NExprLoc] -> [Binding NExprLoc]
 sortAndCollapseBindings =
   concatMap collapseNestedBindings
     . groupBy ((==) `on` getBindingName)
     . sortBy (comparing getBindingName)
-
 collapseNestedBindings :: [Binding NExprLoc] -> [Binding NExprLoc]
 collapseNestedBindings [] = []
 collapseNestedBindings bindings@(firstBinding : _) =
@@ -119,14 +109,12 @@ collapseNestedBindings bindings@(firstBinding : _) =
                   bindingPos
               ]
     _ -> map (fmap sortExpression) bindings
-
 nextLevelBindings :: Binding NExprLoc -> [Binding NExprLoc]
 nextLevelBindings (NamedVar (_ :| bindingKey : restKeys) valExpr bindingPos) =
   [NamedVar (bindingKey :| restKeys) valExpr bindingPos]
 nextLevelBindings (NamedVar (_ :| []) (Fix (Compose (AnnUnit _ (NSet _ nested)))) _) =
   nested
 nextLevelBindings _ = []
-
 makeFormattingTest :: String -> Text -> Text -> Test
 makeFormattingTest testName input expectedOutput = TestCase $ do
   withSystemTempFile "test.nix" $ \tmpFile tmpHandle -> do
@@ -140,7 +128,6 @@ makeFormattingTest testName input expectedOutput = TestCase $ do
         assertEqual testName expectedOutput formatted
       Left parseError ->
         assertFailure $ "Parse error in test '" ++ testName ++ "': " ++ show parseError
-
 getAllFormattingTests :: Test
 getAllFormattingTests =
   TestList

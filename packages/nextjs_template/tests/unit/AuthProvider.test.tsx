@@ -10,7 +10,6 @@ import {
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthProvider, useAuth } from "@/components/AuthProvider";
-
 vi.mock("@supabase/ssr", () => ({
   createBrowserClient: vi.fn(),
 }));

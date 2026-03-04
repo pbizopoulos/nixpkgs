@@ -7,7 +7,6 @@ public class Main {
       System.out.println("Hello Java!");
     }
   }
-
   private static void runTests() {
     if (1 + 1 != 2) {
       System.err.println("test math failed");

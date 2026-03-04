@@ -1,7 +1,6 @@
 import { cookies } from "next/headers";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createClient, getAuthenticatedUser } from "@/lib/supabase";
-
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn((url, key, options) => ({
     url,

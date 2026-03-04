@@ -3,7 +3,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { isValidUsername, SLUG_MAX_LENGTH } from "@/lib/validation";
 import { useAuth } from "./AuthProvider";
-
 interface AuthFormProps {
   onSuccess?: () => void;
 }

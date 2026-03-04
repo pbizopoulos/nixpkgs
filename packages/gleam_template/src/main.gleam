@@ -1,6 +1,5 @@
 import gleam/io
 import gleam/os
-
 pub fn main() {
   case os.get_env("DEBUG") {
     Ok("1") -> {

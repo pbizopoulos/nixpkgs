@@ -4,7 +4,6 @@
       (do
         (print "test math failed")
         (os.exit 1))))
-
 (if (= (os.getenv :DEBUG) :1)
     (run-tests)
     (print "Hello Fennel!"))
