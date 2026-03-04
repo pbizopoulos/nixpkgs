@@ -20,7 +20,11 @@ rustPlatform.buildRustPackage rec {
   pname = baseNameOf src;
   postInstall = ''
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.git ]}
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.git
+        ]
+      }
   '';
   src = ./.;
   version = "0.1.0";

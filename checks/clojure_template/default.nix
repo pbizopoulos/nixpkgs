@@ -12,5 +12,7 @@ in
 pkgs.testers.runNixOSTest {
   inherit name;
   nodes.machine.environment.systemPackages = [ mockPackage ];
-  testScript = ''machine.succeed("DEBUG=1 ${name}")'';
+  testScript = ''
+    machine.succeed("DEBUG=1 ${name}")
+  '';
 }

@@ -28,7 +28,9 @@ import           Prelude                   (Either (Left, Right), Eq ((==)),
                                             FilePath, IO, Show (show), String,
                                             concatMap, fst, map, mapM_, null,
                                             putStrLn, ($), (++), (.), (||))
-import           Prettyprinter             (defaultLayoutOptions, layoutPretty)
+import           Prettyprinter             (LayoutOptions (LayoutOptions),
+                                            PageWidth (AvailablePerLine),
+                                            layoutPretty)
 import           Prettyprinter.Render.Text (renderStrict)
 import           System.Environment        (getArgs)
 import           System.IO                 (hClose)
@@ -59,13 +61,13 @@ writeFormattedFile filePath expr = do
     let sortedExpr = sortExpression expr
         outputText =
           renderStrict $
-            layoutPretty defaultLayoutOptions $
+            layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) $
               prettyNix $
                 stripAnnotation sortedExpr
     writeFile filePath outputText
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
-  renderStrict . layoutPretty defaultLayoutOptions . prettyNix . stripAnnotation
+  renderStrict . layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) . prettyNix . stripAnnotation
 sortExpression :: NExprLoc -> NExprLoc
 sortExpression (Fix (Compose (AnnUnit span exprF))) =
   Fix . Compose . AnnUnit span $ case exprF of
@@ -134,39 +136,39 @@ getAllFormattingTests =
     [ makeFormattingTest
         "list sorting"
         (pack "[ \"c\" \"a\" \"b\" ]")
-        (pack "[ \"a\" \"b\" \"c\" ]"),
+        (pack "[\n  \"a\"\n  \"b\"\n  \"c\"\n]"),
       makeFormattingTest
         "parameter sorting"
         (pack "{ x = { z, x, y }: x + y + z; }")
-        (pack "{ x = { x, y, z }: x + y + z; }"),
+        (pack "{\n  x = { x\n    , y\n    , z }:\n    x + y + z;\n}"),
       makeFormattingTest
         "attribute set sorting"
         (pack "{ c = 1; a = 2; b = 3; }")
-        (pack "{ a = 2; b = 3; c = 1; }"),
+        (pack "{\n  a = 2;\n  b = 3;\n  c = 1;\n}"),
       makeFormattingTest
         "nested attribute set sorting"
         (pack "{ b = { z = 1; x = 2; }; a = 1; }")
-        (pack "{ a = 1; b = { x = 2; z = 1; }; }"),
+        (pack "{\n  a = 1;\n  b = {\n    x = 2;\n    z = 1;\n  };\n}"),
       makeFormattingTest
         "dotted list collapse"
         (pack "{ a = { b = [ \"c\" ]; }; }")
-        (pack "{ a.b = [ \"c\" ]; }"),
+        (pack "{\n  a.b = [\n    \"c\"\n  ];\n}"),
       makeFormattingTest
         "dotted nested collapse"
         (pack "{ b = { z = 1; }; a = 1; }")
-        (pack "{ a = 1; b.z = 1; }"),
+        (pack "{\n  a = 1;\n  b.z = 1;\n}"),
       makeFormattingTest
         "dotted attribute preservation"
         (pack "{ b.z = 1; a = 1; }")
-        (pack "{ a = 1; b.z = 1; }"),
+        (pack "{\n  a = 1;\n  b.z = 1;\n}"),
       makeFormattingTest
         "dotted to nested conversion"
         (pack "{ b.z = 1; b.x = 2; a = 1; }")
-        (pack "{ a = 1; b = { x = 2; z = 1; }; }"),
+        (pack "{\n  a = 1;\n  b = {\n    x = 2;\n    z = 1;\n  };\n}"),
       makeFormattingTest
         "multi-dotted to nested conversion"
         (pack "{ b.z.b = 1; b.z.a = 2; }")
-        (pack "{ b.z = { a = 2; b = 1; }; }"),
+        (pack "{\n  b.z = {\n    a = 2;\n    b = 1;\n  };\n}"),
       makeFormattingTest
         "no-alphabetize comment"
         (pack "# no-alphabetize\n{ a = [ \"c\" \"a\" ]; }")
@@ -174,17 +176,25 @@ getAllFormattingTests =
       makeFormattingTest
         "let expression sorting"
         (pack "let c = 1; a = 2; b = 3; in a + b + c")
-        (pack "let   a = 2; b = 3; c = 1; in a + b + c"),
+        (pack "let\n  a = 2;\n  b = 3;\n  c = 1;\nin a + b + c"),
       makeFormattingTest
         "let with nested set sorting"
         (pack "let c = { z = 1; x = 2; }; a = 1; in a + c.x + c.z")
-        (pack "let   a = 1; c = { x = 2; z = 1; }; in a + c.x + c.z"),
+        (pack "let\n  a = 1;\n  c = {\n    x = 2;\n    z = 1;\n  };\nin a + c.x + c.z"),
       makeFormattingTest
         "deep nested collapse"
         (pack "{ c = { z = { x = 2; }; }; }")
-        (pack "{ c.z.x = 2; }"),
+        (pack "{\n  c.z.x = 2;\n}"),
       makeFormattingTest
         "string key sorting"
         (pack "{ \"b\".val1 = 1; \"a\".val2 = 2; }")
-        (pack "{ \"a\".val2 = 2; \"b\".val1 = 1; }")
+        (pack "{\n  \"a\".val2 = 2;\n  \"b\".val1 = 1;\n}"),
+      makeFormattingTest
+        "multiline string preservation"
+        (pack "{ a = ''\n  line1\n  line2\n''; }")
+        (pack "{\n  a = ''\n    line1\n    line2\n    '';\n}"),
+      makeFormattingTest
+        "python template installPhase preservation"
+        (pack "{ installPhase = ''\nmkdir -p $out/bin\ncp ./main.py $out/bin/${pname}\n''; }")
+        (pack "{\n  installPhase = ''\n    mkdir -p $out/bin\n    cp ./main.py $out/bin/${pname}\n    '';\n}")
     ]

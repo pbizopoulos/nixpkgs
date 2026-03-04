@@ -2,7 +2,10 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.python312Packages.buildPythonPackage rec {
-  installPhase = "mkdir -p $out/bin && cp ./main.py $out/bin/${pname}";
+  installPhase = ''
+    mkdir -p $out/bin
+    cp ./main.py $out/bin/${pname}
+  '';
   meta.mainProgram = pname;
   pname = baseNameOf src;
   propagatedBuildInputs = [ ];
