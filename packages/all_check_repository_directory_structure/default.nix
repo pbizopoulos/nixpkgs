@@ -9,7 +9,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.openssl
     pkgs.zlib
   ];
-  cargoHash = "sha256-zv0jYne/uaSDuxf0m/3pSBeCNHCMp2VhAa+gOmS6KuU=";
+  cargoHash = "sha256-R3cJZIt3pbFznqQzl4dIlehqwPdeYyqN1yy8M6WftMc=";
   meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.git

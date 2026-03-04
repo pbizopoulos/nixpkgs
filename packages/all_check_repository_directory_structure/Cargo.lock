@@ -12,6 +12,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "all_check_repository_directory_structure"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "fd-lock",
+ "git2",
+ "regex",
+ "walkdir",
+]
+
+[[package]]
 name = "anstream"
 version = "0.6.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -84,17 +95,6 @@ name = "cfg-if"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9330f8b2ff13f34540b44e946ef35111825727b38d33286ef986142615121801"
-
-[[package]]
-name = "check_repository_directory_structure"
-version = "0.1.0"
-dependencies = [
- "clap",
- "fd-lock",
- "git2",
- "regex",
- "walkdir",
-]
 
 [[package]]
 name = "clap"
@@ -466,9 +466,9 @@ dependencies = [
 
 [[package]]
 name = "quote"
-version = "1.0.44"
+version = "1.0.45"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "21b2ebcf727b7760c461f091f9f0f539b77b8e87f2fd88131e7f1b433b3cece4"
+checksum = "41f2619966050689382d2b44f664f4bc593e129785a36d6ee376ddf37259b924"
 dependencies = [
  "proc-macro2",
 ]

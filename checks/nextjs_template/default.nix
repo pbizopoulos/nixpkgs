@@ -4,11 +4,11 @@ let
     echo "Mock supabase called with: $@"
     exit 0
   '';
-  nextjs-mocked = inputs.self.packages.${pkgs.stdenv.system}.nextjs.override {
+  nextjs-mocked = inputs.self.packages.${pkgs.stdenv.system}.nextjs_template.override {
     supabase-cli = mockSupabase;
   };
 in
-pkgs.testers.runNixOSTest {
+pkgs.testers.runNixOSTest rec {
   name = baseNameOf ./.;
   nodes.machine = {
     environment.systemPackages = [
@@ -20,8 +20,8 @@ pkgs.testers.runNixOSTest {
   };
   testScript = ''
     machine.wait_for_unit("docker.service")
-    machine.succeed("cp -r ${nextjs-mocked}/lib/node_modules/nextjs /tmp/nextjs")
-    machine.succeed("chmod -R +w /tmp/nextjs")
-    machine.succeed("cd /tmp/nextjs && PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers} npm run test:unit")
+    machine.succeed("cp -r ${nextjs-mocked}/lib/node_modules/${name} /tmp/${name}")
+    machine.succeed("chmod -R +w /tmp/${name}")
+    machine.succeed("cd /tmp/${name} && PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers} npm run test:unit")
   '';
 }
