@@ -13,6 +13,7 @@ jobs:
       - uses: actions/checkout@main
       - run: |
           nix flake check
+          nix flake check ./templates/packages/
   build-github-page:
     runs-on: ubuntu-latest
     steps:
