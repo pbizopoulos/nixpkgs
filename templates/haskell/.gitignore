@@ -1,0 +1,9 @@
+*.swp
+.coverage
+__pycache__/
+dist
+dist-electron
+node_modules
+release
+result
+tmp

@@ -10,6 +10,8 @@ let
     programs = {
       actionlint.enable = true;
       beautysh.enable = true;
+      biome.enable = true;
+      biome.formatUnsafe = true;
       clang-format.enable = true;
       deadnix.enable = true;
       hlint.enable = true;
@@ -18,6 +20,7 @@ let
         strict = true;
       };
       ormolu.enable = true;
+      prettier.enable = true;
       ruff-check = {
         enable = true;
         extendSelect = [ "ALL" ];
@@ -36,6 +39,7 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
+        biome.options = [ "--max-diagnostics=none" ];
         alphabetize-nix = {
           command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize-nix;
           includes = [ "*.nix" ];

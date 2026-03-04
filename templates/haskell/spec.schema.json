@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jsonschemas.com/pbizopoulos/pbizopoulos.github.io/spec.schema.json",
+  "title": "LLM-Actionable BDD Acceptance Criteria Specification",
+  "description": "The complete and authoritative source of truth for platform behavior, designed to be used as a direct input prompt for an LLM to generate or update corresponding code.",
+  "type": "object",
+  "required": [
+    "specification_principles",
+    "feature",
+    "software_requirements",
+    "initialization_command",
+    "verification_command",
+    "extra_allowed_commands",
+    "implementation_acceptance_criteria",
+    "behavior_acceptance_criteria"
+  ],
+  "additionalProperties": false,
+  "specificationGuidelines": [
+    "Complete and authoritative source of truth.",
+    "No undocumented behavior, architecture, UX, or technical assumptions.",
+    "Only explicitly specified behaviors and failure modes should be implemented.",
+    "Observable behavior must exactly satisfy the criteria (technology-agnostic)."
+  ],
+  "properties": {
+    "specification_principles": {
+      "title": "Specification Principles",
+      "description": "The operational context and principles for the implementation.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "const": [
+        "The codebase is a high-quality, BDD-verified implementation of the feature.",
+        "The implementation adheres strictly to this specification; no undocumented behavior or technical detail is present.",
+        "This JSON is the authoritative source of truth for the system's behavior and structure.",
+        "The initialization command provides a reproducible development environment.",
+        "The verification command ensures continuous compliance with all acceptance criteria.",
+        "Type safety, idiomatic patterns, and exhaustive test coverage are fundamental characteristics of the codebase.",
+        "The observable behavior is identical to the behavior_acceptance_criteria."
+      ]
+    },
+    "feature": {
+      "title": "Feature Name",
+      "description": "High-level name of the feature or behavior being specified.",
+      "type": "string",
+      "minLength": 1,
+      "examples": ["User Authentication", "Notes Management"]
+    },
+    "software_requirements": {
+      "title": "Software Requirements",
+      "description": "A list of software required to run and verify the codebase.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "initialization_command": {
+      "title": "Initialization Command",
+      "description": "The command that initializes the repository from a template.",
+      "type": "string",
+      "const": "nix flake init -t github:pbizopoulos/pbizopoulos.github.io#haskell"
+    },
+    "verification_command": {
+      "title": "Verification Command",
+      "description": "The command that continuously runs the verification process and ensures compliance with all acceptance criteria. The verification command should not output any warning/error from any of the commands.",
+      "type": "string",
+      "const": "DEBUG=1 nix run"
+    },
+    "extra_allowed_commands": {
+      "title": "Extra Allowed Commands",
+      "description": "A list of additional commands allowed for development and maintenance.",
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "implementation_acceptance_criteria": {
+      "title": "Implementation Acceptance Criteria",
+      "description": "Technical requirements that the implementation must satisfy, including test coverage.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    },
+    "behavior_acceptance_criteria": {
+      "title": "Behavior Acceptance Criteria",
+      "description": "A list of authoritative scenarios that define the complete observable behavior.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/behavior_scenario"
+      }
+    }
+  },
+  "examples": [
+    {
+      "$schema": "https://jsonschemas.com/pbizopoulos/pbizopoulos.github.io/spec.schema.json",
+      "specification_principles": [
+        "The codebase is a high-quality, BDD-verified implementation of the feature.",
+        "The implementation adheres strictly to this specification; no undocumented behavior or technical detail is present.",
+        "This JSON is the authoritative source of truth for the system's behavior and structure.",
+        "The initialization command provides a reproducible development environment.",
+        "The verification command ensures continuous compliance with all acceptance criteria.",
+        "Type safety, idiomatic patterns, and exhaustive test coverage are fundamental characteristics of the codebase.",
+        "The observable behavior is identical to the behavior_acceptance_criteria."
+      ],
+      "feature": "Hello World Haskell",
+      "software_requirements": ["nix", "git"],
+      "initialization_command": "nix flake init -t github:pbizopoulos/pbizopoulos.github.io#haskell",
+      "verification_command": "DEBUG=1 nix run",
+      "extra_allowed_commands": [
+        "nix build",
+        "nix run",
+        "nix develop",
+        "nix flake check",
+        "nix fmt"
+      ],
+      "implementation_acceptance_criteria": [
+        "The application should use HUnit for unit testing.",
+        "The application should use Nix for environment reproducibility.",
+        "The application should use Haskell for type safety.",
+        "The verification command should not output any warning/error from any of the commands."
+      ],
+      "behavior_acceptance_criteria": [
+        {
+          "name": "Standard Greeting",
+          "given": [
+            {
+              "type": "given",
+              "statement": "the application is compiled"
+            }
+          ],
+          "when": [
+            {
+              "type": "when",
+              "statement": "I run the application without arguments or environment variables"
+            }
+          ],
+          "then": [
+            {
+              "type": "then",
+              "statement": "the application output should be 'Hello, World!'"
+            }
+          ]
+        },
+        {
+          "name": "Test Execution",
+          "given": [
+            {
+              "type": "given",
+              "statement": "the application is compiled"
+            }
+          ],
+          "when": [
+            {
+              "type": "when",
+              "statement": "I run the application with the environment variable 'DEBUG=1'"
+            }
+          ],
+          "then": [
+            {
+              "type": "then",
+              "statement": "the application runs HUnit tests and exits with success if they pass"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "$defs": {
+    "behavior_scenario": {
+      "title": "Behavioral Scenario",
+      "description": "A single observable behavior defined by conditions, triggers, and outcomes.",
+      "type": "object",
+      "required": ["name", "given", "when", "then"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "title": "Scenario Name",
+          "description": "Descriptive name of the success or failure scenario.",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["Successful login", "Password mismatch error"]
+        },
+        "given": {
+          "title": "Givens",
+          "description": "Initial conditions and preconditions required for the scenario.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/clause"
+          }
+        },
+        "when": {
+          "title": "Thens",
+          "description": "Events and actions that trigger the scenario.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/clause"
+          }
+        },
+        "then": {
+          "title": "Thens",
+          "description": "Expected outcomes and observable changes in system state.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/clause"
+          }
+        }
+      }
+    },
+    "clause": {
+      "title": "Behavioral Clause",
+      "description": "A single atomic statement forming part of a BDD scenario.",
+      "type": "object",
+      "required": ["type", "statement"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "title": "Clause Type",
+          "description": "The logic role of the clause in the BDD structure.",
+          "type": "string",
+          "enum": ["given", "and", "but", "when", "then"]
+        },
+        "statement": {
+          "title": "Clause Statement",
+          "description": "The descriptive content of the behavior or condition.",
+          "type": "string",
+          "minLength": 1,
+          "examples": ["I am a visitor", "I click 'Publish'"]
+        }
+      }
+    }
+  }
+}
