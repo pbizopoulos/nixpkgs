@@ -5,7 +5,6 @@ func runTests() {
         print("test math failed")
     }
 }
-
 let args = CommandLine.arguments
 if args.contains("DEBUG=1") {
     runTests()

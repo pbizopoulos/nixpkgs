@@ -2,9 +2,7 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  buildPhase = ''
-    g++ -o ${pname} main.cpp -O3 -Wall -Wextra -Werror
-  '';
+  buildPhase = "g++ -o ${pname} main.cpp -O3 -Wall -Wextra -Werror";
   installPhase = ''
     mkdir -p $out/bin
     cp -f ${pname} $out/bin/

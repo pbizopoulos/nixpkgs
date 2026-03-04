@@ -7,7 +7,6 @@ object Main {
       sys.exit(1)
     }
   }
-
   def main(args: Array[String]): Unit = {
     val debug = sys.env.getOrElse("DEBUG", "0")
     if (debug == "1") {

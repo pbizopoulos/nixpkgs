@@ -6,7 +6,6 @@ function run_tests()
         exit(1)
     end
 end
-
 debug = get(ENV, "DEBUG", "0")
 if debug == "1"
     run_tests()

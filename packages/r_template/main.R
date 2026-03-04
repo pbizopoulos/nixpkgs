@@ -8,7 +8,6 @@ run_tests <- function() {
     quit(status = 1)
   }
 }
-
 debug <- Sys.getenv("DEBUG")
 if (debug == "1") {
   run_tests()

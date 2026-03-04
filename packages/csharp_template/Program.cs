@@ -1,5 +1,4 @@
 using System;
-
 class Program
 {
     static void RunTests()
@@ -14,7 +13,6 @@ class Program
             Environment.Exit(1);
         }
     }
-
     static void Main()
     {
         string debug = Environment.GetEnvironmentVariable("DEBUG");
