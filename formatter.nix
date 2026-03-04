@@ -35,6 +35,7 @@ let
         simplify = true;
       };
       statix.enable = true;
+      texfmt.enable = true;
       toml-sort.enable = true;
       yamlfmt.enable = true;
     };
@@ -50,6 +51,18 @@ let
           command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize_python;
           includes = [ "*.py" ];
           priority = 0;
+        };
+        bibtex-tidy = {
+          command = pkgs.bibtex-tidy;
+          includes = [ "*.bib" ];
+          options = [
+            "--duplicates"
+            "--no-align"
+            "--no-wrap"
+            "--sort"
+            "--sort-fields"
+            "--v2"
+          ];
         };
         biome.options = [ "--max-diagnostics=none" ];
         check_repository_directory_structure = {
@@ -84,6 +97,7 @@ let
           includes = [ "*.py" ];
           priority = 1;
         };
+        texfmt.options = [ "--nowrap" ];
         uncomment = {
           command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
           includes = [ "*" ];
