@@ -9,17 +9,33 @@ let
   treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
     programs = {
       actionlint.enable = true;
+      beautysh.enable = true;
+      biome = {
+        enable = true;
+        formatUnsafe = true;
+      };
+      clang-format.enable = true;
       deadnix.enable = true;
+      hlint.enable = true;
       nixfmt = {
         enable = true;
         strict = true;
       };
+      ormolu.enable = true;
+      prettier.enable = true;
       ruff-check = {
         enable = true;
         extendSelect = [ "ALL" ];
       };
       ruff-format.enable = true;
+      rustfmt.enable = true;
+      shellcheck.enable = true;
+      shfmt = {
+        enable = true;
+        simplify = true;
+      };
       statix.enable = true;
+      toml-sort.enable = true;
       yamlfmt.enable = true;
     };
     projectRootFile = "flake.nix";
@@ -35,6 +51,7 @@ let
           includes = [ "*.py" ];
           priority = 0;
         };
+        biome.options = [ "--max-diagnostics=none" ];
         check_repository_directory_structure = {
           command =
             inputs.canonicalization.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
@@ -61,6 +78,8 @@ let
           "--unsafe-fixes"
         ];
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
+        rustfmt.priority = 1;
+        shfmt.options = [ "--posix" ];
         ssort = {
           command = pkgs.python3Packages.ssort;
           includes = [ "*.py" ];

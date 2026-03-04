@@ -1,9 +1,9 @@
-name:                default
+name:                haskell
 version:             0.0.0
 synopsis:            Hello World Haskell
 cabal-version:       >=1.10
 build-type:          Simple
-executable default
+executable haskell
   main-is: Main.hs
   build-depends:
     HUnit,
