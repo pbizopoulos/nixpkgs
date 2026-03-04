@@ -9,8 +9,6 @@ use walkdir::WalkDir;
 struct Args {
     #[arg()]
     dir_names: Vec<String>,
-    #[arg(short, long)]
-    fix: bool,
 }
 fn is_valid_fqdn(name: &str) -> bool {
     let re = Regex::new(r"^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$").unwrap();
@@ -29,7 +27,7 @@ fn main() {
         .cloned()
         .unwrap_or_else(|| ".".to_string());
     let lock_path = std::env::temp_dir().join("check_repository_directory_structure.lock");
-    let mut lock_file = std::fs::OpenOptions::new()
+    let lock_file = std::fs::OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
@@ -50,7 +48,7 @@ fn main() {
     if std::env::var("DEBUG").as_deref() == Ok("1") {
         run_tests();
     } else {
-        match check_repository_directory_structure(dir_name, args.fix) {
+        match check_repository_directory_structure(dir_name) {
             Ok(_) => {
                 std::fs::write(&lock_path, now.to_string()).unwrap();
                 std::process::exit(0)
@@ -62,36 +60,25 @@ fn main() {
         }
     }
 }
-fn check_repository_directory_structure(dir_name: String, fix: bool) -> Result<(), Vec<String>> {
+fn check_repository_directory_structure(dir_name: String) -> Result<(), Vec<String>> {
     let mut warnings = Vec::new();
     let dir_path = Path::new(&dir_name)
         .canonicalize()
         .expect("Failed to canonicalize path");
     let repo = Repository::discover(&dir_path).expect("Not a git repository");
     let working_dir = repo.workdir().expect("No working directory for repository");
-    if fix {
-        let output = std::process::Command::new("git")
-            .args(["clean", "-df"])
-            .current_dir(working_dir)
-            .output()
-            .expect("Failed to execute git clean");
-        if !output.stdout.is_empty() {
-            print!("{}", String::from_utf8_lossy(&output.stdout));
-        }
-    } else {
-        let mut status_options = StatusOptions::new();
-        status_options.include_untracked(true);
-        let statuses = repo
-            .statuses(Some(&mut status_options))
-            .expect("Failed to get statuses");
-        for entry in statuses.iter() {
-            if entry.status().is_wt_new() {
-                warnings.push(format!(
-                    "{}/{}: is untracked",
-                    working_dir.display(),
-                    entry.path().unwrap()
-                ));
-            }
+    let mut status_options = StatusOptions::new();
+    status_options.include_untracked(true);
+    let statuses = repo
+        .statuses(Some(&mut status_options))
+        .expect("Failed to get statuses");
+    for entry in statuses.iter() {
+        if entry.status().is_wt_new() {
+            warnings.push(format!(
+                "{}/{}: is untracked",
+                working_dir.display(),
+                entry.path().unwrap()
+            ));
         }
     }
     let head = repo.head().expect("Failed to get HEAD");
@@ -276,21 +263,11 @@ fn check_repository_directory_structure(dir_name: String, fix: bool) -> Result<(
     for name in sorted_names {
         let name_str = name.to_str().unwrap();
         if !allowed_patterns.iter().any(|re| re.is_match(name_str)) {
-            if fix {
-                let full_path = working_dir.join(&name);
-                if full_path.is_file() {
-                    std::fs::remove_file(&full_path).unwrap();
-                } else if full_path.is_dir() {
-                    std::fs::remove_dir_all(&full_path).unwrap();
-                }
-                println!("{}/{}: removed", working_dir.display(), name.display());
-            } else {
-                final_warnings.push(format!(
-                    "{}/{}: is not allowed",
-                    working_dir.display(),
-                    name.display()
-                ));
-            }
+            final_warnings.push(format!(
+                "{}/{}: is not allowed",
+                working_dir.display(),
+                name.display()
+            ));
         }
     }
     if !final_warnings.is_empty() {
@@ -343,16 +320,14 @@ fn test_check_repository_directory_structure_standalone() {
         .current_dir(&temp_dir)
         .output()
         .expect("Failed to commit");
-    let result =
-        check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
+    let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
     assert!(
         result.is_ok(),
         "Expected Ok, but got Err: {:?}",
         result.err()
     );
     fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-    let result =
-        check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
+    let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
     assert!(result.is_err());
     fs::remove_dir_all(&temp_dir).unwrap();
     println!("test check_repository_directory_structure ... ok");
@@ -432,16 +407,14 @@ mod tests {
             .current_dir(&temp_dir)
             .output()
             .expect("Failed to commit");
-        let result =
-            check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
+        let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
         assert!(
             result.is_ok(),
             "Expected Ok, but got Err: {:?}",
             result.err()
         );
         fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-        let result =
-            check_repository_directory_structure(temp_dir.to_str().unwrap().to_string(), false);
+        let result = check_repository_directory_structure(temp_dir.to_str().unwrap().to_string());
         assert!(result.is_err());
         fs::remove_dir_all(&temp_dir).unwrap();
     }

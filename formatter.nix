@@ -49,7 +49,6 @@ let
         check_repository_directory_structure = {
           command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
           includes = [ "flake.nix" ];
-          options = [ "--fix" ];
           priority = 0;
         };
         mypy = {
