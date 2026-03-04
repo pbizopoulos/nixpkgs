@@ -7,7 +7,7 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.base
   ];
   executableToolDepends = [ pkgs.makeWrapper ];
-  pname = "vema";
+  pname = builtins.baseNameOf src;
   postInstall = ''
     wrapProgram $out/bin/${pname} --run "rm -f tmp/${pname}.tix" --set-default HPCTIXFILE tmp/${pname}.tix
   '';

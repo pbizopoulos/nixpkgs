@@ -16,6 +16,7 @@ let
       };
       rustfmt.enable = true;
       statix.enable = true;
+      toml-sort.enable = true;
       yamlfmt.enable = true;
     };
     projectRootFile = "flake.nix";
@@ -37,6 +38,7 @@ let
           includes = [ "*" ];
           priority = 0;
         };
+        rustfmt.priority = 1;
         uncomment = {
           command = inputs.canonicalization.packages.${pkgs.stdenv.system}.uncomment;
           includes = [ "*" ];

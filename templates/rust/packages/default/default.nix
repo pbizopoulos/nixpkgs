@@ -11,7 +11,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     rustPlatform.bindgenHook
   ];
-  pname = "rust";
+  pname = builtins.baseNameOf src;
   src = ./.;
   version = "0.1.0";
 }
