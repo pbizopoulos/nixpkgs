@@ -10,9 +10,10 @@ let
     programs = {
       actionlint.enable = true;
       beautysh.enable = true;
-      biome.enable = true;
-      biome.formatUnsafe = true;
-      clang-format.enable = true;
+      biome = {
+        enable = true;
+        formatUnsafe = true;
+      };
       deadnix.enable = true;
       hlint.enable = true;
       nixfmt = {
@@ -39,7 +40,6 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
-        biome.options = [ "--max-diagnostics=none" ];
         alphabetize-nix = {
           command = inputs.self.packages.${pkgs.stdenv.system}.alphabetize-nix;
           includes = [ "*.nix" ];
@@ -50,6 +50,7 @@ let
           includes = [ "*.py" ];
           priority = 0;
         };
+        biome.options = [ "--max-diagnostics=none" ];
         check_repository_directory_structure = {
           command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
           includes = [ "flake.nix" ];

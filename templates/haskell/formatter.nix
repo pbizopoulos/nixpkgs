@@ -20,12 +20,10 @@ let
       yamlfmt.enable = true;
     };
     projectRootFile = "flake.nix";
-    settings = {
-      global.excludes = [
-        "*/prm/**"
-        "*/tmp/**"
-      ];
-    };
+    settings.global.excludes = [
+      "*/prm/**"
+      "*/tmp/**"
+    ];
   };
 in
 formatter
