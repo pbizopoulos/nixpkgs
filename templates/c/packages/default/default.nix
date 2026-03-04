@@ -4,6 +4,7 @@
 pkgs.stdenv.mkDerivation rec {
   buildPhase = ''
     cc -o ${pname} main.c -O3 -std=c89 \
+    -Waggregate-return \
     -Waggressive-loop-optimizations \
     -Wall \
     -Walloc-zero \
@@ -85,6 +86,7 @@ pkgs.stdenv.mkDerivation rec {
     -Wswitch-enum \
     -Wswitch-unreachable \
     -Wsync-nand \
+    -Wtraditional-conversion \
     -Wtrampolines \
     -Wundef \
     -Wunreachable-code \
@@ -95,10 +97,8 @@ pkgs.stdenv.mkDerivation rec {
     -Wvarargs \
     -Wvector-operation-performance \
     -Wvla \
-    -Wwrite-strings
-    # -fanalyzer \
-    # -Waggregate-return \
-    # -Wtraditional-conversion
+    -Wwrite-strings \
+    -fanalyzer
   '';
   installPhase = ''
     mkdir -p $out/bin
