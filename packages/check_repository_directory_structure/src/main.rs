@@ -225,6 +225,41 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
+            r"packages/[^/]+/main\.cpp",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/Program\.cs",
+            vec![
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/[^/]+\.csproj",
+            ],
+        ),
+        (
+            r"packages/[^/]+/main\.kt",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.swift",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.js",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/Main\.scala",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.R",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.jl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
             r"packages/[^/]+/main\.erl",
             vec![r"packages/[^/]+/default\.nix"],
         ),
