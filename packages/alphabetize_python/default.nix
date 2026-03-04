@@ -8,7 +8,7 @@ pkgs.python313Packages.buildPythonPackage rec {
     cp -r ./prm/ $out/bin/
   '';
   meta.mainProgram = pname;
-  pname = builtins.baseNameOf src;
+  pname = baseNameOf src;
   propagatedBuildInputs = [
     pkgs.python313Packages.fire
     pkgs.python313Packages.libcst

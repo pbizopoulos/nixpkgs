@@ -14,7 +14,7 @@ pkgs.haskellPackages.mkDerivation rec {
   ];
   license = pkgs.lib.licenses.mit;
   mainProgram = "${pname}";
-  pname = builtins.baseNameOf src;
+  pname = baseNameOf src;
   src = ./.;
   version = "0.0.0";
 }

@@ -9,7 +9,7 @@ pkgs.rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
-  pname = builtins.baseNameOf src;
+  pname = baseNameOf src;
   src = ./.;
   version = "0.1.0";
 }

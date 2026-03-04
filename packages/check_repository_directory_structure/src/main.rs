@@ -135,6 +135,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"\.git(/.*)?",
         r"\.github/workflows/workflow\.yml",
         r"\.gitignore",
+        r"\.php-cs-fixer\.php",
         r"CITATION\.bib",
         r"LICENSE",
         r"README",
@@ -169,6 +170,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/result",
                 r"packages/[^/]+/tmp(/.*)?",
             ],
+        ),
+        (
+            r"packages/[^/]+/elm\.json",
+            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/src(/.*)?"],
         ),
         (
             r"packages/[^/]+/Cargo\.toml",
@@ -220,8 +225,86 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
+            r"packages/[^/]+/main\.erl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.exs",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.ml",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.php",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.d",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.nim",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.dhall",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.jsonnet",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/gleam\.toml",
+            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/src(/.*)?"],
+        ),
+        (
+            r"packages/[^/]+/main\.fnl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.pl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.dart",
+            vec![
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/pubspec\.yaml",
+            ],
+        ),
+        (
+            r"packages/[^/]+/src/main/java/Main\.java",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.cue",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
             r"packages/[^/]+/ms\.tex",
             vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/ms\.bib"],
+        ),
+        (
+            r"packages/[^/]+/build\.zig",
+            vec![
+                r"packages/[^/]+/build\.zig\.zon",
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/src(/.*)?",
+            ],
+        ),
+        (
+            r"packages/[^/]+/src/main/clojure/main\.clj",
+            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/deps\.edn"],
+        ),
+        (
+            r"packages/[^/]+/Program\.fs",
+            vec![
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/[^/]+\.fsproj",
+            ],
         ),
         (
             r"packages/[^/]+/Main\.hs",
@@ -245,6 +328,14 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         (
             r"packages/[^/]+/main\.go",
             vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/go\.mod"],
+        ),
+        (
+            r"packages/[^/]+/main\.lua",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.odin",
+            vec![r"packages/[^/]+/default\.nix"],
         ),
         (
             r"packages/[^/]+/main\.sh",

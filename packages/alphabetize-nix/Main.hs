@@ -1,59 +1,41 @@
 {-# LANGUAGE Trustworthy #-}
 {-# OPTIONS_GHC -Wno-unsafe #-}
 module Main (main) where
-import Control.Monad (unless, void)
-import Data.Fix (Fix (Fix))
-import Data.Function (on)
-import Data.Functor (Functor (fmap))
-import Data.Functor.Compose (Compose (Compose))
-import Data.List (groupBy, sortBy)
-import Data.List.NonEmpty (NonEmpty ((:|)))
-import Data.Ord (comparing)
-import Data.Text (Text, empty, isInfixOf, pack)
-import Data.Text.IO (readFile, writeFile)
-import Nix.Expr.Types
-  ( Antiquoted (Plain),
-    Binding (NamedVar),
-    NExprF (NAbs, NLet, NList, NSet),
-    NKeyName (DynamicKey, StaticKey),
-    NString (DoubleQuoted),
-    Params (ParamSet),
-    Recursivity (NonRecursive),
-    VarName (VarName),
-  )
-import Nix.Expr.Types.Annotated
-  ( AnnUnit (AnnUnit),
-    NExprLoc,
-    SrcSpan (SrcSpan),
-    stripAnnotation,
-  )
-import Nix.Parser (parseNixFileLoc)
-import Nix.Pretty (prettyNix)
-import Nix.Utils (Path (Path))
-import Prettyprinter (defaultLayoutOptions, layoutPretty)
-import Prettyprinter.Render.Text (renderStrict)
-import System.Environment (getArgs)
-import System.IO (hClose)
-import System.IO.Temp (withSystemTempFile)
-import Test.HUnit (Test (TestCase, TestList), assertEqual, assertFailure, runTestTT)
-import Prelude
-  ( Either (Left, Right),
-    Eq ((==)),
-    FilePath,
-    IO,
-    Show (show),
-    String,
-    concatMap,
-    fst,
-    map,
-    mapM_,
-    null,
-    putStrLn,
-    ($),
-    (++),
-    (.),
-    (||),
-  )
+import           Control.Monad             (unless, void)
+import           Data.Fix                  (Fix (Fix))
+import           Data.Function             (on)
+import           Data.Functor              (Functor (fmap))
+import           Data.Functor.Compose      (Compose (Compose))
+import           Data.List                 (groupBy, sortBy)
+import           Data.List.NonEmpty        (NonEmpty ((:|)))
+import           Data.Ord                  (comparing)
+import           Data.Text                 (Text, empty, isInfixOf, pack)
+import           Data.Text.IO              (readFile, writeFile)
+import           Nix.Expr.Types            (Antiquoted (Plain),
+                                            Binding (NamedVar),
+                                            NExprF (NAbs, NLet, NList, NSet),
+                                            NKeyName (DynamicKey, StaticKey),
+                                            NString (DoubleQuoted),
+                                            Params (ParamSet),
+                                            Recursivity (NonRecursive),
+                                            VarName (VarName))
+import           Nix.Expr.Types.Annotated  (AnnUnit (AnnUnit), NExprLoc,
+                                            SrcSpan (SrcSpan), stripAnnotation)
+import           Nix.Parser                (parseNixFileLoc)
+import           Nix.Pretty                (prettyNix)
+import           Nix.Utils                 (Path (Path))
+import           Prelude                   (Either (Left, Right), Eq ((==)),
+                                            FilePath, IO, Show (show), String,
+                                            concatMap, fst, map, mapM_, null,
+                                            putStrLn, ($), (++), (.), (||))
+import           Prettyprinter             (defaultLayoutOptions, layoutPretty)
+import           Prettyprinter.Render.Text (renderStrict)
+import           System.Environment        (getArgs)
+import           System.IO                 (hClose)
+import           System.IO.Temp            (withSystemTempFile)
+import           Test.HUnit                (Test (TestCase, TestList),
+                                            assertEqual, assertFailure,
+                                            runTestTT)
 noAlphabetizeTag :: Text
 noAlphabetizeTag = pack "# no-alphabetize"
 main :: IO ()

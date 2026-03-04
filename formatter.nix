@@ -15,20 +15,43 @@ let
         formatUnsafe = true;
       };
       clang-format.enable = true;
-      rufo.enable = true;
+      cljfmt.enable = true;
+      cue.enable = true;
+      dart-format.enable = true;
       deadnix.enable = true;
+      dfmt.enable = true;
+      dhall.enable = true;
+      elm-format.enable = true;
+      erlfmt.enable = true;
+      fantomas.enable = true;
+      fnlfmt.enable = true;
+      gleam.enable = true;
+      gofmt.enable = true;
+      google-java-format.enable = true;
       hlint.enable = true;
+      jsonnet-lint.enable = true;
+      jsonnetfmt.enable = true;
+      mdformat.enable = true;
+      mdsh.enable = true;
+      mix-format.enable = true;
+      nimpretty.enable = true;
+      nixf-diagnose.enable = true;
       nixfmt = {
         enable = true;
         strict = true;
       };
+      ocamlformat.enable = true;
+      odinfmt.enable = false;
       ormolu.enable = true;
+      perltidy.enable = true;
+      php-cs-fixer.enable = true;
       prettier.enable = true;
       ruff-check = {
         enable = true;
         extendSelect = [ "ALL" ];
       };
       ruff-format.enable = true;
+      rufo.enable = true;
       rustfmt.enable = true;
       shellcheck.enable = true;
       shfmt = {
@@ -36,9 +59,12 @@ let
         simplify = true;
       };
       statix.enable = true;
+      stylish-haskell.enable = true;
+      stylua.enable = true;
       texfmt.enable = true;
       toml-sort.enable = true;
       yamlfmt.enable = true;
+      zig.enable = true;
     };
     projectRootFile = "flake.nix";
     settings = {
@@ -107,6 +133,8 @@ let
       global.excludes = [
         "*/prm/**"
         "*/tmp/**"
+        "templates/packages/packages/ocaml/main.ml"
+        "templates/packages/packages/pandoc/main.md"
       ];
     };
   };

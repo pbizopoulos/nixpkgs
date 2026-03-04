@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     rustPlatform.bindgenHook
   ];
-  pname = builtins.baseNameOf src;
+  pname = baseNameOf src;
   postInstall = ''
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.git ]}

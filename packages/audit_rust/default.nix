@@ -27,7 +27,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.makeWrapper
     pkgs.pkg-config
   ];
-  pname = builtins.baseNameOf src;
+  pname = baseNameOf src;
   postInstall = ''
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${pkgs.lib.makeBinPath auditing-tools} \
