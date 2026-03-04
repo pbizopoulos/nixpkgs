@@ -4,10 +4,7 @@
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.ocaml ];
   buildPhase = "ocamlc -o ${pname} main.ml";
-  installPhase = ''
-    mkdir -p $out/bin
-    cp ${pname} $out/bin/
-  '';
+  installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
   pname = baseNameOf src;
   src = ./.;
   version = "0.0.0";
