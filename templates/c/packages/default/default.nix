@@ -3,7 +3,7 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildPhase = ''
-    cc -o ${pname} main.c -O3 -std=c89 -lxcb -lxcb-keysyms \
+    cc -o ${pname} main.c -O3 -std=c89 \
     -Waggressive-loop-optimizations \
     -Wall \
     -Walloc-zero \
@@ -106,11 +106,6 @@ pkgs.stdenv.mkDerivation rec {
     chmod 755 $out/bin/${pname}
   '';
   meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.libX11
-    pkgs.libxcb
-    pkgs.xcbutilkeysyms
-  ];
   pname = builtins.baseNameOf src;
   src = ./.;
   version = "0.0.0";
