@@ -1,10 +1,11 @@
 {
   pkgs ? import <nixpkgs> { },
+  supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.buildNpmPackage rec {
   buildInputs = [
     pkgs.nodejs
-    pkgs.supabase-cli
+    supabase-cli
   ];
   env = {
     NEXT_PUBLIC_SUPABASE_ANON_KEY = "build-placeholder";
@@ -22,7 +23,7 @@ pkgs.buildNpmPackage rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
-          pkgs.supabase-cli
+          supabase-cli
         ]
       }
     runHook postInstall
@@ -30,7 +31,7 @@ pkgs.buildNpmPackage rec {
   nativeBuildInputs = [
     pkgs.makeWrapper
     pkgs.openssl
-    pkgs.supabase-cli
+    supabase-cli
   ];
   npmDepsHash = "sha256-KG3LBerWYS0/Lp6ZKNa8lCmKAlOB0OeDv4oDjozc7Y8=";
   pname = "nextjs";
