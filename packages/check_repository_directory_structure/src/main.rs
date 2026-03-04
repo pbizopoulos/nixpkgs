@@ -197,6 +197,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/postcss\.config\.mjs",
                 r"packages/[^/]+/public(/.*)?",
                 r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/src(/.*)?",
                 r"packages/[^/]+/stryker\.config\.mjs",
                 r"packages/[^/]+/supabase(/.*)?",
                 r"packages/[^/]+/tailwind\.config\.ts",
