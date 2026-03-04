@@ -5,6 +5,7 @@ import localFont from "next/font/local";
 import AuthModal from "@/components/AuthModal";
 import { AuthProvider } from "@/components/AuthProvider";
 import Header from "@/components/Header";
+
 const inter = localFont({
   src: "./fonts/Inter.ttf",
   variable: "--font-inter",

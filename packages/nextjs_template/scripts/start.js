@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { unlinkSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const packageRoot = join(__dirname, "..");
 const nextBin = join(packageRoot, "node_modules/.bin/next");

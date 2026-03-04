@@ -9,6 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { useAuth } from "@/components/AuthProvider";
 import Header from "@/components/Header";
 import { suppressNavigationWarnings } from "./test-utils";
+
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
 }));

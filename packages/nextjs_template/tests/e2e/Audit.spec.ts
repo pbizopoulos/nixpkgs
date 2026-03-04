@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 test.describe("Lighthouse-style Performance Audits", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");

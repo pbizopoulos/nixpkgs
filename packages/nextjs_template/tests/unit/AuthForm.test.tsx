@@ -10,6 +10,7 @@ import * as navigation from "next/navigation";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AuthForm from "@/components/AuthForm";
 import * as authProvider from "@/components/AuthProvider";
+
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(),
   useSearchParams: vi.fn(),

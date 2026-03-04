@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import UserProfilePage from "@/app/[username]/page";
+
 vi.mock("@/lib/supabase", () => ({
   createClient: vi.fn(() =>
     Promise.resolve({

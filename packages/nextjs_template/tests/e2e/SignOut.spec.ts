@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { signUpAndLogin } from "./Helpers";
+
 test.describe("Sign Out", () => {
   test("should sign out and return to anonymous state", async ({ page }) => {
     await signUpAndLogin(page);

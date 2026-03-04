@@ -9,6 +9,7 @@ import * as navigation from "next/navigation";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import AuthModal from "@/components/AuthModal";
 import * as authProvider from "@/components/AuthProvider";
+
 vi.mock("next/navigation", () => ({
   useRouter: vi.fn(() => ({
     push: vi.fn(),

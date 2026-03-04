@@ -44,7 +44,7 @@ let
       odinfmt.enable = false;
       ormolu.enable = true;
       perltidy.enable = true;
-      php-cs-fixer.enable = true;
+      php-cs-fixer.enable = false;
       prettier.enable = true;
       ruff-check = {
         enable = true;
@@ -69,14 +69,24 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
-        nix_alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.nix_alphabetize;
+        all_check_repository_directory_structure = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_check_repository_directory_structure;
+          includes = [ "flake.nix" ];
+          priority = 0;
+        };
+        all_nix_alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_nix_alphabetize;
           includes = [ "*.nix" ];
           priority = 0;
         };
-        python_alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.python_alphabetize;
+        all_python_alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_python_alphabetize;
           includes = [ "*.py" ];
+          priority = 0;
+        };
+        all_remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.all_remove_empty_lines;
+          includes = [ "*" ];
           priority = 0;
         };
         bibtex-tidy = {
@@ -92,11 +102,6 @@ let
           ];
         };
         biome.options = [ "--max-diagnostics=none" ];
-        all_check_repository_directory_structure = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_check_repository_directory_structure;
-          includes = [ "flake.nix" ];
-          priority = 0;
-        };
         mypy = {
           command = pkgs.mypy;
           includes = [ "*.py" ];
@@ -106,11 +111,6 @@ let
             "--ignore-missing-imports"
             "--strict"
           ];
-        };
-        all_remove_empty_lines = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.all_remove_empty_lines;
-          includes = [ "*" ];
-          priority = 0;
         };
         ruff-check.options = [
           "--cache-dir=/tmp/.ruff_cache"

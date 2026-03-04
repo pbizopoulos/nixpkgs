@@ -2,6 +2,7 @@
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
+
 type Profile = {
   username: string | null;
 };

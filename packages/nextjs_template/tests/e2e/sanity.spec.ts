@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 test("sanity check", async ({ page }) => {
   console.log("Navigating to root...");
   await page.goto("/");

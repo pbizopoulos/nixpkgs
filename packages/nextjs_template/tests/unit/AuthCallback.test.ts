@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { GET } from "@/app/auth/callback/route";
+
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
 }));

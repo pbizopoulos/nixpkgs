@@ -2,7 +2,9 @@
 {-# LANGUAGE Trustworthy #-}
 {-# OPTIONS_GHC -Wno-safe #-}
 {-# OPTIONS_GHC -Wno-trustworthy-safe #-}
+
 module Main (main) where
+
 import           Control.Monad      (unless)
 import           Prelude            (IO, Int, Maybe (Just), putStrLn, ($), (+),
                                      (==), (>>=))
@@ -11,11 +13,13 @@ import           System.Exit        (exitFailure)
 import           Test.HUnit         (Counts (errors, failures),
                                      Test (TestCase, TestList), assertEqual,
                                      runTestTT, (~:))
+
 main :: IO ()
 main =
   lookupEnv "DEBUG" >>= \case
     Just "1" -> runTests
     _ -> putStrLn "Hello, World!"
+
 runTests :: IO ()
 runTests = do
   counts <- runTestTT tests

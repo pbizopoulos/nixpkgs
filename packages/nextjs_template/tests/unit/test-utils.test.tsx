@@ -5,6 +5,7 @@ import {
   mockUseAuth,
   suppressNavigationWarnings,
 } from "./test-utils";
+
 describe("test-utils", () => {
   it("should test mockUseAuth", () => {
     const auth = mockUseAuth({ user: { id: "custom" } as any });

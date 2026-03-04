@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { isValidUsername } from "@/lib/validation";
+
 describe("isValidUsername", () => {
   it("should return false for empty string", () => {
     expect(isValidUsername("")).toBe(false);
