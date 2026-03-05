@@ -9,7 +9,7 @@ pkgs.stdenv.mkDerivation rec {
     cp ${pname}.jar $out/share/kotlin/
     mkdir -p $out/bin
     makeWrapper ${pkgs.jre}/bin/java $out/bin/${pname} \
-      --add-flags "-jar $out/share/kotlin/${pname}.jar"
+      --add-flags "-cp $out/share/kotlin/${pname}.jar MainKt"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
   pname = baseNameOf src;

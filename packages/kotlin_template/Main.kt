@@ -13,5 +13,7 @@ fun main() {
         runTests()
     } else {
         println("Hello Kotlin!")
+        val data = mapOf("message" to "Hello, world!", "language" to "Kotlin")
+        println(data)
     }
 }

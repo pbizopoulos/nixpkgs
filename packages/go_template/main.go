@@ -1,5 +1,6 @@
 package main
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 )
@@ -14,5 +15,8 @@ func main() {
 		runTests()
 	} else {
 		fmt.Println("Hello Nix!")
+		data := map[string]string{"message": "Hello, world!", "language": "Go"}
+		b, _ := json.Marshal(data)
+		fmt.Println(string(b))
 	}
 }

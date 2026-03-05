@@ -12,4 +12,6 @@ if (debug === "1") {
   runTests();
 } else {
   console.log("Hello JavaScript!");
+  const data = { message: "Hello, world!", language: "JavaScript" };
+  console.log(JSON.stringify(data));
 }

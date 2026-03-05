@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Python."""
 
+import json
 import os
 
 
@@ -15,6 +16,8 @@ def main() -> None:
         run_tests()
     else:
         print("Hello world!")  # noqa: T201
+        data = {"message": "Hello, world!", "language": "Python"}
+        print(json.dumps(data))
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
+CSharpier
+build
+node_modules
 result
 target/
 tmp/
-build
-CSharpier

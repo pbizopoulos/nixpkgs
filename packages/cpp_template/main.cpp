@@ -1,6 +1,8 @@
 #include <cassert>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <string>
+using json = nlohmann::json;
 void run_tests() {
   assert(1 + 1 == 2);
   std::cout << "test ... ok" << std::endl;
@@ -11,6 +13,8 @@ int main() {
     run_tests();
   } else {
     std::cout << "Hello C++!" << std::endl;
+    json data = {{"message", "Hello, world!"}, {"language", "C++"}};
+    std::cout << data.dump() << std::endl;
   }
   return 0;
 }

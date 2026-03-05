@@ -12,6 +12,8 @@ defmodule Main do
       run_tests()
     else
       IO.puts("Hello Elixir!")
+      data = %{message: "Hello, world!", language: "Elixir"}
+      IO.inspect(data)
     end
   end
 end

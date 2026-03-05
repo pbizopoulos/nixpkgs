@@ -11,6 +11,8 @@ function main(): void {
     runTests();
   } else {
     console.log("Hello TypeScript!");
+    const data = { message: "Hello, world!", language: "TypeScript" };
+    console.log(JSON.stringify(data));
   }
 }
 main();

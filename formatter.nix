@@ -211,6 +211,7 @@ let
         };
       };
       global.excludes = [
+        "**/node_modules/**"
         "*/prm/**"
         "*/tmp/**"
       ];

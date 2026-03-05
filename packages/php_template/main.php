@@ -14,4 +14,7 @@ if (getenv("DEBUG") === "1") {
 } else {
     echo "Hello PHP!
 ";
+    $data = ["message" => "Hello, world!", "language" => "PHP"];
+    echo json_encode($data) . "
+";
 }

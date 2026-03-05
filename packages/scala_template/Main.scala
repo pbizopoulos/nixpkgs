@@ -13,6 +13,8 @@ object Main {
       runTests()
     } else {
       println("Hello Scala!")
+      val data = Map("message" -> "Hello, world!", "language" -> "Scala")
+      println(data)
     }
   }
 }

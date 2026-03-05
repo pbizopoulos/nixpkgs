@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 class Program
 {
     static void RunTests()
@@ -23,6 +24,8 @@ class Program
         else
         {
             Console.WriteLine("Hello C#!");
+            var data = new { message = "Hello, world!", language = "C#" };
+            Console.WriteLine(JsonSerializer.Serialize(data));
         }
     }
 }

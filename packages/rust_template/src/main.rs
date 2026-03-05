@@ -3,6 +3,7 @@ fn main() {
         run_tests();
     } else {
         println!("Hello, world!");
+        println!("{{\"message\": \"Hello, world!\", \"language\": \"Rust\"}}");
     }
 }
 fn run_tests() {

@@ -3,7 +3,7 @@
 }:
 pkgs.rustPlatform.buildRustPackage rec {
   buildInputs = [ ];
-  cargoHash = "sha256-K98EVmRNfxSGbd3j6Gb6A2sozFBTQfUPsgBqPqs8i/Q=";
+  cargoHash = "sha256-pIzuccdlBZUzjmD+niZPbLu/Brh6xHx6uXkM6/vgMSA=";
   nativeBuildInputs = [
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
