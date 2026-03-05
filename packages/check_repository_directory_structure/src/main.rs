@@ -444,6 +444,50 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             r"packages/[^/]+/main\.coffee",
             vec![r"packages/[^/]+/default\.nix"],
         ),
+        (
+            r"packages/[^/]+/main\.xml",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.proto",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.graphql",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.m",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.tcl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.cr",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.raku",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.wat",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.hcl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/Main\.purs",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.idr",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
     ];
     let prefix = r"(templates/[^/]+/)?";
     let compiled_names_allowed: Vec<Regex> = names_allowed
