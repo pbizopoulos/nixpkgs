@@ -11,9 +11,10 @@ pkgs.stdenv.mkDerivation rec {
         cat <<'EOF' > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "$DEBUG" == "1" ]; then
-      echo "test ... ok"
+      # Meaningful test: validate TOML syntax
+      ${pkgs.yq}/bin/yq . ${./.}/main.toml > /dev/null && echo "test ... ok"
     else
-      yq -r .message ${./.}/main.toml
+      ${pkgs.yq}/bin/yq -r .message ${./.}/main.toml
     fi
     EOF
         chmod 755 $out/bin/${pname}

@@ -11,9 +11,10 @@ pkgs.stdenv.mkDerivation rec {
         cat <<'EOF' > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "$DEBUG" == "1" ]; then
-      echo "test ... ok"
+      # Meaningful test: validate YAML syntax
+      ${pkgs.yq}/bin/yq . ${./.}/main.yaml > /dev/null && echo "test ... ok"
     else
-      yq -r .message ${./.}/main.yaml
+      ${pkgs.yq}/bin/yq -r .message ${./.}/main.yaml
     fi
     EOF
         chmod 755 $out/bin/${pname}

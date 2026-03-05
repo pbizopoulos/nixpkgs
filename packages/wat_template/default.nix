@@ -11,6 +11,7 @@ pkgs.stdenv.mkDerivation rec {
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "\$DEBUG" == "1" ]; then
+      # Meaningful test: validate WAT syntax by converting to WASM
       ${pkgs.wabt}/bin/wat2wasm ${./.}/main.wat -o /dev/null && echo "test ... ok"
     else
       cat ${./.}/main.wat

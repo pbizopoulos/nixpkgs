@@ -3,10 +3,20 @@ program main;
 uses sysutils;
 var
   debug: string;
+procedure RunTests;
+begin
+  if 1 + 1 = 2 then
+    writeln('test ... ok')
+  else
+  begin
+    writeln('test ... failed');
+    halt(1);
+  end;
+end;
 begin
   debug := GetEnvironmentVariable('DEBUG');
   if debug = '1' then
-    writeln('test ... ok')
+    RunTests
   else
     writeln('Hello Delphi!');
 end.

@@ -8,12 +8,13 @@ pkgs.stdenv.mkDerivation rec {
   ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      echo "test ... ok"
+    if [ "\$DEBUG" == "1" ]; then
+      # Meaningful test: validate JSON syntax
+      ${pkgs.jq}/bin/jq . ${./.}/main.json > /dev/null && echo "test ... ok"
     else
-      jq -r .message ${./.}/main.json
+      ${pkgs.jq}/bin/jq -r .message ${./.}/main.json
     fi
     EOF
         chmod 755 $out/bin/${pname}

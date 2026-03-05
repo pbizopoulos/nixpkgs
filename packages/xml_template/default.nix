@@ -11,7 +11,13 @@ pkgs.stdenv.mkDerivation rec {
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "\$DEBUG" == "1" ]; then
-      ${pkgs.libxml2}/bin/xmllint ${./.}/main.xml > /dev/null && echo "test ... ok"
+      # Functional test: check if output is correct
+      if [ "\$(${pkgs.libxml2}/bin/xmllint --xpath 'string(/message)' ${./.}/main.xml)" == "Hello XML!" ]; then
+        echo "test ... ok"
+      else
+        echo "test ... failed"
+        exit 1
+      fi
     else
       ${pkgs.libxml2}/bin/xmllint --xpath "string(/message)" ${./.}/main.xml
     fi

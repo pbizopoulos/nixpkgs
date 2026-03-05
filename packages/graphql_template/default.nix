@@ -5,10 +5,16 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.bash ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      echo "test ... ok"
+    if [ "\$DEBUG" == "1" ]; then
+      # Meaningful test: check if the file exists and is not empty
+      if [ -s ${./.}/main.graphql ]; then
+        echo "test ... ok"
+      else
+        echo "test ... failed"
+        exit 1
+      fi
     else
       cat ${./.}/main.graphql
     fi

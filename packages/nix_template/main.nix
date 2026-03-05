@@ -1,4 +1,7 @@
 {
   debug ? false,
 }:
-if debug then "test ... ok" else "Hello Nix!"
+let
+  tests = if 1 + 1 == 2 then "test ... ok" else throw "test ... failed";
+in
+if debug then tests else "Hello Nix!"

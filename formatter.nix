@@ -102,6 +102,14 @@ let
           includes = [ "*.nix" ];
           priority = 0;
         };
+        protoc = {
+          command = "${pkgs.protobuf}/bin/protoc";
+          includes = [ "*.proto" ];
+          options = [
+            "--descriptor_set_out=/dev/null"
+            "--include_imports"
+          ];
+        };
         python_alphabetize = {
           command = inputs.self.packages.${pkgs.stdenv.system}.python_alphabetize;
           includes = [ "*.py" ];
@@ -128,6 +136,19 @@ let
         uncomment = {
           command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
           includes = [ "*" ];
+        };
+        wat2wasm = {
+          command = "${pkgs.wabt}/bin/wat2wasm";
+          includes = [ "*.wat" ];
+          options = [
+            "-o"
+            "/dev/null"
+          ];
+        };
+        xmllint = {
+          command = "${pkgs.libxml2}/bin/xmllint";
+          includes = [ "*.xml" ];
+          options = [ "--noout" ];
         };
       };
       global.excludes = [

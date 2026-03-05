@@ -8,7 +8,13 @@ pkgs.stdenv.mkDerivation rec {
         cat <<'EOF' > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "$DEBUG" == "1" ]; then
-      echo "test ... ok"
+      # Meaningful test: check if file is not empty
+      if [ -s ${./.}/main.md ]; then
+        echo "test ... ok"
+      else
+        echo "test ... failed"
+        exit 1
+      fi
     else
       cat ${./.}/main.md
     fi
