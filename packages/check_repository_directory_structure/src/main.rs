@@ -158,6 +158,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![
                 r"hosts/[^/]+/\.opentofu(/.*)?",
                 r"hosts/[^/]+/\.opentofu\.lock\.hcl",
+                r"hosts/[^/]+/\.terraform(/.*)?",
                 r"hosts/[^/]+/\.terraform\.lock\.hcl",
                 r"hosts/[^/]+/deploy-requirements\.sh",
                 r"hosts/[^/]+/deploy\.sh",
@@ -715,6 +716,8 @@ fn test_check_repository_directory_structure_standalone() {
     );
     fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
     fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+    fs::create_dir_all(temp_dir.join("hosts/my-host/.terraform")).unwrap();
+    fs::write(temp_dir.join("hosts/my-host/.terraform/test"), "test").unwrap();
     fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
     Command::new("git")
         .args(["add", "hosts"])
@@ -838,6 +841,8 @@ mod tests {
         );
         fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
         fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+        fs::create_dir_all(temp_dir.join("hosts/my-host/.terraform")).unwrap();
+        fs::write(temp_dir.join("hosts/my-host/.terraform/test"), "test").unwrap();
         fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
         Command::new("git")
             .args(["add", "hosts"])
