@@ -31,9 +31,9 @@ import           Nix.Utils                 (Path (Path))
 import           Prelude                   (Bool, Either (Left, Right),
                                             Eq ((==)), FilePath, IO,
                                             Show (show), String, any, concatMap,
-                                            drop, fst, map, mapM_, max, null,
-                                            putStrLn, take, ($), (++), (-), (.),
-                                            (<>), (||))
+                                            drop, fst, map, mapM_, max, not,
+                                            null, putStrLn, take, ($), (++),
+                                            (-), (.), (<>), (||))
 import           Prettyprinter             (LayoutOptions (LayoutOptions),
                                             PageWidth (AvailablePerLine),
                                             layoutPretty)
@@ -75,8 +75,7 @@ writeFormattedFile filePath expr = do
                 stripAnnotation sortedExpr
         finalText =
           T.replace (pack "\"" <> sentinelTag <> pack "\"") (pack "# no-alphabetize") $
-            T.replace (sentinelTag <> pack " = \"\";") (pack "# no-alphabetize") $
-              T.replace (sentinelTag <> pack " = \"\";") (pack "# no-alphabetize") outputText
+            T.replace (sentinelTag <> pack " = \"\";") (pack "# no-alphabetize") outputText
     writeFile filePath finalText
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
@@ -85,7 +84,7 @@ isNoAlphabetizeInRange :: Text -> SrcSpan -> Bool
 isNoAlphabetizeInRange fileContent (SrcSpan (NSourcePos _ (NPos bl) _) _) =
   let blInt = unPos bl
       ls = T.lines fileContent
-      checkLines = take 2 . drop (max 0 (blInt - 2)) $ ls
+      checkLines = take (if blInt == 1 then 2 else 3) . drop (max 0 (blInt - 2)) $ ls
    in any (noAlphabetizeTag `T.isInfixOf`) checkLines
 sortExpression :: Text -> NExprLoc -> NExprLoc
 sortExpression fileContent (Fix (Compose (AnnUnit span exprF))) =
@@ -135,7 +134,7 @@ collapseNestedBindings _ [] = []
 collapseNestedBindings fileContent bindings@(firstBinding : _) =
   case firstBinding of
     NamedVar (bindingKey :| _) _ bindingPos ->
-      let nestedBindings = concatMap nextLevelBindings bindings
+      let nestedBindings = concatMap (nextLevelBindings fileContent) bindings
           sortedNested = sortAndCollapseBindings fileContent nestedBindings
        in case sortedNested of
             [] -> map (fmap (sortExpression fileContent)) bindings
@@ -148,12 +147,12 @@ collapseNestedBindings fileContent bindings@(firstBinding : _) =
                   bindingPos
               ]
     _ -> map (fmap (sortExpression fileContent)) bindings
-nextLevelBindings :: Binding NExprLoc -> [Binding NExprLoc]
-nextLevelBindings (NamedVar (_ :| bindingKey : restKeys) valExpr bindingPos) =
+nextLevelBindings :: Text -> Binding NExprLoc -> [Binding NExprLoc]
+nextLevelBindings _ (NamedVar (_ :| bindingKey : restKeys) valExpr bindingPos) =
   [NamedVar (bindingKey :| restKeys) valExpr bindingPos]
-nextLevelBindings (NamedVar (_ :| []) (Fix (Compose (AnnUnit _ (NSet _ nested)))) _) =
-  nested
-nextLevelBindings _ = []
+nextLevelBindings fileContent (NamedVar (_ :| []) (Fix (Compose (AnnUnit span (NSet _ nested)))) _)
+  | not (isNoAlphabetizeInRange fileContent span) = nested
+nextLevelBindings _ _ = []
 makeFormattingTest :: String -> Text -> Text -> Test
 makeFormattingTest testName input expectedOutput = TestCase $ do
   withSystemTempFile "test.nix" $ \tmpFile tmpHandle -> do
@@ -241,5 +240,9 @@ getAllFormattingTests =
       makeFormattingTest
         "inline no-alphabetize set"
         (pack "{\n  a = { c = 2; a = 1; };\n\n  # no-alphabetize\n  b = {\n    c = 2;\n    a = 1;\n  };\n}")
-        (pack "{\n  a = {\n    a = 1;\n    c = 2;\n  };\n  b = {\n    # no-alphabetize\n    c = 2;\n    a = 1;\n  };\n}")
+        (pack "{\n  a = {\n    a = 1;\n    c = 2;\n  };\n  b = {\n    # no-alphabetize\n    c = 2;\n    a = 1;\n  };\n}"),
+      makeFormattingTest
+        "nested no-alphabetize set preservation"
+        (pack "{\n  b = {\n    # no-alphabetize\n    z = 1;\n    a = 2;\n  };\n  a = 1;\n}")
+        (pack "{\n  a = 1;\n  b = {\n    # no-alphabetize\n    z = 1;\n    a = 2;\n  };\n}")
     ]
