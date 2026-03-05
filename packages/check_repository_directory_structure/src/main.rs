@@ -158,6 +158,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![
                 r"hosts/[^/]+/\.opentofu(/.*)?",
                 r"hosts/[^/]+/\.opentofu\.lock\.hcl",
+                r"hosts/[^/]+/\.terraform\.lock\.hcl",
                 r"hosts/[^/]+/deploy-requirements\.sh",
                 r"hosts/[^/]+/deploy\.sh",
                 r"hosts/[^/]+/hardware-configuration\.nix",
@@ -712,6 +713,20 @@ fn test_check_repository_directory_structure_standalone() {
         "Expected Ok for package.json tests, but got Err: {:?}",
         result.err()
     );
+    fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
+    fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+    fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
+    Command::new("git")
+        .args(["add", "hosts"])
+        .current_dir(&temp_dir)
+        .output()
+        .unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(
+        result.is_ok(),
+        "Expected Ok for hosts/configuration.nix and .terraform.lock.hcl, but got Err: {:?}",
+        result.err()
+    );
     fs::remove_dir_all(&temp_dir).unwrap();
     println!("test check_repository_directory_structure ... ok");
 }
@@ -819,6 +834,21 @@ mod tests {
         assert!(
             result.is_ok(),
             "Expected Ok for templates, but got Err: {:?}",
+            result.err()
+        );
+        fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
+        fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+        fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
+        Command::new("git")
+            .args(["add", "hosts"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for hosts/configuration.nix and .terraform.lock.hcl, but got Err: {:?}",
             result.err()
         );
         fs::remove_dir_all(&temp_dir).unwrap();
