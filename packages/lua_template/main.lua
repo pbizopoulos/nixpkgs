@@ -3,7 +3,7 @@ local function run_tests()
 	if 1 + 1 ~= 2 then
 		error("test math failed")
 	end
-	print("test math ... ok")
+	print("test ... ok")
 end
 local debug = os.getenv("DEBUG")
 if debug == "1" then

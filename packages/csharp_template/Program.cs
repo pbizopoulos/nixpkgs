@@ -5,7 +5,7 @@ class Program
     {
         if (1 + 1 == 2)
         {
-            Console.WriteLine("test math ... ok");
+            Console.WriteLine("test ... ok");
         }
         else
         {

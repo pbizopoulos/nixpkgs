@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
     if [ "\$DEBUG" == "1" ]; then
-      echo "test math ... ok"
+      echo "test ... ok"
     else
       echo "Hello Gleam!"
     fi

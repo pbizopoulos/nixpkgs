@@ -1,7 +1,7 @@
 function runTests() {
   // biome-ignore lint/correctness/noConstantCondition: template
   if (1 + 1 === 2) {
-    console.log("test math ... ok");
+    console.log("test ... ok");
   } else {
     console.log("test math failed");
     process.exit(1);

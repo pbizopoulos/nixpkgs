@@ -153,8 +153,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         (
             r"hosts/[^/]+/configuration\.nix",
             vec![
-                r"hosts/[^/]+/\.terraform(/.*)?",
-                r"hosts/[^/]+/\.terraform\.lock\.hcl",
+                r"hosts/[^/]+/\.opentofu(/.*)?",
+                r"hosts/[^/]+/\.opentofu\.lock\.hcl",
                 r"hosts/[^/]+/deploy-requirements\.sh",
                 r"hosts/[^/]+/deploy\.sh",
                 r"hosts/[^/]+/hardware-configuration\.nix",
@@ -445,6 +445,14 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
+            r"packages/[^/]+/main\.cr",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.tcl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
             r"packages/[^/]+/main\.xml",
             vec![r"packages/[^/]+/default\.nix"],
         ),
@@ -457,18 +465,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
-            r"packages/[^/]+/main\.m",
-            vec![r"packages/[^/]+/default\.nix"],
-        ),
-        (
-            r"packages/[^/]+/main\.tcl",
-            vec![r"packages/[^/]+/default\.nix"],
-        ),
-        (
-            r"packages/[^/]+/main\.cr",
-            vec![r"packages/[^/]+/default\.nix"],
-        ),
-        (
             r"packages/[^/]+/main\.raku",
             vec![r"packages/[^/]+/default\.nix"],
         ),
@@ -477,11 +473,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
-            r"packages/[^/]+/main\.hcl",
-            vec![r"packages/[^/]+/default\.nix"],
-        ),
-        (
-            r"packages/[^/]+/Main\.purs",
+            r"packages/[^/]+/main\.tf",
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (

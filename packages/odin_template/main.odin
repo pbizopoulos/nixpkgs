@@ -6,7 +6,7 @@ run_tests :: proc() {
 		fmt.println("test math failed")
 		os.exit(1)
 	}
-	fmt.println("test math ... ok")
+	fmt.println("test ... ok")
 }
 main :: proc() {
 	debug, _ := os.lookup_env("DEBUG")

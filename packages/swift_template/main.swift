@@ -1,6 +1,6 @@
 func runTests() {
     if 1 + 1 == 2 {
-        print("test math ... ok")
+        print("test ... ok")
     } else {
         print("test math failed")
     }

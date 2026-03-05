@@ -7,7 +7,7 @@ func runTests() {
 	if 1+1 != 2 {
 		panic("test math failed")
 	}
-	fmt.Println("test math ... ok")
+	fmt.Println("test ... ok")
 }
 func main() {
 	if os.Getenv("DEBUG") == "1" {

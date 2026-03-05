@@ -5,7 +5,7 @@
 void run_tests(void);
 void run_tests(void) {
   assert(1 + 1 == 2);
-  printf("test math ... ok\n");
+  printf("test ... ok\n");
 }
 int main(void) {
   const char *debug = getenv("DEBUG");

@@ -7,7 +7,7 @@ sub run_tests {
 ";
         exit 1;
     }
-    print "test math ... ok
+    print "test ... ok
 ";
 }
 if ( ( $ENV{DEBUG} // "" ) eq "1" ) {

@@ -4,7 +4,7 @@ let runTests () =
         printfn "test math failed"
         exit 1
     else
-        printfn "test math ... ok"
+        printfn "test ... ok"
 [<EntryPoint>]
 let main argv =
     let debug = Environment.GetEnvironmentVariable("DEBUG")

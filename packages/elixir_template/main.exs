@@ -1,7 +1,7 @@
 defmodule Main do
   def run_tests do
     if 1 + 1 == 2 do
-      IO.puts("test math ... ok")
+      IO.puts("test ... ok")
     else
       IO.puts("test math failed")
       System.halt(1)

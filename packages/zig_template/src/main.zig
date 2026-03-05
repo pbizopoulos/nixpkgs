@@ -3,7 +3,7 @@ fn runTests() void {
     if (1 + 1 != 2) {
         @panic("test math failed");
     }
-    std.debug.print("test math ... ok\n", .{});
+    std.debug.print("test ... ok\n", .{});
 }
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};

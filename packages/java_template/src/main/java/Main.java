@@ -12,6 +12,6 @@ public class Main {
       System.err.println("test math failed");
       System.exit(1);
     }
-    System.out.println("test math ... ok");
+    System.out.println("test ... ok");
   }
 }

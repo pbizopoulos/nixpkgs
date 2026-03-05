@@ -1,6 +1,6 @@
 (fn run-tests []
   (if (= (+ 1 1) 2)
-      (print "test math ... ok")
+      (print "test ... ok")
       (do
         (print "test math failed")
         (os.exit 1))))

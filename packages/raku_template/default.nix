@@ -5,9 +5,9 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.rakudo ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    raku ${./.}/main.raku
+    ${pkgs.rakudo}/bin/raku ${./.}/main.raku
     EOF
         chmod 755 $out/bin/${pname}
   '';

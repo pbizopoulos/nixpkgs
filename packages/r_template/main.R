@@ -1,6 +1,6 @@
 run_tests <- function() {
   if (1 + 1 == 2) {
-    cat("test math ... ok
+    cat("test ... ok
 ")
   } else {
     cat("test math failed

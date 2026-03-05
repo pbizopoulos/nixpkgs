@@ -6,7 +6,7 @@ var
 begin
   debug := GetEnvironmentVariable('DEBUG');
   if debug = '1' then
-    writeln('test math ... ok')
+    writeln('test ... ok')
   else
     writeln('Hello Delphi!');
 end.

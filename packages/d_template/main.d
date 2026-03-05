@@ -8,7 +8,7 @@ void runTests()
         import core.stdc.stdlib : exit;
         exit(1);
     }
-    writeln("test math ... ok");
+    writeln("test ... ok");
 }
 void main()
 {

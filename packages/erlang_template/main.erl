@@ -9,7 +9,7 @@ main(_) ->
 run_tests() ->
     case 1 + 1 of
         2 ->
-            io:format("test math ... ok~n");
+            io:format("test ... ok~n");
         _ ->
             io:format("test math failed~n"),
             halt(1)

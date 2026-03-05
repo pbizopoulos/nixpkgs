@@ -1,6 +1,6 @@
 (defun main ()
   (let ((debug (sb-ext:posix-getenv "DEBUG")))
     (if (and debug (string= debug "1"))
-        (format t "test math ... ok~%")
+        (format t "test ... ok~%")
         (format t "Hello Common Lisp!~%"))))
 (main)

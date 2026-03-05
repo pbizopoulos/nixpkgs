@@ -2,7 +2,7 @@
   (:gen-class))
 (defn run-tests []
   (if (= (+ 1 1) 2)
-    (println "test math ... ok")
+    (println "test ... ok")
     (do
       (println "test math failed")
       (System/exit 1))))

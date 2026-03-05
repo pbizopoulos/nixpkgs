@@ -15,7 +15,7 @@ fn test_hello_world() {
 }
 fn test_math() {
     assert!(2 * 3 == 6);
-    println!("test math ... ok");
+    println!("test ... ok");
 }
 #[cfg(test)]
 mod tests {

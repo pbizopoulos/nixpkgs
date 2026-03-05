@@ -1,4 +1,4 @@
 {
   debug ? false,
 }:
-if debug then "test math ... ok" else "Hello Nix!"
+if debug then "test ... ok" else "Hello Nix!"

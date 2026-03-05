@@ -1,6 +1,6 @@
 def runTests() {
     if (1 + 1 == 2) {
-        println "test math ... ok"
+        println "test ... ok"
     } else {
         println "test math failed"
         System.exit(1)

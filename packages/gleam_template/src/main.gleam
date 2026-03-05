@@ -4,7 +4,7 @@ pub fn main() {
   case os.get_env("DEBUG") {
     Ok("1") -> {
       case 1 + 1 == 2 {
-        True -> io.println("test math ... ok")
+        True -> io.println("test ... ok")
         False -> {
           io.println("test math failed")
           os.exit(1)

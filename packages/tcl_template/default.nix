@@ -5,9 +5,9 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.tcl ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    tclsh ${./.}/main.tcl
+    ${pkgs.tcl}/bin/tclsh ${./.}/main.tcl
     EOF
         chmod 755 $out/bin/${pname}
   '';

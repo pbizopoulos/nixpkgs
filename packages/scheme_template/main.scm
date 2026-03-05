@@ -1,5 +1,5 @@
 (use-modules (ice-9 match))
 (define debug (getenv "DEBUG"))
 (if (equal? debug "1")
-    (display "test math ... ok\n")
+    (display "test ... ok\n")
     (display "Hello Scheme!\n"))

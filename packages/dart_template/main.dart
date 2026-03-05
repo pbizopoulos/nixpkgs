@@ -4,7 +4,7 @@ void runTests() {
     stderr.writeln('test math failed');
     exit(1);
   }
-  print('test math ... ok');
+  print('test ... ok');
 }
 void main() {
   if (Platform.environment['DEBUG'] == '1') {

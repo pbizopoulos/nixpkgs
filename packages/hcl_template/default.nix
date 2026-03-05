@@ -4,16 +4,17 @@
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.bash
-    pkgs.terraform
+    pkgs.opentofu
   ];
   installPhase = ''
-        mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        mkdir -p $out/bin $out/share
+        cp main.tf $out/share/main.tf
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      terraform fmt -check ${./.}/main.hcl > /dev/null && echo "test math ... ok"
+    if [ "\$DEBUG" == "1" ]; then
+      ${pkgs.opentofu}/bin/tofu fmt -check $out/share/main.tf > /dev/null && echo "test ... ok"
     else
-      cat ${./.}/main.hcl
+      cat $out/share/main.tf
     fi
     EOF
         chmod 755 $out/bin/${pname}

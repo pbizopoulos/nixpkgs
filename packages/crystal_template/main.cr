@@ -1,6 +1,6 @@
 debug = ENV["DEBUG"]?
 if debug == "1"
-  puts "test math ... ok"
+  puts "test ... ok"
 else
   puts "Hello Crystal!"
 end

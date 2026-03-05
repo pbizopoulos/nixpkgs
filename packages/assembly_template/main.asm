@@ -1,7 +1,7 @@
 section .data
     hello db 'Hello Assembly!', 0xA
     hello_len equ $ - hello
-    ok_msg db 'test math ... ok', 0xA
+    ok_msg db 'test ... ok', 0xA
     ok_len equ $ - ok_msg
     debug_key db 'DEBUG=1', 0
 section .text

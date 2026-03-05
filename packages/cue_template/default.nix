@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation rec {
     if [ "\$DEBUG" == "1" ]; then
       # Use a temporary file to avoid 'no packages matched' error
       echo "x: 1 + 1" > /tmp/test.cue
-      ${pkgs.cue}/bin/cue eval /tmp/test.cue | grep -q 'x: 2' && echo "test math ... ok" || (echo "test math failed"; exit 1)
+      ${pkgs.cue}/bin/cue eval /tmp/test.cue | grep -q 'x: 2' && echo "test ... ok" || (echo "test math failed"; exit 1)
       rm /tmp/test.cue
     else
       ${pkgs.cue}/bin/cue export --out text $out/lib/cue/main.cue

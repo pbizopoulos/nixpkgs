@@ -4,7 +4,7 @@ function runTests(): void {
   if (x + y !== 2) {
     throw new Error("test math failed");
   }
-  console.log("test math ... ok");
+  console.log("test ... ok");
 }
 function main(): void {
   if (process.env.DEBUG === "1") {

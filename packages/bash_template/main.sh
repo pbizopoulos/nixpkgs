@@ -4,7 +4,7 @@ run_tests() {
     echo "test math failed"
     exit 1
   fi
-  echo "test math ... ok"
+  echo "test ... ok"
 }
 if [ "$DEBUG" == "1" ]; then
   run_tests

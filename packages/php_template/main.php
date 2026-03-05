@@ -6,7 +6,7 @@ function run_tests()
 ";
         exit(1);
     }
-    echo "test math ... ok
+    echo "test ... ok
 ";
 }
 if (getenv("DEBUG") === "1") {

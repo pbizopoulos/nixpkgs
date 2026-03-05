@@ -1,6 +1,6 @@
 let run_tests () =
     if 1 + 1 = 2 then
-        print_endline "test math ... ok"
+        print_endline "test ... ok"
     else
         (print_endline "test math failed";
          exit 1)

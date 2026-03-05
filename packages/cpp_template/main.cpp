@@ -3,7 +3,7 @@
 #include <string>
 void run_tests() {
   assert(1 + 1 == 2);
-  std::cout << "test math ... ok" << std::endl;
+  std::cout << "test ... ok" << std::endl;
 }
 int main() {
   const char *debug = std::getenv("DEBUG");

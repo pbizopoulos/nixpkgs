@@ -8,12 +8,12 @@ pkgs.stdenv.mkDerivation rec {
   ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      xmllint ${./.}/main.xml > /dev/null && echo "test math ... ok"
+    if [ "\$DEBUG" == "1" ]; then
+      ${pkgs.libxml2}/bin/xmllint ${./.}/main.xml > /dev/null && echo "test ... ok"
     else
-      xmllint --xpath "string(/message)" ${./.}/main.xml
+      ${pkgs.libxml2}/bin/xmllint --xpath "string(/message)" ${./.}/main.xml
     fi
     EOF
         chmod 755 $out/bin/${pname}
