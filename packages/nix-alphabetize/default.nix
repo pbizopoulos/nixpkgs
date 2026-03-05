@@ -8,6 +8,7 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.base
     pkgs.haskellPackages.data-fix
     pkgs.haskellPackages.hnix
+    pkgs.haskellPackages.megaparsec
     pkgs.haskellPackages.prettyprinter
     pkgs.haskellPackages.temporary
     pkgs.haskellPackages.text
