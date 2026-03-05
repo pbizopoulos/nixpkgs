@@ -1,0 +1,2 @@
+(prinl "Hello, Picolisp!")
+(bye)

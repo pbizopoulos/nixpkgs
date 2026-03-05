@@ -1,0 +1,20 @@
+{ pkgs ? import <nixpkgs> { }
+,
+}:
+pkgs.stdenv.mkDerivation rec {
+  buildPhase = ''
+    marst main.al -o main.c
+    cc main.c -lalgol -lm -o ${pname}
+  '';
+  installPhase = ''
+    mkdir -p $out/bin
+    cp ${pname} $out/bin/
+  '';
+  nativeBuildInputs = [
+    pkgs.marst
+    pkgs.gcc
+  ];
+  pname = baseNameOf src;
+  src = ./.;
+  version = "0.0.0";
+}

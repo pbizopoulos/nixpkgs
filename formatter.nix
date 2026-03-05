@@ -214,6 +214,7 @@ let
         "**/node_modules/**"
         "*/prm/**"
         "*/tmp/**"
+        "packages/prolog_template/main.pl"
       ];
     };
   };
