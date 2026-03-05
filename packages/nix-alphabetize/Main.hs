@@ -1,5 +1,4 @@
-{-# LANGUAGE ImportQualifiedPost #-}
-{-# LANGUAGE Trustworthy         #-}
+{-# LANGUAGE Trustworthy #-}
 {-# OPTIONS_GHC -Wno-unsafe -Wno-prepositive-qualified-module #-}
 module Main (main) where
 import           Control.Monad             (void)
@@ -66,7 +65,6 @@ writeFormattedFile filePath expr = do
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
   renderStrict . layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) . prettyNix . stripAnnotation
-
 sortExpression :: Text -> NExprLoc -> NExprLoc
 sortExpression fileContent (Fix (Compose (AnnUnit span exprF))) =
   Fix . Compose . AnnUnit span $ case exprF of
