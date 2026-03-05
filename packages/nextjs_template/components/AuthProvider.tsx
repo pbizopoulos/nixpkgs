@@ -68,8 +68,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (options.path) cookieString += `; path=${options.path}`;
           if (options.maxAge) cookieString += `; max-age=${options.maxAge}`;
           if (options.domain) cookieString += `; domain=${options.domain}`;
-          if (options.sameSite)
+          if (options.sameSite) {
             cookieString += `; samesite=${options.sameSite}`;
+          }
           if (options.secure && window.location.protocol === "https:") {
             cookieString += "; secure";
           }

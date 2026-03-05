@@ -1,5 +1,5 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.python312Packages.buildPythonPackage rec {
   installPhase = ''

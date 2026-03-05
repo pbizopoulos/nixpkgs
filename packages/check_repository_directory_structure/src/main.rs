@@ -111,7 +111,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         let rel_path = path.strip_prefix(working_dir).unwrap();
         for component in rel_path.components() {
             let s = component.as_os_str().to_str().unwrap();
-            if s == "tmp" || s == "prm" || s == "target" {
+            if s == "tmp" || s == "prm" || s == "target" || s == "CSharpier" || s == "build" {
                 return false;
             }
         }
@@ -136,6 +136,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"\.github/workflows/workflow\.yml",
         r"\.gitignore",
         r"\.php-cs-fixer\.php",
+        r"\.scalafmt\.conf",
+        r"\.sqlfluff",
         r"CITATION\.bib",
         r"LICENSE",
         r"README",
@@ -143,6 +145,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"flake\.lock",
         r"flake\.nix",
         r"formatter\.nix",
+        r"packages/[^/]+/deps\.end",
         r"prm(/.*)?",
         r"result",
         r"secrets(/.*)?",
@@ -236,7 +239,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             ],
         ),
         (
-            r"packages/[^/]+/main\.kt",
+            r"packages/[^/]+/Main\.kt",
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
@@ -257,6 +260,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         ),
         (
             r"packages/[^/]+/main\.jl",
+            vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/main\.kdl",
             vec![r"packages/[^/]+/default\.nix"],
         ),
         (
@@ -356,7 +363,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         ),
         (
             r"packages/[^/]+/src/main/clojure/main\.clj",
-            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/deps\.edn"],
+            vec![r"packages/[^/]+/default\.nix", r"packages/[^/]+/deps\.end"],
         ),
         (
             r"packages/[^/]+/Program\.fs",

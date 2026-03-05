@@ -3,15 +3,19 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE TABLE IF NOT EXISTS public.users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    auth_id UUID REFERENCES auth.users(id) ON DELETE CASCADE UNIQUE,
+    auth_id UUID REFERENCES auth.users (id) ON DELETE CASCADE UNIQUE,
     username TEXT UNIQUE NOT NULL CHECK (username ~* '^[a-z0-9-]+$'),
     full_name TEXT,
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMPTZ DEFAULT now(),
+    updated_at TIMESTAMPTZ DEFAULT now()
 );
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public profiles are viewable by everyone." ON public.users FOR SELECT USING (true);
-CREATE POLICY "Users can update own profile." ON public.users FOR UPDATE USING (auth.uid() = auth_id);
+CREATE POLICY "Public profiles are viewable by everyone." ON public.users FOR SELECT USING (
+    true
+);
+CREATE POLICY "Users can update own profile." ON public.users FOR UPDATE USING (
+    auth.uid() = auth_id
+);
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -35,8 +39,8 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE OR REPLACE TRIGGER on_auth_user_created
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 CREATE OR REPLACE FUNCTION public.set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN

@@ -46,7 +46,11 @@ export default function UserAvatar({
         </span>
       ) : (
         <div
-          style={{ backgroundColor: "#f3f4f6", width: "100%", height: "100%" }}
+          style={{
+            backgroundColor: "#f3f4f6",
+            width: "100%",
+            height: "100%",
+          }}
         />
       )}
     </div>

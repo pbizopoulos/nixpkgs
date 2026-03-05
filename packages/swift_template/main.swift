@@ -1,13 +1,13 @@
 func runTests() {
-    if 1 + 1 == 2 {
-        print("test ... ok")
-    } else {
-        print("test math failed")
-    }
+  if 1 + 1 == 2 {
+    print("test ... ok")
+  } else {
+    print("test math failed")
+  }
 }
 let args = CommandLine.arguments
 if args.contains("DEBUG=1") {
-    runTests()
+  runTests()
 } else {
-    print("Hello Swift!")
+  print("Hello Swift!")
 }

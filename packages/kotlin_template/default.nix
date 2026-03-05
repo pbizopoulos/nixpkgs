@@ -1,9 +1,9 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.kotlin ];
-  buildPhase = "kotlinc main.kt -include-runtime -d ${pname}.jar";
+  buildPhase = "kotlinc Main.kt -include-runtime -d ${pname}.jar";
   installPhase = ''
     mkdir -p $out/share/kotlin
     cp ${pname}.jar $out/share/kotlin/

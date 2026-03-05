@@ -1,5 +1,5 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.buildNpmPackage rec {
   buildInputs = [ pkgs.nodejs ];

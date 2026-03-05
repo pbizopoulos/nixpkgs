@@ -26,20 +26,20 @@ while variable < variable_top:
 class ClassFirst:
     """Docstring in public class."""
 
-    class_attribute: list[str]
-
-    def __init__(self: ClassFirst) -> None:
+    def method_in_class_first(self: ClassFirst) -> None:
         """Docstring in public method."""
-        self.instance_attribute_another = 1
+        self.instance_attribute = 1
 
     def __getitem__(self: ClassFirst, index: int) -> int:
         """Docstring in public method."""
         self.instance_attribute_other = 1
         return index
 
-    def method_in_class_first(self: ClassFirst) -> None:
+    def __init__(self: ClassFirst) -> None:
         """Docstring in public method."""
-        self.instance_attribute = 1
+        self.instance_attribute_another = 1
+
+    class_attribute: list[str]
 
     # this is a comment inside a class in the footer
 
@@ -59,11 +59,12 @@ class _ClassFourth:
 class _ClassSecond:  # inline function comment
     """Docstring in private class."""
 
-    class_attribute_second: int | None = 2  # inline attribute comment
+    @functools.lru_cache(maxsize=128)  # noqa: B019
+    def get_property(self: _ClassSecond) -> int:
+        return self.instance_attribute
 
-    class_attribute_third: str = "value"
-
-    class_attribute_first: list[str]
+    def method_in_class_second(self: _ClassSecond) -> None:
+        self.instance_attribute = 2
 
     def __init__(self: _ClassSecond) -> None:
         """Docstring in method in private class."""
@@ -72,12 +73,11 @@ class _ClassSecond:  # inline function comment
 
         retrieve_arg("string")
 
-    @functools.lru_cache(maxsize=128)  # noqa: B019
-    def get_property(self: _ClassSecond) -> int:
-        return self.instance_attribute
+    class_attribute_second: int | None = 2  # inline attribute comment
 
-    def method_in_class_second(self: _ClassSecond) -> None:
-        self.instance_attribute = 2
+    class_attribute_third: str = "value"
+
+    class_attribute_first: list[str]
 
 
 class _MyDecorator:
@@ -90,12 +90,6 @@ class _MyDecorator:
 def function_first(path: Path) -> Path:
     """Docstring in public function."""
     return path
-
-
-@functools.lru_cache(maxsize=128)
-def retrieve_arg(arg: str) -> str:
-    """Docstring in public function."""
-    return arg
 
 
 def main(arg: int) -> None:  # inline function comment
@@ -148,6 +142,12 @@ def main(arg: int) -> None:  # inline function comment
     function_first(path)
 
     # comment inside a function in the footer
+
+
+@functools.lru_cache(maxsize=128)
+def retrieve_arg(arg: str) -> str:
+    """Docstring in public function."""
+    return arg
 
 
 variable_bottom = 2

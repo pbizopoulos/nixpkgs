@@ -1,5 +1,5 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.haskellPackages.mkDerivation rec {
   description = "Sorts attributes alphabetically, using dotted notation for attributes with sets or lists, and nested notation otherwise";

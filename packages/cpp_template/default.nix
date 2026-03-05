@@ -1,5 +1,5 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.stdenv.mkDerivation rec {
   buildPhase = "g++ -o ${pname} main.cpp -O3 -Wall -Wextra -Werror";

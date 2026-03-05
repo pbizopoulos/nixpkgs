@@ -1,13 +1,17 @@
-{
-  pkgs ? import <nixpkgs> { },
+{ pkgs ? import <nixpkgs> { }
+,
 }:
 pkgs.python313Packages.buildPythonPackage rec {
   installPhase = ''
     mkdir -p $out/bin
-    cp ./main.py $out/bin/${pname}
+    cp ./main.py $out/bin/.${pname}-wrapped
+    makeWrapper ${pkgs.python313}/bin/python $out/bin/${pname} \
+      --add-flags "$out/bin/.${pname}-wrapped" \
+      --prefix PYTHONPATH : "$PYTHONPATH"
     cp -r ./prm/ $out/bin/
   '';
   meta.mainProgram = pname;
+  nativeBuildInputs = [ pkgs.makeWrapper ];
   pname = baseNameOf src;
   propagatedBuildInputs = [
     pkgs.python313Packages.fire

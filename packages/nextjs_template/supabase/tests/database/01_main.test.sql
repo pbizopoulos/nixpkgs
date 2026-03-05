@@ -1,12 +1,14 @@
 BEGIN;
 SELECT plan(5);
-SELECT has_table( 'users' );
-SELECT has_column( 'users', 'id' );
-SELECT has_column( 'users', 'auth_id' );
-SELECT has_column( 'users', 'username' );
-INSERT INTO auth.users (id, email) VALUES ('00000000-0000-0000-0000-ffffffffffff', 'trigger_test@example.com');
+SELECT has_table('users');
+SELECT has_column('users', 'id');
+SELECT has_column('users', 'auth_id');
+SELECT has_column('users', 'username');
+INSERT INTO auth.users (id, email) VALUES (
+    '00000000-0000-0000-0000-ffffffffffff', 'trigger_test@example.com'
+);
 SELECT lives_ok(
-  $$
+    $$
     DO $body$
     DECLARE
       v_old_ts TIMESTAMPTZ;
@@ -21,7 +23,7 @@ SELECT lives_ok(
       END IF;
     END $body$;
   $$,
-  'updated_at trigger should auto-update on row modification'
+    'updated_at trigger should auto-update on row modification'
 );
 SELECT * FROM finish();
 ROLLBACK;
