@@ -2,7 +2,7 @@
 {-# LANGUAGE Trustworthy         #-}
 {-# OPTIONS_GHC -Wno-unsafe -Wno-prepositive-qualified-module #-}
 module Main (main) where
-import           Control.Monad             (unless, void)
+import           Control.Monad             (void)
 import           Data.Fix                  (Fix (Fix))
 import           Data.Function             (on)
 import           Data.Functor              (Functor (fmap))
@@ -11,14 +11,11 @@ import           Data.List                 (groupBy, sortBy)
 import           Data.List.NonEmpty        (NonEmpty ((:|)))
 import           Data.Ord                  (comparing)
 import           Data.Text                 (Text, empty, pack)
-import qualified Data.Text                 as T
 import           Data.Text.IO              (readFile, writeFile)
 import           Nix.Expr.Types            (Antiquoted (Plain),
                                             Binding (NamedVar),
-                                            NExprF (NAbs, NLet, NList, NSet, NStr),
+                                            NExprF (NAbs, NLet, NList, NSet),
                                             NKeyName (DynamicKey, StaticKey),
-                                            NPos (NPos),
-                                            NSourcePos (NSourcePos),
                                             NString (DoubleQuoted),
                                             Params (ParamSet),
                                             Recursivity (NonRecursive),
@@ -28,12 +25,10 @@ import           Nix.Expr.Types.Annotated  (AnnUnit (AnnUnit), NExprLoc,
 import           Nix.Parser                (parseNixFileLoc)
 import           Nix.Pretty                (prettyNix)
 import           Nix.Utils                 (Path (Path))
-import           Prelude                   (Bool, Either (Left, Right),
-                                            Eq ((==)), FilePath, IO,
-                                            Show (show), String, any, concatMap,
-                                            drop, fst, map, mapM_, max, not,
-                                            null, putStrLn, take, ($), (++),
-                                            (-), (.), (<>), (||))
+import           Prelude                   (Either (Left, Right), Eq ((==)),
+                                            FilePath, IO, Show (show), String,
+                                            concatMap, fst, map, mapM_, null,
+                                            putStrLn, ($), (++), (.), (||))
 import           Prettyprinter             (LayoutOptions (LayoutOptions),
                                             PageWidth (AvailablePerLine),
                                             layoutPretty)
@@ -44,11 +39,6 @@ import           System.IO.Temp            (withSystemTempFile)
 import           Test.HUnit                (Test (TestCase, TestList),
                                             assertEqual, assertFailure,
                                             runTestTT)
-import           Text.Megaparsec.Pos       (unPos)
-noAlphabetizeTag :: Text
-noAlphabetizeTag = pack "# no-alphabetize"
-sentinelTag :: Text
-sentinelTag = pack "__NIX_ALPHABETIZE_KEEP_COMMENT_HASH_NO_ALPHABETIZE__"
 main :: IO ()
 main = do
   args <- getArgs
@@ -66,26 +56,17 @@ main = do
 writeFormattedFile :: FilePath -> NExprLoc -> IO ()
 writeFormattedFile filePath expr = do
   fileContent <- readFile filePath
-  unless (any (noAlphabetizeTag `T.isInfixOf`) (take 2 $ T.lines fileContent)) $ do
-    let sortedExpr = sortExpression fileContent expr
-        outputText =
-          renderStrict $
-            layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) $
-              prettyNix $
-                stripAnnotation sortedExpr
-        finalText =
-          T.replace (pack "\"" <> sentinelTag <> pack "\"") (pack "# no-alphabetize") $
-            T.replace (sentinelTag <> pack " = \"\";") (pack "# no-alphabetize") outputText
-    writeFile filePath finalText
+  let sortedExpr = sortExpression fileContent expr
+      finalText =
+        renderStrict $
+          layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) $
+            prettyNix $
+              stripAnnotation sortedExpr
+  writeFile filePath finalText
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
   renderStrict . layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) . prettyNix . stripAnnotation
-isNoAlphabetizeInRange :: Text -> SrcSpan -> Bool
-isNoAlphabetizeInRange fileContent (SrcSpan (NSourcePos _ (NPos bl) _) _) =
-  let blInt = unPos bl
-      ls = T.lines fileContent
-      checkLines = take (if blInt == 1 then 2 else 3) . drop (max 0 (blInt - 2)) $ ls
-   in any (noAlphabetizeTag `T.isInfixOf`) checkLines
+
 sortExpression :: Text -> NExprLoc -> NExprLoc
 sortExpression fileContent (Fix (Compose (AnnUnit span exprF))) =
   Fix . Compose . AnnUnit span $ case exprF of
@@ -97,28 +78,13 @@ sortExpression fileContent (Fix (Compose (AnnUnit span exprF))) =
        in NAbs sortedParams (sortExpression fileContent body)
     NList items ->
       let sortedItems = map (sortExpression fileContent) items
-          (SrcSpan startPos _) = span
-          sentinel = Fix (Compose (AnnUnit (SrcSpan startPos startPos) (NStr (DoubleQuoted [Plain sentinelTag]))))
-       in NList $
-            if isNoAlphabetizeInRange fileContent span
-              then sentinel : sortedItems
-              else sortBy (comparing renderExpressionText) sortedItems
+       in NList $ sortBy (comparing renderExpressionText) sortedItems
     NSet rec bindings ->
-      let (SrcSpan startPos _) = span
-          sentinelBinding = NamedVar (StaticKey (VarName sentinelTag) :| []) (Fix (Compose (AnnUnit (SrcSpan startPos startPos) (NStr (DoubleQuoted [Plain empty]))))) startPos
-       in NSet rec $
-            if isNoAlphabetizeInRange fileContent span
-              then sentinelBinding : map (fmap (sortExpression fileContent)) bindings
-              else sortAndCollapseBindings fileContent bindings
+      NSet rec $ sortAndCollapseBindings fileContent bindings
     NLet bindings body ->
-      let (SrcSpan startPos _) = span
-          sentinelBinding = NamedVar (StaticKey (VarName sentinelTag) :| []) (Fix (Compose (AnnUnit (SrcSpan startPos startPos) (NStr (DoubleQuoted [Plain empty]))))) startPos
-       in NLet
-            ( if isNoAlphabetizeInRange fileContent span
-                then sentinelBinding : map (fmap (sortExpression fileContent)) bindings
-                else sortAndCollapseBindings fileContent bindings
-            )
-            (sortExpression fileContent body)
+      NLet
+        (sortAndCollapseBindings fileContent bindings)
+        (sortExpression fileContent body)
     otherExpr -> fmap (sortExpression fileContent) otherExpr
 getBindingName :: Binding r -> Text
 getBindingName (NamedVar (StaticKey (VarName keyText) :| _) _ _) = keyText
@@ -150,8 +116,7 @@ collapseNestedBindings fileContent bindings@(firstBinding : _) =
 nextLevelBindings :: Text -> Binding NExprLoc -> [Binding NExprLoc]
 nextLevelBindings _ (NamedVar (_ :| bindingKey : restKeys) valExpr bindingPos) =
   [NamedVar (bindingKey :| restKeys) valExpr bindingPos]
-nextLevelBindings fileContent (NamedVar (_ :| []) (Fix (Compose (AnnUnit span (NSet _ nested)))) _)
-  | not (isNoAlphabetizeInRange fileContent span) = nested
+nextLevelBindings _ (NamedVar (_ :| []) (Fix (Compose (AnnUnit _ (NSet _ nested)))) _) = nested
 nextLevelBindings _ _ = []
 makeFormattingTest :: String -> Text -> Text -> Test
 makeFormattingTest testName input expectedOutput = TestCase $ do
@@ -206,10 +171,6 @@ getAllFormattingTests =
         (pack "{ b.z.b = 1; b.z.a = 2; }")
         (pack "{\n  b.z = {\n    a = 2;\n    b = 1;\n  };\n}"),
       makeFormattingTest
-        "no-alphabetize comment"
-        (pack "# no-alphabetize\n{ a = [ \"c\" \"a\" ]; }")
-        (pack "# no-alphabetize\n{ a = [ \"c\" \"a\" ]; }"),
-      makeFormattingTest
         "let expression sorting"
         (pack "let c = 1; a = 2; b = 3; in a + b + c")
         (pack "let\n  a = 2;\n  b = 3;\n  c = 1;\nin a + b + c"),
@@ -232,17 +193,5 @@ getAllFormattingTests =
       makeFormattingTest
         "python template installPhase preservation"
         (pack "{ installPhase = ''\nmkdir -p $out/bin\ncp ./main.py $out/bin/${pname}\n''; }")
-        (pack "{\n  installPhase = ''\n    mkdir -p $out/bin\n    cp ./main.py $out/bin/${pname}\n    '';\n}"),
-      makeFormattingTest
-        "inline no-alphabetize list"
-        (pack "{\n  a = [ \"c\" \"a\" ];\n\n  # no-alphabetize\n  b = [\n    \"c\"\n    \"a\"\n  ];\n}")
-        (pack "{\n  a = [\n    \"a\"\n    \"c\"\n  ];\n  b = [\n    # no-alphabetize\n    \"c\"\n    \"a\"\n  ];\n}"),
-      makeFormattingTest
-        "inline no-alphabetize set"
-        (pack "{\n  a = { c = 2; a = 1; };\n\n  # no-alphabetize\n  b = {\n    c = 2;\n    a = 1;\n  };\n}")
-        (pack "{\n  a = {\n    a = 1;\n    c = 2;\n  };\n  b = {\n    # no-alphabetize\n    c = 2;\n    a = 1;\n  };\n}"),
-      makeFormattingTest
-        "nested no-alphabetize set preservation"
-        (pack "{\n  b = {\n    # no-alphabetize\n    z = 1;\n    a = 2;\n  };\n  a = 1;\n}")
-        (pack "{\n  a = 1;\n  b = {\n    # no-alphabetize\n    z = 1;\n    a = 2;\n  };\n}")
+        (pack "{\n  installPhase = ''\n    mkdir -p $out/bin\n    cp ./main.py $out/bin/${pname}\n    '';\n}")
     ]
