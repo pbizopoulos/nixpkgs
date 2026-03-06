@@ -111,7 +111,13 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         let rel_path = path.strip_prefix(working_dir).unwrap();
         for component in rel_path.components() {
             let s = component.as_os_str().to_str().unwrap();
-            if s == "tmp" || s == "prm" || s == "target" || s == "CSharpier" || s == "build" {
+            if s == "tmp"
+                || s == "prm"
+                || s == "target"
+                || s == "CSharpier"
+                || s == "build"
+                || s == "node_modules"
+            {
                 return false;
             }
         }
