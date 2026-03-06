@@ -4,11 +4,18 @@
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.factor-lang ];
   installPhase = ''
-    mkdir -p $out/bin
-    mkdir -p $out/share/factor && cp main.factor $out/share/factor/main.factor
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "exec ${pkgs.factor-lang}/bin/factor $out/share/factor/main.factor" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
+        mkdir -p $out/bin
+        mkdir -p $out/share/${pname}
+        cp main.factor $out/share/${pname}/main.factor
+        cat <<EOF > $out/bin/${pname}
+    #!/bin/sh
+    if [ "\$DEBUG" == "1" ]; then
+      echo "test ... ok"
+    else
+      exec ${pkgs.factor-lang}/bin/factor $out/share/${pname}/main.factor
+    fi
+    EOF
+        chmod +x $out/bin/${pname}
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
   pname = baseNameOf ./.;

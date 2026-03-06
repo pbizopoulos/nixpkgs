@@ -4,7 +4,8 @@ pkgs.testers.runNixOSTest rec {
   nodes.machine.environment.systemPackages = [ inputs.self.packages.${pkgs.stdenv.system}.${name} ];
   testScript = ''
     machine.succeed("touch flake.nix")
+    machine.succeed("touch formatter.nix")
     machine.succeed("mkdir -p packages/rust_template")
-    machine.succeed("DEBUG=1 default test-repo")
+    machine.succeed("DEBUG=1 ${name} test-repo")
   '';
 }

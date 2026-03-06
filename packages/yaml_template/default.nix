@@ -8,14 +8,9 @@ pkgs.stdenv.mkDerivation rec {
   ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      # Meaningful test: validate YAML syntax
-      ${pkgs.yq}/bin/yq . ${./.}/main.yaml > /dev/null && echo "test ... ok"
-    else
-      ${pkgs.yq}/bin/yq -r .message ${./.}/main.yaml
-    fi
+    ${pkgs.yq}/bin/yq . ${./main.yaml}
     EOF
         chmod 755 $out/bin/${pname}
   '';

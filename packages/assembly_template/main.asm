@@ -1,54 +1,122 @@
 section .data
-hello   db 'Hello Assembly!', 0xA
-hello_len equ $ - hello
-ok_msg db 'test ... ok', 0xA
-ok_len equ $ - ok_msg
+red     db 0x1B, '[31mFizzBuzz', 0x1B, '[0m', 0xA, 0
+green   db 0x1B, '[32mFizz', 0x1B, '[0m', 0xA, 0
+blue    db 0x1B, '[34mBuzz', 0x1B, '[0m', 0xA, 0
+ok_msg  db 'test ... ok', 0xA, 0
 debug_key db 'DEBUG=1', 0
+section .bss
+num_str resb 12
 section .text
 global  _start
 _start:
-	;   At entry, [rsp] is argc, [rsp+8] is argv[0], ...
-	mov rdi, [rsp]; rdi = argc
-	lea rsi, [rsp + rdi*8 + 16]; rsi = address of envp[0]
+	mov rdi, [rsp]; argc
+	lea rsi, [rsp + rdi*8 + 16]; envp[0]
 .find_debug:
-	mov  rdx, [rsi]; rdx = envp[i]
-	test rdx, rdx; check if NULL
+	mov  rdx, [rsi]
+	test rdx, rdx
 	jz   .not_found
-	;    Compare string in rdx with 'DEBUG=1'
 	mov  rax, debug_key
 	mov  r8, rdx
 .compare:
 	mov  cl, [rax]
 	mov  dl, [r8]
 	test cl, cl
-	jz   .check_end; reached end of 'DEBUG=1'
+	jz   .check_end
 	cmp  cl, dl
 	jne  .next_env
 	inc  rax
 	inc  r8
 	jmp  .compare
 .check_end:
-	;    If we matched 'DEBUG=1', we also need to ensure the env var string ends there
 	test dl, dl
-	jz   .found; matched exactly 'DEBUG=1'
-	;    Actually, env vars are 'KEY=VALUE'. So 'DEBUG=1' is the whole string we expect if DEBUG is 1.
-	;    Wait, getenv("DEBUG") == "1" means the env var string is "DEBUG=1".
-	;    So if we matched 'DEBUG=1' and we are at the end of the env var string (dl == 0), then it's a match.
-	jmp  .next_env
+	jz   .found
 .next_env:
 	add rsi, 8
 	jmp .find_debug
 .found:
-	mov rsi, ok_msg
-	mov rdx, ok_len
-	jmp .print
+	mov  rsi, ok_msg
+	call print_str
+	jmp  .exit
 .not_found:
-	mov rsi, hello
-	mov rdx, hello_len
-.print:
-	mov rax, 1; sys_write
-	mov rdi, 1; stdout
-	syscall
-	mov rax, 60; sys_exit
+	mov rcx, 1
+.fizzbuzz_loop:
+	cmp  rcx, 101
+	je   .exit
+	push rcx
+	;    Check FizzBuzz (15)
+	mov  rax, rcx
+	xor  rdx, rdx
+	mov  rbx, 15
+	div  rbx
+	test rdx, rdx
+	jz   .is_fizzbuzz
+	;    Check Fizz (3)
+	mov  rax, rcx
+	xor  rdx, rdx
+	mov  rbx, 3
+	div  rbx
+	test rdx, rdx
+	jz   .is_fizz
+	;    Check Buzz (5)
+	mov  rax, rcx
+	xor  rdx, rdx
+	mov  rbx, 5
+	div  rbx
+	test rdx, rdx
+	jz   .is_buzz
+	;    Print Number
+	mov  rax, rcx
+	call itoa
+	mov  rsi, num_str
+	call print_str
+	jmp  .next_iter
+.is_fizzbuzz:
+	mov  rsi, red
+	call print_str
+	jmp  .next_iter
+.is_fizz:
+	mov  rsi, green
+	call print_str
+	jmp  .next_iter
+.is_buzz:
+	mov  rsi, blue
+	call print_str
+	jmp  .next_iter
+.next_iter:
+	pop rcx
+	inc rcx
+	jmp .fizzbuzz_loop
+.exit:
+	mov rax, 60
 	xor rdi, rdi
 	syscall
+print_str:
+	push rsi
+	xor  rdx, rdx
+.count:
+	cmp byte [rsi + rdx], 0
+	je  .do_write
+	inc rdx
+	jmp .count
+.do_write:
+	mov rax, 1
+	mov rdi, 1
+	pop rsi
+	syscall
+	ret
+itoa:
+	mov rbx, 10
+	mov rdi, num_str + 11
+	mov byte [rdi], 0xA
+	dec rdi
+.itoa_loop:
+	xor  rdx, rdx
+	div  rbx
+	add  dl, '0'
+	mov  [rdi], dl
+	dec  rdi
+	test rax, rax
+	jnz  .itoa_loop
+	inc  rdi
+	mov  rsi, rdi
+	ret

@@ -7,12 +7,14 @@ pkgs.stdenv.mkDerivation rec {
     coqc main.v
   '';
   installPhase = ''
-    mkdir -p $out/lib/coq/user-contrib/coq_template
-    cp main.vo $out/lib/coq/user-contrib/coq_template/
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "echo 'Coq module compiled successfully'" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
+        mkdir -p $out/lib/coq/user-contrib/${pname}
+        cp main.vo $out/lib/coq/user-contrib/${pname}/
+        mkdir -p $out/bin
+        cat <<EOF > $out/bin/${pname}
+    #!/usr/bin/env bash
+    echo "Coq module compiled successfully"
+    EOF
+        chmod +x $out/bin/${pname}
   '';
   pname = baseNameOf src;
   src = ./.;

@@ -1,17 +1,7 @@
-{ pkgs, ... }:
-let
-  mockPackage = pkgs.writeShellScriptBin name ''
-    if [ "$DEBUG" == "1" ]; then
-      echo "test math ... ok"
-    else
-      echo "Hello ${name}!"
-    fi
-  '';
+{ inputs, pkgs, ... }:
+pkgs.testers.runNixOSTest rec {
   name = baseNameOf ./.;
-in
-pkgs.testers.runNixOSTest {
-  inherit name;
-  nodes.machine.environment.systemPackages = [ mockPackage ];
+  nodes.machine.environment.systemPackages = [ inputs.self.packages.${pkgs.stdenv.system}.${name} ];
   testScript = ''
     machine.succeed("DEBUG=1 ${name}")
   '';

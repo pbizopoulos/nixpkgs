@@ -6,7 +6,6 @@ let
     ps.coverage
     ps.scalene
     ps.typer
-    ps.vulture
   ]);
 in
 pkgs.stdenv.mkDerivation rec {

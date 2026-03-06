@@ -1,4 +1,5 @@
 [dependencies]
+colored = "2.1.0"
 
 [package]
 name = "rust_template"

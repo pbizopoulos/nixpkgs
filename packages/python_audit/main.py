@@ -93,9 +93,6 @@ def profile(directory: str, ) -> None:
             env=env,
             check=False,
         )
-        rprint("\n[bold blue]Dead Code Detection (Vulture):[/bold blue]")
-        vulture_cmd = [python_bin, "-m", "vulture", *base_cmd]
-        _run_command(vulture_cmd, env=env)
 
 
 def run_tests() -> None:

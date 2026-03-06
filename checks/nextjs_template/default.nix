@@ -23,6 +23,6 @@ pkgs.testers.runNixOSTest {
     machine.wait_for_unit("docker.service")
     machine.succeed("cp -r ${nextjs-mocked}/lib/node_modules/${name} /tmp/${name}")
     machine.succeed("chmod -R +w /tmp/${name}")
-    machine.succeed("cd /tmp/${name} && PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers} npm run test:unit")
+    machine.succeed("cd /tmp/${name} && DEBUG=1 PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers} npm run test:unit")
   '';
 }

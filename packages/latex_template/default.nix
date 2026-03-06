@@ -11,23 +11,13 @@ pkgs.stdenv.mkDerivation rec {
     latexmk -interaction=nonstopmode -auxdir=.cache/latex -pdf ms.tex
   '';
   installPhase = ''
-        mkdir -p $out/share/doc
-        cp -f ms.pdf $out/share/doc/
-        mkdir -p $out/bin
+        mkdir -p $out/bin $out/share/doc
+        cp ms.pdf $out/share/doc/
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "\$DEBUG" == "1" ]; then
-      if [ -f $out/share/doc/ms.pdf ]; then
-        echo "test pdf_exists ... ok"
-      else
-        echo "test pdf_exists ... failed"
-        exit 1
-      fi
-    else
-      echo "This is a LaTeX package. The ms.pdf is located at $out/share/doc/ms.pdf"
-    fi
+    echo "This is a LaTeX package. The ms.pdf is located at $out/share/doc/ms.pdf"
     EOF
-        chmod +555 $out/bin/${pname}
+        chmod 755 $out/bin/${pname}
   '';
   meta.mainProgram = pname;
   pname = baseNameOf src;

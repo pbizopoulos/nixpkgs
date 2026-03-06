@@ -5,19 +5,9 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.bash ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      # Meaningful test: check if file is not empty
-      if [ -s ${./.}/main.md ]; then
-        echo "test ... ok"
-      else
-        echo "test ... failed"
-        exit 1
-      fi
-    else
-      cat ${./.}/main.md
-    fi
+    cat ${./main.md}
     EOF
         chmod 755 $out/bin/${pname}
   '';

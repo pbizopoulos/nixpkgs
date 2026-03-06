@@ -1,14 +1,14 @@
 { pkgs ? import <nixpkgs> { }
 ,
 }:
-pkgs.python312Packages.buildPythonPackage rec {
+pkgs.python3Packages.buildPythonPackage rec {
   installPhase = ''
     mkdir -p $out/bin
     cp ./main.py $out/bin/${pname}
   '';
   meta.mainProgram = pname;
   pname = baseNameOf src;
-  propagatedBuildInputs = [ ];
+  propagatedBuildInputs = [ pkgs.python3Packages.termcolor ];
   pyproject = false;
   shellHook = ''
     cd $(git rev-parse --show-toplevel)/secrets || exit 1

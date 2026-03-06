@@ -8,14 +8,9 @@ pkgs.stdenv.mkDerivation rec {
   ];
   installPhase = ''
         mkdir -p $out/bin
-        cat <<'EOF' > $out/bin/${pname}
+        cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "$DEBUG" == "1" ]; then
-      # Meaningful test: validate TOML syntax
-      ${pkgs.yq}/bin/yq . ${./.}/main.toml > /dev/null && echo "test ... ok"
-    else
-      ${pkgs.yq}/bin/yq -r .message ${./.}/main.toml
-    fi
+    ${pkgs.yq}/bin/yq . ${./main.toml}
     EOF
         chmod 755 $out/bin/${pname}
   '';

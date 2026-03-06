@@ -214,6 +214,7 @@ let
         "**/node_modules/**"
         "*/prm/**"
         "*/tmp/**"
+        "packages/phoenix_template/src/phoenix_app/**"
         "packages/prolog_template/main.pl"
       ];
     };

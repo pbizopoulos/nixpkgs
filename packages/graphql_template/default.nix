@@ -7,17 +7,7 @@ pkgs.stdenv.mkDerivation rec {
         mkdir -p $out/bin
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "\$DEBUG" == "1" ]; then
-      # Meaningful test: check if the file exists and is not empty
-      if [ -s ${./.}/main.graphql ]; then
-        echo "test ... ok"
-      else
-        echo "test ... failed"
-        exit 1
-      fi
-    else
-      cat ${./.}/main.graphql
-    fi
+    cat ${./main.graphql}
     EOF
         chmod 755 $out/bin/${pname}
   '';

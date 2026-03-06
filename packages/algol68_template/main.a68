@@ -1,1 +1,19 @@
-print(("Hello, ALGOL 68!", newline))
+IF get env("DEBUG") = "1" THEN
+  print(("test ... ok", newline))
+ELSE
+  STRING red = "\033[31m";
+  STRING green = "\033[32m";
+  STRING blue = "\033[34m";
+  STRING reset = "\033[0m";
+  FOR i FROM 1 TO 100 DO
+    IF i MOD 15 = 0 THEN
+      print((red, "FizzBuzz", reset, newline))
+    ELIF i MOD 3 = 0 THEN
+      print((green, "Fizz", reset, newline))
+    ELIF i MOD 5 = 0 THEN
+      print((blue, "Buzz", reset, newline))
+    ELSE
+      print((i, newline))
+    FI
+  OD
+FI

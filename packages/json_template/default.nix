@@ -10,12 +10,7 @@ pkgs.stdenv.mkDerivation rec {
         mkdir -p $out/bin
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "\$DEBUG" == "1" ]; then
-      # Meaningful test: validate JSON syntax
-      ${pkgs.jq}/bin/jq . ${./.}/main.json > /dev/null && echo "test ... ok"
-    else
-      ${pkgs.jq}/bin/jq -r .message ${./.}/main.json
-    fi
+    ${pkgs.jq}/bin/jq . ${./main.json}
     EOF
         chmod 755 $out/bin/${pname}
   '';

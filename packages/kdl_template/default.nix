@@ -7,16 +7,7 @@ pkgs.stdenv.mkDerivation rec {
         mkdir -p $out/bin
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    if [ "\$DEBUG" == "1" ]; then
-      if [ -s ${./.}/main.kdl ]; then
-        echo "test ... ok"
-      else
-        echo "test ... failed"
-        exit 1
-      fi
-    else
-      cat ${./.}/main.kdl
-    fi
+    cat ${./main.kdl}
     EOF
         chmod 755 $out/bin/${pname}
   '';

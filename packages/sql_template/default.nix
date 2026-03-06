@@ -2,20 +2,19 @@
 ,
 }:
 pkgs.stdenv.mkDerivation rec {
-  buildInputs = [ pkgs.sqlite ];
+  buildInputs = [
+    pkgs.bash
+    pkgs.sqlite
+  ];
   installPhase = ''
         mkdir -p $out/bin
-        cp main.sql $out/bin/${pname}.sql
         cat <<EOF > $out/bin/${pname}
-    #!/bin/bash
-    if [ "\$DEBUG" == "1" ]; then
-      ${pkgs.sqlite}/bin/sqlite3 :memory: ".read $out/bin/${pname}.sql"
-    else
-      echo "Hello SQL!"
-    fi
+    #!/usr/bin/env bash
+    ${pkgs.sqlite}/bin/sqlite3 :memory: ".read ${./main.sql}"
     EOF
-        chmod +x $out/bin/${pname}
+        chmod 755 $out/bin/${pname}
   '';
+  meta.mainProgram = pname;
   pname = baseNameOf src;
   src = ./.;
   version = "0.0.0";

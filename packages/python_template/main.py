@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Python."""
+"""Python FizzBuzz with color."""
 
-import json
 import os
+from termcolor import colored
 
 
 def run_tests() -> None:
     """Run tests."""
     assert 1 + 1 == 2  # noqa: PLR2004, S101
+    print("test ... ok")
 
 
 def main() -> None:
@@ -15,9 +16,15 @@ def main() -> None:
     if os.getenv("DEBUG") == "1":
         run_tests()
     else:
-        print("Hello world!")  # noqa: T201
-        data = {"message": "Hello, world!", "language": "Python"}
-        print(json.dumps(data))
+        for i in range(1, 101):
+            if i % 15 == 0:
+                print(colored("FizzBuzz", "red"))
+            elif i % 3 == 0:
+                print(colored("Fizz", "green"))
+            elif i % 5 == 0:
+                print(colored("Buzz", "blue"))
+            else:
+                print(i)
 
 
 if __name__ == "__main__":

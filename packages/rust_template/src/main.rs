@@ -1,32 +1,23 @@
-fn main() {
-    if std::env::var("DEBUG").as_deref() == Ok("1") {
-        run_tests();
-    } else {
-        println!("Hello, world!");
-        println!("{{\"message\": \"Hello, world!\", \"language\": \"Rust\"}}");
-    }
-}
+use colored::*;
+use std::env;
 fn run_tests() {
-    test_hello_world();
-    test_math();
-}
-fn test_hello_world() {
-    assert_eq!(2 + 2, 4);
-    println!("test hello_world ... ok");
-}
-fn test_math() {
-    assert!(2 * 3 == 6);
+    assert_eq!(1 + 1, 2);
     println!("test ... ok");
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_hello_world_test() {
-        test_hello_world();
-    }
-    #[test]
-    fn test_math_test() {
-        test_math();
+fn main() {
+    if env::var("DEBUG").as_deref() == Ok("1") {
+        run_tests();
+    } else {
+        for i in 1..=100 {
+            if i % 15 == 0 {
+                println!("{}", "FizzBuzz".red());
+            } else if i % 3 == 0 {
+                println!("{}", "Fizz".green());
+            } else if i % 5 == 0 {
+                println!("{}", "Buzz".blue());
+            } else {
+                println!("{}", i);
+            }
+        }
     }
 }
