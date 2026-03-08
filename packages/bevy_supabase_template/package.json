@@ -1,0 +1,19 @@
+{
+  "name": "bevy_supabase_template",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "cargo run",
+    "format": "nix fmt",
+    "build": "cargo build --release",
+    "start": "cargo run --release",
+    "test": "npm run test:unit && npm run test:cpd",
+    "test:unit": "cargo test",
+    "test:cpd": "jscpd .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop"
+  },
+  "devDependencies": {
+    "jscpd": "^4.0.5"
+  }
+}

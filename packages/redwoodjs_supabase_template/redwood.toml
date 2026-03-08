@@ -1,0 +1,10 @@
+[api]
+port = 8911
+
+[browser]
+open = true
+
+[web]
+port = 8910
+apiUrl = "/.redwood/functions"
+includeEnvironmentVariables = []

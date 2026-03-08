@@ -8,47 +8,37 @@ let
   pname = "phoenix_template";
   version = "0.1.0";
   src = ./.;
+  mixDeps = import "${src}/deps.nix" { inherit lib beamPackages; };
+  phoenixApp = beamPackages.buildMix {
+    name = "phoenix_app";
+    inherit version;
+    src = ./.;
+    beamDeps = builtins.attrValues mixDeps;
+  };
+  erlLibs = lib.makeSearchPath "lib/erlang/lib" ([ phoenixApp ] ++ (builtins.attrValues mixDeps));
 in
-pkgs.stdenv.mkDerivation rec {
+pkgs.stdenv.mkDerivation {
   inherit pname version src;
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  buildInputs = [
-    elixir
-    pkgs.postgresql
-    pkgs.nodejs
-  ];
+  buildInputs = [ elixir ];
   installPhase = ''
+    runHook preInstall
         mkdir -p $out/lib/${pname}
         cp -r . $out/lib/${pname}
+        chmod +x $out/lib/${pname}/scripts/start.js
         mkdir -p $out/bin
-        cat <<EOF > $out/bin/${pname}
-    #!/usr/bin/env bash
-    export LC_ALL=C.UTF-8
-    export ELIXIR_ERL_OPTIONS="+fnu"
-    export MIX_HOME=\$HOME/.mix
-    export HEX_HOME=\$HOME/.hex
-    export PATH=\$PATH:${
-      lib.makeBinPath [
-        elixir
-        pkgs.postgresql
-        pkgs.nodejs
-      ]
-    }
-    cd $out/lib/${pname}/src/phoenix_app
-    if [ "\$DEBUG" == "1" ]; then
-      # Try to run tests if possible, but Phoenix needs a running Postgres
-      # In NixOS tests this will work because we provide Postgres
-      mix deps.get --only test
-      mix ecto.create --quiet
-      mix ecto.migrate --quiet
-      mix test
-    else
-      # Generic FizzBuzz for Phoenix template
-      # We use elixir to run the main function we added
-      mix run -e "PhoenixApp.main([])"
-    fi
-    EOF
-        chmod +x $out/bin/${pname}
+        ln -s $out/lib/${pname}/scripts/start.js $out/bin/${pname}
+        wrapProgram $out/bin/${pname} \
+      --set LC_ALL C.UTF-8 \
+      --set ELIXIR_ERL_OPTIONS "+fnu" \
+      --set ERL_LIBS "${erlLibs}" \
+      --prefix PATH : "${
+        lib.makeBinPath [
+          elixir
+          pkgs.nodejs
+        ]
+      }"
+    runHook postInstall
   '';
   meta.mainProgram = pname;
 }

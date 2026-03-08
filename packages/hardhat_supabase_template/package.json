@@ -1,0 +1,23 @@
+{
+  "name": "hardhat_supabase_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "hardhat node",
+    "compile": "hardhat compile",
+    "format": "nix fmt",
+    "test": "npm run test:unit && npm run test:cpd",
+    "test:unit": "hardhat test",
+    "test:cpd": "jscpd .",
+    "deploy": "hardhat run scripts/deploy.js",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.2",
+    "jscpd": "^4.0.5",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}

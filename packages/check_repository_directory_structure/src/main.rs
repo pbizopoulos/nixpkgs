@@ -116,7 +116,11 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "target"
                 || s == "CSharpier"
                 || s == "build"
+                || s == "_build"
+                || s == "deps"
                 || s == "node_modules"
+                || s == ".nuxt"
+                || s == ".svelte-kit"
             {
                 return false;
             }
@@ -211,8 +215,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/package-lock\.json",
                 r"packages/[^/]+/playwright\.config\.ts",
                 r"packages/[^/]+/postcss\.config\.mjs",
+                r"packages/[^/]+/index\.html",
                 r"packages/[^/]+/public(/.*)?",
                 r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/start(/.*)?",
                 r"packages/[^/]+/src(/.*)?",
                 r"packages/[^/]+/stryker\.config\.mjs",
                 r"packages/[^/]+/supabase(/.*)?",
@@ -220,6 +226,27 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/tests(/.*)?",
                 r"packages/[^/]+/tsconfig\.json",
                 r"packages/[^/]+/vitest\.config\.ts",
+                r"packages/[^/]+/vite\.config\.ts",
+                r"packages/[^/]+/nuxt\.config\.ts",
+                r"packages/[^/]+/svelte\.config\.js",
+                r"packages/[^/]+/astro\.config\.mjs",
+                r"packages/[^/]+/app\.config\.ts",
+                r"packages/[^/]+/adonisrc\.ts",
+                r"packages/[^/]+/blitz\.config\.ts",
+                r"packages/[^/]+/ace",
+                r"packages/[^/]+/redwood\.toml",
+                r"packages/[^/]+/app\.vue",
+                r"packages/[^/]+/src/app\.html",
+                r"packages/[^/]+/src/app\.tsx",
+                r"packages/[^/]+/src/entry-server\.tsx",
+                r"packages/[^/]+/src/entry-client\.tsx",
+                r"packages/[^/]+/web/src/App\.tsx",
+                r"packages/[^/]+/src/app\.css",
+                r"packages/[^/]+/src/pages/index\.astro",
+                r"packages/[^/]+/src/layouts/Layout\.astro",
+                r"packages/[^/]+/src/routes/index\.tsx",
+                r"packages/[^/]+/api(/.*)?",
+                r"packages/[^/]+/bootstrap(/.*)?",
             ],
         ),
         (
@@ -570,6 +597,53 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         (
             r"packages/[^/]+/main\.rexx",
             vec![r"packages/[^/]+/default\.nix"],
+        ),
+        (
+            r"packages/[^/]+/composer\.json",
+            vec![
+                r"packages/[^/]+/composer\.lock",
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/artisan",
+                r"packages/[^/]+/app(/.*)?",
+                r"packages/[^/]+/config(/.*)?",
+                r"packages/[^/]+/routes(/.*)?",
+                r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/public(/.*)?",
+            ],
+        ),
+        (
+            r"packages/[^/]+/Gemfile",
+            vec![
+                r"packages/[^/]+/Gemfile\.lock",
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/app(/.*)?",
+                r"packages/[^/]+/config(/.*)?",
+                r"packages/[^/]+/bin(/.*)?",
+                r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/public(/.*)?",
+            ],
+        ),
+        (
+            r"packages/[^/]+/mix\.exs",
+            vec![
+                r"packages/[^/]+/\.dependency-cruiser\.cjs",
+                r"packages/[^/]+/\.formatter\.exs",
+                r"packages/[^/]+/\.gitignore",
+                r"packages/[^/]+/\.jscpd\.json",
+                r"packages/[^/]+/AGENTS\.md",
+                r"packages/[^/]+/README\.md",
+                r"packages/[^/]+/assets(/.*)?",
+                r"packages/[^/]+/config(/.*)?",
+                r"packages/[^/]+/default\.nix",
+                r"packages/[^/]+/deps\.nix",
+                r"packages/[^/]+/lib(/.*)?",
+                r"packages/[^/]+/mix\.lock",
+                r"packages/[^/]+/priv(/.*)?",
+                r"packages/[^/]+/scripts(/.*)?",
+                r"packages/[^/]+/supabase(/.*)?",
+                r"packages/[^/]+/test(/.*)?",
+                r"packages/[^/]+/tests(/.*)?",
+            ],
         ),
     ];
     let prefix = r"(templates/[^/]+/)?";

@@ -1,0 +1,7 @@
+langchain
+langchain-community
+langchain-openai
+supabase
+pytest
+playwright
+pytest-playwright

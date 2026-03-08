@@ -1,0 +1,16 @@
+{
+  "threshold": 10,
+  "reporters": ["console"],
+  "ignore": [
+    "node_modules/**",
+    ".next/**",
+    ".stryker-tmp/**",
+    "coverage/**",
+    "reports/**",
+    "test-results/**",
+    "package-lock.json",
+    "result/**"
+  ],
+  "absolute": true,
+  "gitignore": true
+}

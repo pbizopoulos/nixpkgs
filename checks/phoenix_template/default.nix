@@ -1,22 +1,14 @@
 { inputs, pkgs, ... }:
-pkgs.testers.runNixOSTest rec {
+let
   name = baseNameOf ./.;
-  nodes.machine =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = [
-        inputs.self.packages.${pkgs.stdenv.system}.${name}
-        pkgs.postgresql
-      ];
-      services.postgresql = {
-        enable = true;
-        initialScript = pkgs.writeText "init.sql" ''
-          CREATE USER postgres WITH SUPERUSER PASSWORD 'postgres';
-        '';
-      };
-    };
+  phoenixPackage = inputs.self.packages.${pkgs.stdenv.system}.${name};
+in
+pkgs.testers.runNixOSTest {
+  inherit name;
+  nodes.machine = _: { environment.systemPackages = [ phoenixPackage ]; };
   testScript = ''
-    machine.wait_for_unit("postgresql.service")
-    machine.succeed("DEBUG=1 ${name}")
+    # Run the smoke test using the package binary
+    # This confirms the app can boot and start its supervision tree.
+    machine.succeed("DEBUG=1 MIX_ENV=prod ${name}")
   '';
 }

@@ -1,0 +1,16 @@
+<div class="px-4 py-10 sm:px-6 sm:py-28 lg:px-8 xl:px-28 xl:py-32">
+  <div class="mx-auto max-w-xl text-center">
+    <h1 class="text-4xl font-bold tracking-tight">Welcome to the Minimal Application</h1>
+    <p class="mt-4 text-lg text-base-content/70">
+      A simple Phoenix boilerplate.
+    </p>
+    <div :if={@current_scope && @current_scope.user} class="mt-10 p-8 rounded-2xl bg-base-200 border border-base-300">
+      <p class="font-medium">
+        You are logged in as {@current_scope.user.email}
+      </p>
+    </div>
+    <p :if={!(@current_scope && @current_scope.user)} class="mt-10 text-base-content/50">
+      Please sign in to access your dashboard.
+    </p>
+  </div>
+</div>

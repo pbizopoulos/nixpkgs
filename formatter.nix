@@ -13,6 +13,12 @@ let
       beautysh.enable = true;
       biome = {
         enable = true;
+        excludes = [
+          "**/topbar.js"
+          "**/daisyui.js"
+          "**/daisyui-theme.js"
+          "**/app.css"
+        ];
         formatUnsafe = true;
       };
       black.enable = true;
@@ -41,7 +47,10 @@ let
       google-java-format.enable = true;
       hlint.enable = true;
       isort.enable = true;
-      jsonfmt.enable = true;
+      jsonfmt = {
+        enable = true;
+        excludes = [ "**/tsconfig.json" ];
+      };
       jsonnet-lint.enable = true;
       jsonnetfmt.enable = true;
       just.enable = true;

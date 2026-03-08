@@ -1,0 +1,25 @@
+{
+  "name": "spring_boot_supabase_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "./gradlew bootRun",
+    "format": "nix fmt",
+    "build": "./gradlew build",
+    "start": "java -jar build/libs/*.jar",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "./gradlew test",
+    "test:e2e": "E2E_MODE=prod playwright test",
+    "test:e2e:dev": "playwright test",
+    "test:audit": "npm run build && E2E_MODE=prod playwright test --project=audit",
+    "test:visual": "E2E_MODE=prod playwright test --update-snapshots",
+    "test:cpd": "jscpd .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5"
+  }
+}

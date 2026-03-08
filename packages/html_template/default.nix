@@ -7,7 +7,7 @@ pkgs.stdenv.mkDerivation rec {
         mkdir -p $out/bin
         cat <<EOF > $out/bin/${pname}
     #!/usr/bin/env bash
-    ${pkgs.nodePackages.http-server}/bin/http-server ${./.}
+    ${pkgs.nodePackages.http-server}/bin/http-server ${./.} "\$@"
     EOF
         chmod +x $out/bin/${pname}
   '';
