@@ -14,7 +14,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.marst
     pkgs.gcc
   ];
-  pname = baseNameOf src;
+  pname = "algol60_template";
   src = ./.;
   version = "0.0.0";
 }

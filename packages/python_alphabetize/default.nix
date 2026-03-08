@@ -12,7 +12,7 @@ pkgs.python313Packages.buildPythonPackage rec {
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "python_alphabetize";
   propagatedBuildInputs = [
     pkgs.python313Packages.fire
     pkgs.python313Packages.libcst

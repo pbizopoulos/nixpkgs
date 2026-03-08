@@ -1,14 +1,14 @@
 { pkgs ? import <nixpkgs> { }
 ,
 }:
-pkgs.rustPlatform.buildRustPackage rec {
+pkgs.rustPlatform.buildRustPackage {
   buildInputs = [ ];
   cargoHash = "sha256-eYbFGvryzvF0Px0Iyfaws3fwWbSKUn/montDzNymyBc=";
   nativeBuildInputs = [
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
-  pname = baseNameOf src;
+  pname = "rust_template";
   src = ./.;
   version = "0.0.0";
 }

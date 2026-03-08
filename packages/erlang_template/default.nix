@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/share/erlang/main.erl"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "erlang_template";
   src = ./.;
   version = "0.0.0";
 }

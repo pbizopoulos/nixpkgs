@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/bin/${pname}.R"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "r_template";
   src = ./.;
   version = "0.0.0";
 }

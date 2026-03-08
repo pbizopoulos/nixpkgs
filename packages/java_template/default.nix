@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "-cp $out/share/java Main"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "java_template";
   src = ./.;
   version = "0.0.0";
 }

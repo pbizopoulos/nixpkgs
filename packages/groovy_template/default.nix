@@ -13,7 +13,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/bin/${pname}.groovy"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "groovy_template";
   src = ./.;
   version = "0.0.0";
 }

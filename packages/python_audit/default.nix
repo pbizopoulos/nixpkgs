@@ -27,7 +27,7 @@ pkgs.stdenv.mkDerivation rec {
     platforms = [ "x86_64-linux" ];
   };
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "python_audit";
   src = ./.;
   version = "0.0.0";
 }

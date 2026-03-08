@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/bin/${pname}.jl"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "julia_template";
   src = ./.;
   version = "0.0.0";
 }

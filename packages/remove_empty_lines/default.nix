@@ -9,7 +9,7 @@ pkgs.rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
-  pname = baseNameOf src;
+  pname = "remove_empty_lines";
   src = ./.;
   version = "0.1.0";
 }

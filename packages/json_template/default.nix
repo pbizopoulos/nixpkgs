@@ -15,7 +15,7 @@ pkgs.stdenv.mkDerivation rec {
         chmod 755 $out/bin/${pname}
   '';
   meta.mainProgram = pname;
-  pname = baseNameOf src;
+  pname = "json_template";
   src = ./.;
   version = "0.0.0";
 }

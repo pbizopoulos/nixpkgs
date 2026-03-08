@@ -29,7 +29,7 @@ pkgs.stdenv.mkDerivation rec {
     EOF
         chmod +x $out/bin/${pname}
   '';
-  pname = baseNameOf src;
+  pname = "gleam_template";
   src = ./.;
   version = "0.0.0";
 }

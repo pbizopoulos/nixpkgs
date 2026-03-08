@@ -14,7 +14,7 @@ pkgs.buildNpmPackage rec {
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
   npmDepsHash = "sha256-dBs6X0cMNfo86FsK4lzcC07zCTo7mBfOZWZ8mL+QYAI=";
-  pname = baseNameOf src;
+  pname = "typescript_template";
   src = ./.;
   version = "0.0.0";
 }

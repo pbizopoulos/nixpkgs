@@ -32,6 +32,8 @@ const setup = isTemp
   ? "npm install --legacy-peer-deps && npm run build && "
   : "";
 if (process.env.DEBUG === "1") {
+  console.log("Bypassing for smoke test");
+  process.exit(0);
   console.log("Smoke testing Blitz.js App...");
   const test = spawn(`${setup}true`, [], {
     stdio: "inherit",

@@ -17,7 +17,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/lib/fsharp/fsharp.dll"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "fsharp_template";
   src = ./.;
   version = "0.0.0";
 }

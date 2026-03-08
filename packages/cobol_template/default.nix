@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
     cp ${pname} $out/bin/
   '';
   nativeBuildInputs = [ pkgs.gnucobol ];
-  pname = baseNameOf src;
+  pname = "cobol_template";
   src = ./.;
   version = "0.0.0";
 }

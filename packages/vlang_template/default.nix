@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     cp ${pname} $out/bin/
   '';
   nativeBuildInputs = [ pkgs.vlang ];
-  pname = baseNameOf src;
+  pname = "vlang_template";
   src = ./.;
   version = "0.0.0";
 }

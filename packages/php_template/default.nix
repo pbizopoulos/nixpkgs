@@ -9,7 +9,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/bin/${pname}.php"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "php_template";
   src = ./.;
   version = "0.0.0";
 }

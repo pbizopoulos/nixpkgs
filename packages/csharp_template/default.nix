@@ -17,7 +17,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/lib/${pname}/${pname}.dll"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "csharp_template";
   src = ./.;
   version = "0.0.0";
 }

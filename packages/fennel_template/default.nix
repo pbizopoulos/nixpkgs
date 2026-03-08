@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/lib/fennel/main.fnl"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "fennel_template";
   src = ./.;
   version = "0.0.0";
 }

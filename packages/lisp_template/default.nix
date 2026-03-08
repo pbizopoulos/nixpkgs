@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "--script $out/bin/${pname}.lisp"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "lisp_template";
   src = ./.;
   version = "0.0.0";
 }

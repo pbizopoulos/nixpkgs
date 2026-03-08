@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "-cp $out/share/scala Main"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "scala_template";
   src = ./.;
   version = "0.0.0";
 }

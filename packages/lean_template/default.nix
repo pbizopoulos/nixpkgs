@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     mkdir -p $out/share/lean
     cp Main.lean $out/share/lean/
   '';
-  pname = baseNameOf src;
+  pname = "lean_template";
   src = ./.;
   version = "0.0.0";
 }

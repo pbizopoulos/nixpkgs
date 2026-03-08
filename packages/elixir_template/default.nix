@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/share/elixir/main.exs"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "elixir_template";
   src = ./.;
   version = "0.0.0";
 }

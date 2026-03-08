@@ -28,7 +28,7 @@ pkgs.stdenv.mkDerivation rec {
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = "$pname";
+  pname = "react_native_supabase_template";
   src = ./.;
   version = "0.0.0";
 }

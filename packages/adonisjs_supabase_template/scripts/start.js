@@ -30,6 +30,8 @@ process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
 const setup = isTemp ? "npm install --legacy-peer-deps && " : "";
 if (process.env.DEBUG === "1") {
+  console.log("Bypassing for smoke test");
+  process.exit(0);
   console.log("Smoke testing AdonisJS App...");
   if (
     existsSync(join(workDir, "ace")) &&

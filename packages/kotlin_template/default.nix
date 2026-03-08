@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "-cp $out/share/kotlin/${pname}.jar MainKt"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "kotlin_template";
   src = ./.;
   version = "0.0.0";
 }

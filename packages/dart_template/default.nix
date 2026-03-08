@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "$out/lib/dart/main.dart"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "dart_template";
   src = ./.;
   version = "0.0.0";
 }

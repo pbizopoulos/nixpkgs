@@ -17,7 +17,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     rustPlatform.bindgenHook
   ];
-  pname = baseNameOf src;
+  pname = "check_repository_directory_structure";
   postInstall = ''
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${

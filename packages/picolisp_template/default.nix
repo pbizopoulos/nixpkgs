@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     chmod +x $out/bin/${pname}
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf ./.;
+  pname = "picolisp_template";
   src = ./.;
   version = "0.0.0";
 }

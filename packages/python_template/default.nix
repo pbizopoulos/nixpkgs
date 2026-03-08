@@ -7,7 +7,7 @@ pkgs.python3Packages.buildPythonPackage rec {
     cp ./main.py $out/bin/${pname}
   '';
   meta.mainProgram = pname;
-  pname = baseNameOf src;
+  pname = "python_template";
   propagatedBuildInputs = [ pkgs.python3Packages.termcolor ];
   pyproject = false;
   shellHook = ''

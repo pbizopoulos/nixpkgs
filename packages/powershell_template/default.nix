@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags "-File $out/bin/${pname}.ps1"
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "powershell_template";
   src = ./.;
   version = "0.0.0";
 }

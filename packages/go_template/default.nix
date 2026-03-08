@@ -2,7 +2,7 @@
 ,
 }:
 pkgs.buildGoModule rec {
-  pname = baseNameOf src;
+  pname = "go_template";
   postInstall = "mv $out/bin/go-hello $out/bin/${pname}";
   src = ./.;
   vendorHash = null;

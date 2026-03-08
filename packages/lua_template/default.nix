@@ -10,7 +10,7 @@ pkgs.stdenv.mkDerivation rec {
     wrapProgram $out/bin/${pname} --prefix PATH : ${pkgs.lua}/bin
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
-  pname = baseNameOf src;
+  pname = "lua_template";
   src = ./.;
   version = "0.0.0";
 }

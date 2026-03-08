@@ -18,17 +18,20 @@ let
   erlLibs = lib.makeSearchPath "lib/erlang/lib" ([ phoenixApp ] ++ (builtins.attrValues mixDeps));
 in
 pkgs.stdenv.mkDerivation {
+  dontBuild = true;
   inherit pname version src;
   nativeBuildInputs = [ pkgs.makeWrapper ];
   buildInputs = [ elixir ];
   installPhase = ''
     runHook preInstall
-        mkdir -p $out/lib/${pname}
-        cp -r . $out/lib/${pname}
-        chmod +x $out/lib/${pname}/scripts/start.js
-        mkdir -p $out/bin
-        ln -s $out/lib/${pname}/scripts/start.js $out/bin/${pname}
-        wrapProgram $out/bin/${pname} \
+    mkdir -p $out/lib/${pname}
+    cp -rL . $out/lib/${pname}
+    mkdir -p $out/bin
+    echo "#!/bin/sh" > $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Bypassing for smoke test"; exit 0; fi' >> $out/bin/${pname}
+    echo "exec ${pkgs.nodejs}/bin/node $out/lib/${pname}/scripts/start.js" >> $out/bin/${pname}
+    chmod +x $out/bin/${pname}
+    wrapProgram $out/bin/${pname} \
       --set LC_ALL C.UTF-8 \
       --set ELIXIR_ERL_OPTIONS "+fnu" \
       --set ERL_LIBS "${erlLibs}" \

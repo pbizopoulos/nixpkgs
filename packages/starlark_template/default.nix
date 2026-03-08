@@ -11,7 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     mkdir -p $out/share/starlark
     cp main.star $out/share/starlark/
   '';
-  pname = baseNameOf src;
+  pname = "starlark_template";
   src = ./.;
   version = "0.0.0";
 }
