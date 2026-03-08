@@ -18,6 +18,7 @@ let
   erlLibs = lib.makeSearchPath "lib/erlang/lib" ([ phoenixApp ] ++ (builtins.attrValues mixDeps));
 in
 pkgs.stdenv.mkDerivation {
+  dontBuild = true;
   inherit pname version src;
   nativeBuildInputs = [ pkgs.makeWrapper ];
   buildInputs = [ elixir ];

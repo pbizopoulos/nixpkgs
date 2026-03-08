@@ -1,5 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
-
+export {};
 window.addEventListener("DOMContentLoaded", () => {
   console.log("Tauri Ready!");
 });

@@ -9,10 +9,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: [
-      "src/**/*.test.ts",
-      "tests/unit/**/*.spec.ts",
-    ],
+    include: ["src/**/*.test.ts", "tests/unit/**/*.spec.ts"],
     exclude: ["tests/e2e/**/*", "node_modules/**/*"],
     env: {
       SUPABASE_URL: "http://localhost:54321",

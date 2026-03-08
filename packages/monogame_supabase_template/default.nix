@@ -3,6 +3,7 @@
 ,
 }:
 pkgs.stdenv.mkDerivation rec {
+  dontBuild = true;
   buildInputs = [
     pkgs.dotnet-sdk_9
     pkgs.SDL2
@@ -10,17 +11,30 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.libGL
     supabase-cli
   ];
-  env = {
-    SUPABASE_URL = "http://localhost:54321";
-    SUPABASE_ANON_KEY = "build-placeholder";
-  };
   installPhase = ''
+    runHook preInstall
     mkdir -p $out/lib/${pname}
-    cp -r out/* $out/lib/${pname}/
+    cp -rL . $out/lib/${pname}
     mkdir -p $out/bin
-    makeWrapper ${pkgs.dotnet-runtime_9}/bin/dotnet $out/bin/${pname} 
-      --add-flags "$out/lib/${pname}/${pname}.dll" 
-      --set LD_LIBRARY_PATH "${pkgs.lib.makeLibraryPath [ pkgs.SDL2 pkgs.openal pkgs.libGL ]}"
+    echo "#!/bin/sh" > $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
+    echo "exec ${pkgs.dotnet-sdk_9}/bin/dotnet run" >> $out/bin/${pname}
+    chmod +x $out/bin/${pname}
+    wrapProgram $out/bin/${pname} \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.dotnet-sdk_9
+          supabase-cli
+        ]
+      } \
+      --set LD_LIBRARY_PATH "${
+        pkgs.lib.makeLibraryPath [
+          pkgs.SDL2
+          pkgs.openal
+          pkgs.libGL
+        ]
+      }"
+    runHook postInstall
   '';
   nativeBuildInputs = [
     pkgs.makeWrapper

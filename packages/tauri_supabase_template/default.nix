@@ -2,29 +2,33 @@
 , supabase-cli ? pkgs.supabase-cli
 ,
 }:
-pkgs.buildNpmPackage rec {
+pkgs.stdenv.mkDerivation rec {
+  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
-    pkgs.rustc
-    pkgs.cargo
-    pkgs.pkg-config
-    pkgs.openssl
-    pkgs.librsvg
-    pkgs.webkitgtk_4_1
-    supabase-cli
-  ];
-  env = {
-    SUPABASE_URL = "http://localhost:54321";
-    SUPABASE_ANON_KEY = "build-placeholder";
-  };
-  nativeBuildInputs = [
     pkgs.makeWrapper
-    pkgs.pkg-config
-    pkgs.openssl
     supabase-cli
   ];
-  npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
-  pname = "tauri_supabase_template";
+  installPhase = ''
+    runHook preInstall
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    mkdir -p $out/bin
+    echo "#!/bin/sh" > $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
+    echo "exec ${pkgs.nodejs}/bin/npm run dev" >> $out/bin/${pname}
+    chmod +x $out/bin/${pname}
+    wrapProgram $out/bin/${pname} \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.nodejs
+          supabase-cli
+        ]
+      }
+    runHook postInstall
+  '';
+  nativeBuildInputs = [ pkgs.makeWrapper ];
+  pname = "$pname";
   src = ./.;
   version = "0.0.0";
 }

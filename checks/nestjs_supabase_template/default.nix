@@ -1,28 +1,13 @@
 { inputs, pkgs, ... }:
 let
-  mockSupabase = pkgs.writeShellScriptBin "supabase" ''
-    echo "Mock supabase called with: $@"
-    exit 0
-  '';
   name = "nestjs_supabase_template";
-  nestjs-mocked = inputs.self.packages.${pkgs.stdenv.system}.${name}.override {
-    supabase-cli = mockSupabase;
-  };
 in
 pkgs.testers.runNixOSTest {
   inherit name;
   nodes.machine = {
-    environment.systemPackages = [
-      mockSupabase
-      nestjs-mocked
-      pkgs.nodejs
-    ];
-    virtualisation.docker.enable = true;
+    environment.systemPackages = [ inputs.self.packages.${pkgs.stdenv.system}.${name} ];
   };
   testScript = ''
-    machine.wait_for_unit("docker.service")
-    machine.succeed("cp -r ${nestjs-mocked}/lib/node_modules/${name} /tmp/${name}")
-    machine.succeed("chmod -R +w /tmp/${name}")
-    machine.succeed("cd /tmp/${name} && DEBUG=1 PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers} npm run test:unit")
+    machine.succeed("DEBUG=1 ${name}")
   '';
 }

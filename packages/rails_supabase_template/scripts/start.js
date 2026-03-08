@@ -7,13 +7,13 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
-  packageRoot = join(__dirname, "../lib/node_modules/rails_template");
+  packageRoot = join(__dirname, "../lib/node_modules/rails_supabase_template");
 }
 let workDir = packageRoot;
 let isTemp = false;
 if (!existsSync(join(packageRoot, ".bundle"))) {
   isTemp = true;
-  workDir = join(tmpdir(), `rails_template-${Date.now()}`);
+  workDir = join(tmpdir(), `rails_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
   cpSync(packageRoot, workDir, { recursive: true });
 }

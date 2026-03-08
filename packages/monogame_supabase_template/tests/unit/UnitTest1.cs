@@ -1,7 +1,5 @@
 using Xunit;
-
 namespace monogame_supabase_template.Tests;
-
 public class UnitTest1
 {
     [Fact]

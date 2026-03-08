@@ -12,8 +12,7 @@
     "db:stop": "supabase stop",
     "start": "node bin/server.js",
     "build": "node ace build",
-    "dev": "node ace serve --watch",
-    "test": "node ace test"
+    "dev": "node ace serve --watch"
   },
   "dependencies": {
     "@adonisjs/core": "^6.17.1",

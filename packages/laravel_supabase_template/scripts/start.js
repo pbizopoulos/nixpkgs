@@ -7,13 +7,16 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
-  packageRoot = join(__dirname, "../lib/node_modules/laravel_template");
+  packageRoot = join(
+    __dirname,
+    "../lib/node_modules/laravel_supabase_template",
+  );
 }
 let workDir = packageRoot;
 let isTemp = false;
 if (!existsSync(join(packageRoot, "vendor"))) {
   isTemp = true;
-  workDir = join(tmpdir(), `laravel_template-${Date.now()}`);
+  workDir = join(tmpdir(), `laravel_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
   cpSync(packageRoot, workDir, { recursive: true });
 }

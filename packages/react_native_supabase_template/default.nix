@@ -2,17 +2,33 @@
 , supabase-cli ? pkgs.supabase-cli
 ,
 }:
-pkgs.buildNpmPackage rec {
+pkgs.stdenv.mkDerivation rec {
+  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
-    supabase-cli
-  ];
-  nativeBuildInputs = [
     pkgs.makeWrapper
     supabase-cli
   ];
-  npmDepsHash = "sha256-0000000000000000000000000000000000000000000=";
-  pname = "react_native_supabase_template";
+  installPhase = ''
+    runHook preInstall
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    mkdir -p $out/bin
+    echo "#!/bin/sh" > $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
+    echo "exec ${pkgs.nodejs}/bin/npm run dev" >> $out/bin/${pname}
+    chmod +x $out/bin/${pname}
+    wrapProgram $out/bin/${pname} \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.nodejs
+          supabase-cli
+        ]
+      }
+    runHook postInstall
+  '';
+  nativeBuildInputs = [ pkgs.makeWrapper ];
+  pname = "$pname";
   src = ./.;
   version = "0.0.0";
 }

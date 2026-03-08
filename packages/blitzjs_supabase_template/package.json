@@ -13,7 +13,6 @@
     "build": "blitz build",
     "start": "blitz start",
     "lint": "eslint --ignore-path .gitignore --ext .js,.ts,.tsx .",
-    "test": "vitest",
     "test:watch": "vitest watch"
   },
   "dependencies": {

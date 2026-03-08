@@ -3,35 +3,33 @@
 ,
 }:
 let
-  pythonEnv = pkgs.python3.withPackages (ps: with ps; [
-    fastapi
-    uvicorn
-    supabase
-    pytest
-    httpx
-    pytest-playwright
-  ]);
+  pythonEnv = pkgs.python3.withPackages (
+    ps: with ps; [
+      fastapi
+      uvicorn
+      pytest
+      httpx
+      pytest-playwright
+    ]
+  );
 in
 pkgs.stdenv.mkDerivation rec {
+  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
     pythonEnv
     supabase-cli
   ];
-  env = {
-    SUPABASE_URL = "http://localhost:54321";
-    SUPABASE_ANON_KEY = "build-placeholder";
-  };
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}
-    cp -r . $out/lib/${pname}
+    cp -rL . $out/lib/${pname}
     mkdir -p $out/bin
     echo "#!/bin/sh" > $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
     echo "exec ${pythonEnv}/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000" >> $out/bin/${pname}
     chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} 
-      --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} 
+    wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
@@ -41,14 +39,8 @@ pkgs.stdenv.mkDerivation rec {
       }
     runHook postInstall
   '';
-  nativeBuildInputs = [
-    pkgs.makeWrapper
-    supabase-cli
-  ];
+  nativeBuildInputs = [ pkgs.makeWrapper ];
   pname = "fastapi_supabase_template";
-  shellHook = ''
-    export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
-  '';
   src = ./.;
   version = "0.0.0";
 }

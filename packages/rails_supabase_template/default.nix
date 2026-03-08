@@ -2,6 +2,7 @@
 ,
 }:
 pkgs.stdenv.mkDerivation rec {
+  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
     pkgs.ruby
