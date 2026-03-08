@@ -64,10 +64,7 @@ let
         strict = true;
       };
       nixpkgs-fmt.enable = true;
-      ocamlformat = {
-        enable = true;
-        excludes = [ "packages/ocaml_template/main.ml" ];
-      };
+      ocamlformat.enable = true;
       odinfmt.enable = false;
       ormolu.enable = true;
       oxipng.enable = true;
@@ -223,7 +220,6 @@ let
         "**/node_modules/**"
         "*/prm/**"
         "*/tmp/**"
-        "packages/phoenix_template/src/phoenix_app/**"
         "packages/prolog_template/main.pl"
       ];
     };
