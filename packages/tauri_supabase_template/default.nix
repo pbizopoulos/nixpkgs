@@ -2,29 +2,64 @@
 , supabase-cli ? pkgs.supabase-cli
 ,
 }:
+let
+  libraries = with pkgs; [
+    webkitgtk_4_1
+    gtk3
+    libsoup_3
+    libayatana-appindicator
+    librsvg
+    gdk-pixbuf
+    glib
+    pango
+    cairo
+    openssl
+    dbus
+    atk
+    fontconfig
+    freetype
+    harfbuzz
+    zlib
+    at-spi2-atk
+    at-spi2-core
+    libX11
+    libXext
+    libXi
+    libXrandr
+    libXcursor
+    libXfixes
+    libXcomposite
+    libXdamage
+    libXinerama
+    wayland
+    libxkbcommon
+    libepoxy
+    fribidi
+  ];
+  # Use .dev output for pkg-config to find .pc files
+  dev_libraries = map (l: if l ? dev then l.dev else l) libraries;
+  build_deps = with pkgs; [
+    nodejs
+    supabase-cli
+    pkg-config
+    makeWrapper
+    cargo
+    rustc
+    stdenv.cc
+  ];
+in
 pkgs.stdenv.mkDerivation rec {
   dontBuild = true;
-  buildInputs = [
-    pkgs.nodejs
-    pkgs.makeWrapper
-    supabase-cli
-  ];
+  buildInputs = libraries ++ build_deps;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
     cp -rL . $out/lib/node_modules/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
-    echo "exec ${pkgs.nodejs}/bin/npm run dev" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${
-        pkgs.lib.makeBinPath [
-          pkgs.nodejs
-          supabase-cli
-        ]
-      }
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
+      --prefix PATH : ${pkgs.lib.makeBinPath build_deps} \
+      --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" dev_libraries}" \
+      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath libraries}"
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];

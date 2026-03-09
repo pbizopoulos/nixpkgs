@@ -9,14 +9,14 @@ let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
   packageRoot = join(
     __dirname,
-    "../lib/node_modules/foundry_supabase_template",
+    "../lib/node_modules/fastify_supabase_template",
   );
 }
 let workDir = packageRoot;
 let isTemp = false;
 if (!existsSync(join(packageRoot, "node_modules"))) {
   isTemp = true;
-  workDir = join(tmpdir(), `foundry_supabase_template-${Date.now()}`);
+  workDir = join(tmpdir(), `fastify_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
   cpSync(packageRoot, workDir, { recursive: true });
   try {

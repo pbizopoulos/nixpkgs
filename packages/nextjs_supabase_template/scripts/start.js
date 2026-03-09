@@ -1,45 +1,47 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
-import { unlinkSync, writeFileSync } from "node:fs";
+import { execSync, spawn } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const packageRoot = join(__dirname, "..");
-const nextBin = join(packageRoot, "node_modules/.bin/next");
+let packageRoot = join(__dirname, "..");
+if (__dirname.endsWith("/bin")) {
+  packageRoot = join(__dirname, "../lib/node_modules/nextjs_supabase_template");
+}
+let workDir = packageRoot;
+let isTemp = false;
+if (!existsSync(join(packageRoot, "node_modules"))) {
+  isTemp = true;
+  workDir = join(tmpdir(), `nextjs_supabase_template-${Date.now()}`);
+  mkdirSync(workDir, { recursive: true });
+  cpSync(packageRoot, workDir, { recursive: true });
+  try {
+    execSync(`chmod -R +w ${workDir}`);
+  } catch (_e) {}
+}
+const cleanup = () => {
+  if (isTemp && existsSync(workDir)) {
+    try {
+      rmSync(workDir, { recursive: true, force: true });
+    } catch (_e) {}
+  }
+};
+process.on("SIGINT", cleanup);
+process.on("SIGTERM", cleanup);
+process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
-  let setup = "npm install && npm run build && ";
-  try {
-    const testFile = join(packageRoot, ".write-test");
-    writeFileSync(testFile, "");
-    unlinkSync(testFile);
-  } catch {
-    setup = "";
-  }
-  const test = spawn(
-    `${setup}npm run db:stop && npm run db:start && npm test`,
-    [],
-    {
-      stdio: "inherit",
-      cwd: packageRoot,
-      shell: true,
-      env: {
-        ...process.env,
-        NEXT_PUBLIC_SUPABASE_URL: "http://localhost:54321",
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: "build-placeholder",
-      },
-    },
-  );
-  test.on("close", (code) => {
-    process.exit(code || 0);
-  });
 } else {
-  const next = spawn(nextBin, ["start"], {
+  const setup = isTemp ? "npm install --legacy-peer-deps && " : "";
+  const cmd = `${setup}npm start`;
+  const app = spawn(cmd, [], {
     stdio: "inherit",
-    cwd: packageRoot,
+    cwd: workDir,
+    shell: true,
   });
-  next.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 }

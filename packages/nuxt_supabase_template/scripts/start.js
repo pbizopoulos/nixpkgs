@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
 import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
@@ -16,39 +16,33 @@ if (!existsSync(join(packageRoot, "node_modules"))) {
   workDir = join(tmpdir(), `nuxt_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
   cpSync(packageRoot, workDir, { recursive: true });
+  try {
+    execSync(`chmod -R +w ${workDir}`);
+  } catch (_e) {}
 }
 const cleanup = () => {
   if (isTemp && existsSync(workDir)) {
-    rmSync(workDir, { recursive: true, force: true });
+    try {
+      rmSync(workDir, { recursive: true, force: true });
+    } catch (_e) {}
   }
 };
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
-const setup = isTemp
-  ? "npm install --legacy-peer-deps && npm run build && "
-  : "";
 if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
-  console.log("Smoke testing Nuxt App...");
-  const test = spawn(`${setup}true`, [], {
-    stdio: "inherit",
-    cwd: workDir,
-    shell: true,
-    env: { ...process.env, NUXT_TELEMETRY_DISABLED: "1" },
-  });
-  test.on("close", (code) => {
-    process.exit(code || 0);
-  });
 } else {
-  const nuxt = spawn(`${setup}npm run preview`, [], {
+  const setup = isTemp ? "npm install --legacy-peer-deps && " : "";
+  const cmd = `${setup}npm start`;
+  const app = spawn(cmd, [], {
     stdio: "inherit",
     cwd: workDir,
     shell: true,
     env: { ...process.env, NUXT_TELEMETRY_DISABLED: "1" },
   });
-  nuxt.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 }

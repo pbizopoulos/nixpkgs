@@ -30,21 +30,21 @@ if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
   console.log("Smoke testing Rails App...");
-  const test = spawn(`${setup}true`, [], {
+  const _test = spawn(`${setup}true`, [], {
     stdio: "inherit",
     cwd: workDir,
     shell: true,
   });
-  test.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 } else {
-  const rails = spawn(`${setup}bundle exec rails server`, [], {
+  const _rails = spawn(`${setup}bundle exec rails server`, [], {
     stdio: "inherit",
     cwd: workDir,
     shell: true,
   });
-  rails.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 }

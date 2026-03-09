@@ -1,0 +1,27 @@
+{
+  "productName": "tauri_supabase_template",
+  "version": "0.0.0",
+  "identifier": "com.tauri.supabase",
+  "build": {
+    "beforeDevCommand": "",
+    "beforeBuildCommand": "",
+    "frontendDist": "../src"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Tauri Supabase Template",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": []
+  }
+}

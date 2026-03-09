@@ -11,7 +11,7 @@ if (process.env.DEBUG === "1") {
     process.env.SKIP_SUPABASE === "1"
       ? "elixir -e 'PhoenixApp.main([])'"
       : "supabase stop && supabase start && elixir -e 'PhoenixApp.main([])'";
-  const test = spawn(command, [], {
+  const _test = spawn(command, [], {
     stdio: "inherit",
     cwd: packageRoot,
     shell: true,
@@ -20,11 +20,11 @@ if (process.env.DEBUG === "1") {
       DEBUG: "1",
     },
   });
-  test.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 } else {
-  const phoenix = spawn("elixir", ["-e", "PhoenixApp.main([])"], {
+  const _phoenix = spawn("elixir", ["-e", "PhoenixApp.main([])"], {
     stdio: "inherit",
     cwd: packageRoot,
     env: {
@@ -32,7 +32,7 @@ if (process.env.DEBUG === "1") {
       PHX_SERVER: "1",
     },
   });
-  phoenix.on("close", (code) => {
+  app.on("close", (code) => {
     process.exit(code || 0);
   });
 }

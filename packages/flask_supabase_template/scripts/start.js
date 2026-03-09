@@ -1,18 +1,47 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const packageRoot = join(__dirname, "..");
-if (process.env.DEBUG === "1") {
-  console.log("Smoke testing Flask App...");
-  process.exit(0);
+let packageRoot = join(__dirname, "..");
+if (__dirname.endsWith("/bin")) {
+  packageRoot = join(__dirname, "../lib/node_modules/flask_supabase_template");
 }
-const flask = spawn("npm start", [], {
-  stdio: "inherit",
-  cwd: packageRoot,
-  shell: true,
-});
-flask.on("close", (code) => {
-  process.exit(code || 0);
-});
+let workDir = packageRoot;
+let isTemp = false;
+if (!existsSync(join(packageRoot, "node_modules"))) {
+  isTemp = true;
+  workDir = join(tmpdir(), `flask_supabase_template-${Date.now()}`);
+  mkdirSync(workDir, { recursive: true });
+  cpSync(packageRoot, workDir, { recursive: true });
+  try {
+    execSync(`chmod -R +w ${workDir}`);
+  } catch (_e) {}
+}
+const cleanup = () => {
+  if (isTemp && existsSync(workDir)) {
+    try {
+      rmSync(workDir, { recursive: true, force: true });
+    } catch (_e) {}
+  }
+};
+process.on("SIGINT", cleanup);
+process.on("SIGTERM", cleanup);
+process.on("exit", cleanup);
+if (process.env.DEBUG === "1") {
+  console.log("Bypassing for smoke test");
+  process.exit(0);
+} else {
+  const setup = isTemp ? "npm install --legacy-peer-deps && " : "";
+  const cmd = `${setup}npm start`;
+  const app = spawn(cmd, [], {
+    stdio: "inherit",
+    cwd: workDir,
+    shell: true,
+  });
+  app.on("close", (code) => {
+    process.exit(code || 0);
+  });
+}

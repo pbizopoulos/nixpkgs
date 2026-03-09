@@ -12,22 +12,22 @@ pkgs.stdenv.mkDerivation rec {
   ];
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/lib/${pname}
-    cp -rL . $out/lib/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
-    echo "exec ${pkgs.jdk17}/bin/java -jar $out/lib/${pname}/build/libs/*.jar" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
-          pkgs.jdk17
+          pkgs.supabase-cli
+          pkgs.pkg-config
+          pkgs.makeWrapper
           pkgs.gradle
-          supabase-cli
+          pkgs.jdk17
         ]
-      }
+      } \
+      --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \
+      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}"
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
