@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync, spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -8,10 +8,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
   packageRoot = join(__dirname, "../lib/node_modules/bevy_supabase_template");
+  if (!existsSync(packageRoot)) {
+    packageRoot = join(__dirname, "../lib/bevy_supabase_template");
+  }
 }
 let workDir = packageRoot;
 let isTemp = false;
-if (!existsSync(join(packageRoot, "node_modules"))) {
+if (
+  packageRoot.startsWith("/nix/store") &&
+  !existsSync(join(packageRoot, "node_modules")) &&
+  !existsSync(join(packageRoot, "target")) &&
+  !existsSync(join(packageRoot, "vendor"))
+) {
   isTemp = true;
   workDir = join(tmpdir(), `bevy_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
@@ -34,21 +42,30 @@ if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
-  let setup = "";
+  let fullCmd = "";
+  const setupCmd = "npm install --legacy-peer-deps";
+  const buildCmd = "npm run build";
   const startCmd = "npm start";
   if (isTemp) {
-    setup = "npm install --legacy-peer-deps && ";
-    try {
-      const pkg = JSON.parse(
-        readFileSync(join(workDir, "package.json"), "utf8"),
-      );
-      if (pkg.scripts?.build && startCmd.includes("start")) {
-        setup += "npm run build && ";
-      }
-    } catch (_e) {}
+    if (setupCmd) {
+      fullCmd += `${setupCmd} && `;
+    }
+    if (buildCmd) {
+      fullCmd += `${buildCmd} && `;
+    }
   }
-  const cmd = `${setup}${startCmd}`;
-  const app = spawn(cmd, [], {
+  if (existsSync(join(workDir, "supabase", "config.toml"))) {
+    try {
+      console.log("Attempting to start Supabase...");
+      execSync("supabase start", { cwd: workDir, stdio: "inherit" });
+    } catch (_e) {
+      console.log(
+        "Supabase start failed (maybe docker is missing or already running)",
+      );
+    }
+  }
+  fullCmd += startCmd;
+  const app = spawn(fullCmd, [], {
     stdio: "inherit",
     cwd: workDir,
     shell: true,

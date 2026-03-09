@@ -41,6 +41,8 @@ pkgs.stdenv.mkDerivation {
           pkgs.postgresql
           pkgs.nodejs
           pkgs.supabase-cli
+          pkgs.gnumake
+          pkgs.gcc
         ]
       }"
     runHook postInstall

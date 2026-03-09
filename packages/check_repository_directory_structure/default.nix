@@ -23,6 +23,8 @@ rustPlatform.buildRustPackage rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.git
+          pkgs.openssl
+          pkgs.zlib
         ]
       }
   '';

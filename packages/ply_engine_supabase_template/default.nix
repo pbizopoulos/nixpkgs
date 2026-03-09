@@ -28,11 +28,18 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeBinPath [
           pkgs.nodejs
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
           pkgs.cargo
           pkgs.rustc
           pkgs.stdenv.cc
+          pkgs.udev
+          pkgs.alsa-lib
+          pkgs.vulkan-loader
+          pkgs.libxkbcommon
+          pkgs.wayland
+          pkgs.libX11
+          pkgs.libXcursor
+          pkgs.libXi
+          pkgs.libXrandr
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${

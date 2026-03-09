@@ -10,5 +10,5 @@
       url = "github:numtide/treefmt-nix";
     };
   };
-  outputs = inputs: inputs.blueprint { inherit inputs; };
+  outputs = inputs: inputs.blueprint { inherit inputs; } // { inherit (inputs) blueprint; };
 }

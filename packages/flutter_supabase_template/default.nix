@@ -6,6 +6,7 @@ pkgs.stdenv.mkDerivation rec {
   dontBuild = true;
   buildInputs = [
     pkgs.nodejs
+    pkgs.flutter
     pkgs.makeWrapper
     supabase-cli
   ];
@@ -18,9 +19,8 @@ pkgs.stdenv.mkDerivation rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
+          pkgs.flutter
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \

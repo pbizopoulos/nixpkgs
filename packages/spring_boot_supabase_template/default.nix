@@ -20,8 +20,6 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeBinPath [
           pkgs.nodejs
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
           pkgs.gradle
           pkgs.jdk17
         ]

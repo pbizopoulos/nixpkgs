@@ -14,12 +14,12 @@ pkgs.stdenv.mkDerivation rec {
     cp -rL . $out/lib/node_modules/${pname}
     makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
+      --set SUPABASE_URL "http://localhost:54321" \
+      --set SUPABASE_ANON_KEY "build-placeholder" \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \

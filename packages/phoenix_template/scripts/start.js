@@ -1,36 +1,74 @@
 #!/usr/bin/env node
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
+import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const packageRoot = join(__dirname, "..");
+let packageRoot = join(__dirname, "..");
+if (__dirname.endsWith("/bin")) {
+  packageRoot = join(__dirname, "../lib/node_modules/phoenix_template");
+  if (!existsSync(packageRoot)) {
+    packageRoot = join(__dirname, "../lib/phoenix_template");
+  }
+}
+let workDir = packageRoot;
+let isTemp = false;
+if (
+  packageRoot.startsWith("/nix/store") &&
+  !existsSync(join(packageRoot, "node_modules")) &&
+  !existsSync(join(packageRoot, "target")) &&
+  !existsSync(join(packageRoot, "vendor"))
+) {
+  isTemp = true;
+  workDir = join(tmpdir(), `phoenix_template-${Date.now()}`);
+  mkdirSync(workDir, { recursive: true });
+  cpSync(packageRoot, workDir, { recursive: true });
+  try {
+    execSync(`chmod -R +w ${workDir}`);
+  } catch (_e) {}
+}
+const cleanup = () => {
+  if (isTemp && existsSync(workDir)) {
+    try {
+      rmSync(workDir, { recursive: true, force: true });
+    } catch (_e) {}
+  }
+};
+process.on("SIGINT", cleanup);
+process.on("SIGTERM", cleanup);
+process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
-  const command =
-    process.env.SKIP_SUPABASE === "1"
-      ? "elixir -e 'PhoenixApp.main([])'"
-      : "supabase stop && supabase start && elixir -e 'PhoenixApp.main([])'";
-  const _test = spawn(command, [], {
-    stdio: "inherit",
-    cwd: packageRoot,
-    shell: true,
-    env: {
-      ...process.env,
-      DEBUG: "1",
-    },
-  });
-  app.on("close", (code) => {
-    process.exit(code || 0);
-  });
 } else {
-  const _phoenix = spawn("elixir", ["-e", "PhoenixApp.main([])"], {
+  let fullCmd = "";
+  const setupCmd = "mix deps.get";
+  const buildCmd = "mix compile";
+  const startCmd = "mix phx.server";
+  if (isTemp) {
+    if (setupCmd) {
+      fullCmd += `${setupCmd} && `;
+    }
+    if (buildCmd) {
+      fullCmd += `${buildCmd} && `;
+    }
+  }
+  if (existsSync(join(workDir, "supabase", "config.toml"))) {
+    try {
+      console.log("Attempting to start Supabase...");
+      execSync("supabase start", { cwd: workDir, stdio: "inherit" });
+    } catch (_e) {
+      console.log(
+        "Supabase start failed (maybe docker is missing or already running)",
+      );
+    }
+  }
+  fullCmd += startCmd;
+  const app = spawn(fullCmd, [], {
     stdio: "inherit",
-    cwd: packageRoot,
-    env: {
-      ...process.env,
-      PHX_SERVER: "1",
-    },
+    cwd: workDir,
+    shell: true,
   });
   app.on("close", (code) => {
     process.exit(code || 0);

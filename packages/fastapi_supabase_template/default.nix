@@ -31,8 +31,6 @@ pkgs.stdenv.mkDerivation rec {
           pkgs.nodejs
           pythonEnv
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \

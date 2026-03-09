@@ -27,6 +27,8 @@ rustPlatform.buildRustPackage rec {
         pkgs.lib.makeBinPath [
           pkgs.git
           pkgs.nix
+          pkgs.openssl
+          pkgs.zlib
         ]
       }
   '';

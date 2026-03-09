@@ -21,9 +21,10 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeBinPath [
           pkgs.nodejs
           pkgs.supabase-cli
-          pkgs.pkg-config
-          pkgs.makeWrapper
           pkgs.dotnet-sdk_9
+          pkgs.SDL2
+          pkgs.openal
+          pkgs.libGL
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${

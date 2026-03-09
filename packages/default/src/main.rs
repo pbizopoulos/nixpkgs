@@ -73,25 +73,6 @@ fn main() -> Result<()> {
             .status()
             .ok();
     }
-    let formatter_nix_src = root_dir.join("formatter.nix");
-    if formatter_nix_src.exists() {
-        let dest = target_dir.join("formatter.nix");
-        if dest.exists() {
-            fs::remove_file(&dest).ok();
-        }
-        fs::copy(&formatter_nix_src, &dest).context("Failed to copy formatter.nix")?;
-        fs::set_permissions(&dest, fs::Permissions::from_mode(0o644)).ok();
-        let content = fs::read_to_string(&dest).context("Failed to read copied formatter.nix")?;
-        let new_content =
-            content.replace("inputs.self.packages", "inputs.canonicalization.packages");
-        fs::write(&dest, new_content).context("Failed to write modified formatter.nix")?;
-        std_command::new("git")
-            .arg("add")
-            .arg("formatter.nix")
-            .current_dir(target_dir)
-            .status()
-            .ok();
-    }
     for template_path in templates_to_copy {
         let template_name = template_path.file_name().and_then(|s| s.to_str()).unwrap();
         let dest_path = target_dir.join("packages").join(template_name);
@@ -187,7 +168,7 @@ fn parse_args() -> Result<clap::ArgMatches> {
         .arg(
             Arg::new("directory")
                 .help("The target directory where the project will be initialized. If it doesn't exist, it will be created.")
-                .long_help("The target directory for project initialization. The tool will:\n1. Create the directory if needed.\n2. Initialize a git repository.\n3. Copy selected templates.\n4. Configure flake.nix and formatter.nix.")
+                .long_help("The target directory for project initialization. The tool will:\n1. Create the directory if needed.\n2. Initialize a git repository.\n3. Copy selected templates.\n4. Configure flake.nix.")
                 .required(true)
                 .index(1),
         )
