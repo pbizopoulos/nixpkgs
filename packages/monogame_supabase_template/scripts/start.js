@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { execSync, spawn } from "node:child_process";
-import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,8 +37,20 @@ if (process.env.DEBUG === "1") {
   console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
-  const setup = isTemp ? "npm install --legacy-peer-deps && " : "";
-  const cmd = `${setup}npm start`;
+  let setup = "";
+  const startCmd = "npm start";
+  if (isTemp) {
+    setup = "npm install --legacy-peer-deps && ";
+    try {
+      const pkg = JSON.parse(
+        readFileSync(join(workDir, "package.json"), "utf8"),
+      );
+      if (pkg.scripts?.build && startCmd.includes("start")) {
+        setup += "npm run build && ";
+      }
+    } catch (_e) {}
+  }
+  const cmd = `${setup}${startCmd}`;
   const app = spawn(cmd, [], {
     stdio: "inherit",
     cwd: workDir,

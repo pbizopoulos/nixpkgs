@@ -58,7 +58,6 @@ let
       mdsh.enable = true;
       mix-format.enable = true;
       nimpretty.enable = true;
-      nixf-diagnose.enable = true;
       nixfmt = {
         enable = true;
         strict = true;

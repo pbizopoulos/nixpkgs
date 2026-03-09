@@ -29,6 +29,7 @@ pkgs.stdenv.mkDerivation rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
+          pythonEnv
           pkgs.supabase-cli
           pkgs.pkg-config
           pkgs.makeWrapper

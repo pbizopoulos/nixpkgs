@@ -36,8 +36,7 @@ let
     libepoxy
     fribidi
   ];
-  # Use .dev output for pkg-config to find .pc files
-  dev_libraries = map (l: if l ? dev then l.dev else l) libraries;
+  dev_libraries = map (l: l.dev or l) libraries;
   build_deps = with pkgs; [
     nodejs
     supabase-cli
