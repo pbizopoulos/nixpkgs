@@ -6,12 +6,12 @@ let
   rubyEnv = pkgs.ruby.withPackages (ps: with ps; [ sinatra ]);
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
     rubyEnv
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}

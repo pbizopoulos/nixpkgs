@@ -3,11 +3,11 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
     pkgs.foundry
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -16,9 +16,9 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
+          pkgs.foundry
           pkgs.nodejs
           pkgs.supabase-cli
-          pkgs.foundry
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \

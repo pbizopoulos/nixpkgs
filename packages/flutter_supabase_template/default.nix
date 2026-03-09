@@ -3,13 +3,13 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
     pkgs.flutter
     pkgs.makeWrapper
+    pkgs.nodejs
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -18,8 +18,8 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
           pkgs.flutter
+          pkgs.nodejs
           pkgs.supabase-cli
         ]
       } \

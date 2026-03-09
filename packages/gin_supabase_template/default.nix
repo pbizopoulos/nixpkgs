@@ -3,13 +3,11 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.buildGoModule rec {
-  env = {
-    CGO_ENABLED = "0";
-  };
   buildInputs = [
     pkgs.nodejs
     supabase-cli
   ];
+  env.CGO_ENABLED = "0";
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}

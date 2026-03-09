@@ -2,14 +2,14 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
+    pkgs.makeWrapper
     pkgs.nodejs
     pkgs.php
     pkgs.phpPackages.composer
-    pkgs.makeWrapper
     pkgs.unzip
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -19,9 +19,9 @@ pkgs.stdenv.mkDerivation rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
-          pkgs.supabase-cli
           pkgs.php
           pkgs.phpPackages.composer
+          pkgs.supabase-cli
           pkgs.unzip
         ]
       } \

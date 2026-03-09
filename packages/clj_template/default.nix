@@ -3,12 +3,11 @@
 }:
 let
   pname = "clj_template";
-  version = "0.0.0";
   src = ./.;
+  version = "0.0.0";
 in
 pkgs.stdenv.mkDerivation rec {
   inherit pname version src;
-  nativeBuildInputs = [ pkgs.makeWrapper ];
   buildInputs = [ pkgs.clojure ];
   installPhase = ''
         mkdir -p $out/bin
@@ -28,4 +27,5 @@ pkgs.stdenv.mkDerivation rec {
         cp -r . $out/lib/${pname}
   '';
   meta.mainProgram = pname;
+  nativeBuildInputs = [ pkgs.makeWrapper ];
 }

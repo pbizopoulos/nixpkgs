@@ -2,8 +2,8 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [ pkgs.godot_4 ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}

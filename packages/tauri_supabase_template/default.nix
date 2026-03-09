@@ -3,53 +3,53 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 let
-  libraries = with pkgs; [
-    webkitgtk_4_1
-    gtk3
-    libsoup_3
-    libayatana-appindicator
-    librsvg
-    gdk-pixbuf
-    glib
-    pango
-    cairo
-    openssl
-    dbus
-    atk
-    fontconfig
-    freetype
-    harfbuzz
-    zlib
-    at-spi2-atk
-    at-spi2-core
-    libX11
-    libXext
-    libXi
-    libXrandr
-    libXcursor
-    libXfixes
-    libXcomposite
-    libXdamage
-    libXinerama
-    wayland
-    libxkbcommon
-    libepoxy
-    fribidi
-  ];
-  dev_libraries = map (l: l.dev or l) libraries;
   build_deps = with pkgs; [
-    nodejs
-    supabase-cli
-    pkg-config
-    makeWrapper
     cargo
+    makeWrapper
+    nodejs
+    pkg-config
     rustc
     stdenv.cc
+    supabase-cli
+  ];
+  dev_libraries = map (l: l.dev or l) libraries;
+  libraries = with pkgs; [
+    at-spi2-atk
+    at-spi2-core
+    atk
+    cairo
+    dbus
+    fontconfig
+    freetype
+    fribidi
+    gdk-pixbuf
+    glib
+    gtk3
+    harfbuzz
+    libX11
+    libXcomposite
+    libXcursor
+    libXdamage
+    libXext
+    libXfixes
+    libXi
+    libXinerama
+    libXrandr
+    libayatana-appindicator
+    libepoxy
+    librsvg
+    libsoup_3
+    libxkbcommon
+    openssl
+    pango
+    wayland
+    webkitgtk_4_1
+    zlib
   ];
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = libraries ++ build_deps;
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}

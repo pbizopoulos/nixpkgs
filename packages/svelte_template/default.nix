@@ -3,8 +3,8 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
-    pkgs.nodejs
     pkgs.makeWrapper
+    pkgs.nodejs
   ];
   installPhase = ''
     runHook preInstall

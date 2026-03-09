@@ -3,12 +3,12 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
     pkgs.makeWrapper
+    pkgs.nodejs
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}

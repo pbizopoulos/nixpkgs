@@ -3,12 +3,12 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
     pkgs.dotnet-sdk
+    pkgs.nodejs
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}
@@ -21,8 +21,8 @@ pkgs.stdenv.mkDerivation rec {
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
           pkgs.dotnet-sdk
+          pkgs.nodejs
           supabase-cli
         ]
       }

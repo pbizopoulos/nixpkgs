@@ -3,32 +3,32 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 let
+  build_deps = with pkgs; [
+    cargo
+    makeWrapper
+    nodejs
+    pkg-config
+    rustc
+    stdenv.cc
+    supabase-cli
+  ];
+  dev_libraries = map (l: l.dev or l) libraries;
   libraries = with pkgs; [
-    udev
     alsa-lib
-    vulkan-loader
-    libxkbcommon
-    wayland
     libX11
     libXcursor
     libXi
     libXrandr
+    libxkbcommon
     openssl
-  ];
-  dev_libraries = map (l: l.dev or l) libraries;
-  build_deps = with pkgs; [
-    nodejs
-    supabase-cli
-    pkg-config
-    makeWrapper
-    cargo
-    rustc
-    stdenv.cc
+    udev
+    vulkan-loader
+    wayland
   ];
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = libraries ++ build_deps;
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}

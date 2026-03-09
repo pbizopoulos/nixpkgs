@@ -3,25 +3,24 @@
 }:
 let
   inherit (pkgs) lib;
-  beamPackages = pkgs.beam.packages.erlang_27;
   inherit (beamPackages) elixir;
-  pname = "phoenix_supabase_template";
-  version = "0.1.0";
-  src = ./.;
+  beamPackages = pkgs.beam.packages.erlang_27;
+  erlLibs = lib.makeSearchPath "lib/erlang/lib" ([ phoenixApp ] ++ builtins.attrValues mixDeps);
   mixDeps = import "${src}/deps.nix" { inherit lib beamPackages; };
   phoenixApp = beamPackages.buildMix {
-    name = "phoenix_app";
     inherit version;
-    src = ./.;
     beamDeps = builtins.attrValues mixDeps;
+    name = "phoenix_app";
+    src = ./.;
   };
-  erlLibs = lib.makeSearchPath "lib/erlang/lib" ([ phoenixApp ] ++ (builtins.attrValues mixDeps));
+  pname = "phoenix_supabase_template";
+  src = ./.;
+  version = "0.1.0";
 in
 pkgs.stdenv.mkDerivation {
-  dontBuild = true;
   inherit pname version src;
-  nativeBuildInputs = [ pkgs.makeWrapper ];
   buildInputs = [ elixir ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}
@@ -38,14 +37,15 @@ pkgs.stdenv.mkDerivation {
       --prefix PATH : "${
         lib.makeBinPath [
           elixir
-          pkgs.postgresql
-          pkgs.nodejs
-          pkgs.supabase-cli
-          pkgs.gnumake
           pkgs.gcc
+          pkgs.gnumake
+          pkgs.nodejs
+          pkgs.postgresql
+          pkgs.supabase-cli
         ]
       }"
     runHook postInstall
   '';
   meta.mainProgram = pname;
+  nativeBuildInputs = [ pkgs.makeWrapper ];
 }

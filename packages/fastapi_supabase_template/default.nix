@@ -6,20 +6,20 @@ let
   pythonEnv = pkgs.python3.withPackages (
     ps: with ps; [
       fastapi
-      uvicorn
-      pytest
       httpx
+      pytest
       pytest-playwright
+      uvicorn
     ]
   );
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
     pythonEnv
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -29,8 +29,8 @@ pkgs.stdenv.mkDerivation rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
-          pythonEnv
           pkgs.supabase-cli
+          pythonEnv
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \

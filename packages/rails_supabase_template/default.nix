@@ -2,16 +2,16 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
-    pkgs.ruby
     pkgs.bundler
-    pkgs.makeWrapper
     pkgs.gcc
     pkgs.gnumake
+    pkgs.makeWrapper
+    pkgs.nodejs
+    pkgs.ruby
     pkgs.sqlite
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -22,11 +22,11 @@ pkgs.stdenv.mkDerivation rec {
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
-          pkgs.ruby
           pkgs.bundler
           pkgs.gcc
           pkgs.gnumake
+          pkgs.nodejs
+          pkgs.ruby
           pkgs.sqlite
         ]
       }

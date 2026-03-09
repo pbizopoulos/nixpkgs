@@ -3,21 +3,21 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.udev
     pkgs.alsa-lib
-    pkgs.vulkan-loader
-    pkgs.libxkbcommon
-    pkgs.wayland
+    pkgs.cargo
     pkgs.libX11
     pkgs.libXcursor
     pkgs.libXi
     pkgs.libXrandr
+    pkgs.libxkbcommon
     pkgs.rustc
-    pkgs.cargo
+    pkgs.udev
+    pkgs.vulkan-loader
+    pkgs.wayland
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -26,35 +26,35 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
-          pkgs.supabase-cli
-          pkgs.cargo
-          pkgs.rustc
-          pkgs.stdenv.cc
-          pkgs.udev
           pkgs.alsa-lib
-          pkgs.vulkan-loader
-          pkgs.libxkbcommon
-          pkgs.wayland
+          pkgs.cargo
           pkgs.libX11
           pkgs.libXcursor
           pkgs.libXi
           pkgs.libXrandr
+          pkgs.libxkbcommon
+          pkgs.nodejs
+          pkgs.rustc
+          pkgs.stdenv.cc
+          pkgs.supabase-cli
+          pkgs.udev
+          pkgs.vulkan-loader
+          pkgs.wayland
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${
         pkgs.lib.makeSearchPath "lib/pkgconfig" (
           buildInputs
           ++ [
-            pkgs.udev
             pkgs.alsa-lib
-            pkgs.vulkan-loader
-            pkgs.libxkbcommon
-            pkgs.wayland
             pkgs.libX11
             pkgs.libXcursor
             pkgs.libXi
             pkgs.libXrandr
+            pkgs.libxkbcommon
+            pkgs.udev
+            pkgs.vulkan-loader
+            pkgs.wayland
           ]
         )
       }" \
@@ -62,15 +62,15 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeLibraryPath (
           buildInputs
           ++ [
-            pkgs.udev
             pkgs.alsa-lib
-            pkgs.vulkan-loader
-            pkgs.libxkbcommon
-            pkgs.wayland
             pkgs.libX11
             pkgs.libXcursor
             pkgs.libXi
             pkgs.libXrandr
+            pkgs.libxkbcommon
+            pkgs.udev
+            pkgs.vulkan-loader
+            pkgs.wayland
           ]
         )
       }"

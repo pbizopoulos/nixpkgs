@@ -4,8 +4,8 @@
 pkgs.haskellPackages.mkDerivation rec {
   executableHaskellDepends = [
     pkgs.haskellPackages.HUnit
-    pkgs.haskellPackages.base
     pkgs.haskellPackages.aeson
+    pkgs.haskellPackages.base
     pkgs.haskellPackages.bytestring
   ];
   executableToolDepends = [ pkgs.makeWrapper ];

@@ -3,12 +3,12 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
     pkgs.makeWrapper
+    pkgs.nodejs
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -25,29 +25,29 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeSearchPath "lib/pkgconfig" (
           buildInputs
           ++ [
-            pkgs.gtk3
-            pkgs.nss
-            pkgs.nspr
-            pkgs.dbus
+            pkgs.alsa-lib
+            pkgs.at-spi2-atk
+            pkgs.at-spi2-core
             pkgs.atk
+            pkgs.cairo
             pkgs.cups
-            pkgs.libdrm
+            pkgs.dbus
+            pkgs.expat
+            pkgs.gtk3
+            pkgs.libGL
             pkgs.libX11
             pkgs.libXcomposite
             pkgs.libXdamage
             pkgs.libXext
             pkgs.libXfixes
             pkgs.libXrandr
+            pkgs.libdrm
             pkgs.libgbm
-            pkgs.expat
-            pkgs.pango
-            pkgs.cairo
-            pkgs.alsa-lib
-            pkgs.at-spi2-atk
-            pkgs.at-spi2-core
             pkgs.libxshmfence
             pkgs.mesa
-            pkgs.libGL
+            pkgs.nspr
+            pkgs.nss
+            pkgs.pango
           ]
         )
       }" \
@@ -55,29 +55,29 @@ pkgs.stdenv.mkDerivation rec {
         pkgs.lib.makeLibraryPath (
           buildInputs
           ++ [
-            pkgs.gtk3
-            pkgs.nss
-            pkgs.nspr
-            pkgs.dbus
+            pkgs.alsa-lib
+            pkgs.at-spi2-atk
+            pkgs.at-spi2-core
             pkgs.atk
+            pkgs.cairo
             pkgs.cups
-            pkgs.libdrm
+            pkgs.dbus
+            pkgs.expat
+            pkgs.gtk3
+            pkgs.libGL
             pkgs.libX11
             pkgs.libXcomposite
             pkgs.libXdamage
             pkgs.libXext
             pkgs.libXfixes
             pkgs.libXrandr
+            pkgs.libdrm
             pkgs.libgbm
-            pkgs.expat
-            pkgs.pango
-            pkgs.cairo
-            pkgs.alsa-lib
-            pkgs.at-spi2-atk
-            pkgs.at-spi2-core
             pkgs.libxshmfence
             pkgs.mesa
-            pkgs.libGL
+            pkgs.nspr
+            pkgs.nss
+            pkgs.pango
           ]
         )
       }"

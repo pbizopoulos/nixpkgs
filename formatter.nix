@@ -14,10 +14,10 @@ let
       biome = {
         enable = true;
         excludes = [
-          "**/topbar.js"
-          "**/daisyui.js"
-          "**/daisyui-theme.js"
           "**/app.css"
+          "**/daisyui-theme.js"
+          "**/daisyui.js"
+          "**/topbar.js"
         ];
         formatUnsafe = true;
       };
@@ -162,6 +162,12 @@ let
             "--ignore-missing-imports"
             "--strict"
           ];
+        };
+        nix-alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
+          includes = [ "*.nix" ];
+          excludes = [ "formatter.nix" ];
+          priority = 0;
         };
         php-cs-fixer.options = [ "--allow-risky=yes" ];
         protoc = {

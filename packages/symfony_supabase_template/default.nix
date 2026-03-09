@@ -4,7 +4,7 @@
 }:
 let
   phpEnv = pkgs.php.withExtensions (
-    { enabled, all }:
+    { all, enabled }:
     enabled
     ++ [
       all.pdo_pgsql
@@ -13,12 +13,12 @@ let
   );
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.nodejs
     phpEnv
+    pkgs.nodejs
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/${pname}
@@ -31,8 +31,8 @@ pkgs.stdenv.mkDerivation rec {
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
           phpEnv
+          pkgs.nodejs
           supabase-cli
         ]
       }

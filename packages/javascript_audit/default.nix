@@ -3,8 +3,8 @@
 }:
 let
   auditing-tools = [
-    pkgs.nodejs
     pkgs.nix
+    pkgs.nodejs
   ];
 in
 pkgs.stdenv.mkDerivation rec {

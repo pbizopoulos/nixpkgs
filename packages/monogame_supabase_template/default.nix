@@ -3,14 +3,14 @@
   supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
-    pkgs.dotnet-sdk_9
     pkgs.SDL2
-    pkgs.openal
+    pkgs.dotnet-sdk_9
     pkgs.libGL
+    pkgs.openal
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
@@ -19,12 +19,12 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
-          pkgs.supabase-cli
-          pkgs.dotnet-sdk_9
           pkgs.SDL2
-          pkgs.openal
+          pkgs.dotnet-sdk_9
           pkgs.libGL
+          pkgs.nodejs
+          pkgs.openal
+          pkgs.supabase-cli
         ]
       } \
       --prefix PKG_CONFIG_PATH : "${
@@ -32,8 +32,8 @@ pkgs.stdenv.mkDerivation rec {
           buildInputs
           ++ [
             pkgs.SDL2
-            pkgs.openal
             pkgs.libGL
+            pkgs.openal
           ]
         )
       }" \
@@ -42,8 +42,8 @@ pkgs.stdenv.mkDerivation rec {
           buildInputs
           ++ [
             pkgs.SDL2
-            pkgs.openal
             pkgs.libGL
+            pkgs.openal
           ]
         )
       }"

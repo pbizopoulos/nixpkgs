@@ -4,8 +4,8 @@
 let
   auditing-tools = [
     pkgs.go
-    pkgs.govulncheck
     pkgs.gosec
+    pkgs.govulncheck
     pkgs.nix
   ];
 in

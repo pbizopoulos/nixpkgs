@@ -13,12 +13,12 @@ let
   );
 in
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
   buildInputs = [
     pkgs.nodejs
     pythonEnv
     supabase-cli
   ];
+  dontBuild = true;
   installPhase = ''
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}

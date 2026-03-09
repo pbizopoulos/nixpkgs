@@ -11,8 +11,8 @@ pkgs.stdenv.mkDerivation rec {
     cp ${pname} $out/bin/
   '';
   nativeBuildInputs = [
-    pkgs.marst
     pkgs.gcc
+    pkgs.marst
   ];
   pname = "algol60_template";
   src = ./.;
