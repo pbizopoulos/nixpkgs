@@ -10,5 +10,5 @@ func main() {
 			"message": "Hello, Gin with Supabase!",
 		})
 	})
-	r.Run() 
+	r.Run()
 }

@@ -3,6 +3,9 @@
 ,
 }:
 pkgs.buildGoModule rec {
+  env = {
+    CGO_ENABLED = "0";
+  };
   buildInputs = [
     pkgs.nodejs
     supabase-cli

@@ -218,6 +218,7 @@ let
       };
       global.excludes = [
         "**/node_modules/**"
+        "**/vendor/**"
         "*/prm/**"
         "*/tmp/**"
         "packages/prolog_template/main.pl"
