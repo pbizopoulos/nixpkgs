@@ -15,10 +15,8 @@ pkgs.buildNpmPackage rec {
     runHook preInstall
     mkdir -p $out/lib/node_modules/${pname}
     cp -r . $out/lib/node_modules/${pname}
-    mkdir -p $out/bin
-    cp $out/lib/node_modules/${pname}/scripts/start.js $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} \
       --set PKG_CONFIG_PATH ${pkgs.openssl.dev}/lib/pkgconfig \
       --prefix PATH : ${

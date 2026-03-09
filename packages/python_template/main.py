@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""Python FizzBuzz with color."""
+"""Python Hello World."""
 
 import os
-from termcolor import colored
 
 
 def run_tests() -> None:
@@ -16,15 +15,7 @@ def main() -> None:
     if os.getenv("DEBUG") == "1":
         run_tests()
     else:
-        for i in range(1, 101):
-            if i % 15 == 0:
-                print(colored("FizzBuzz", "red"))
-            elif i % 3 == 0:
-                print(colored("Fizz", "green"))
-            elif i % 5 == 0:
-                print(colored("Buzz", "blue"))
-            else:
-                print(i)
+        print("Hello World")
 
 
 if __name__ == "__main__":
