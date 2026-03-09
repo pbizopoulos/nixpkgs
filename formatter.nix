@@ -1,7 +1,8 @@
-{ flake
-, inputs
-, pkgs
-, ...
+{
+  flake,
+  inputs,
+  pkgs,
+  ...
 }:
 let
   formatter = treefmtEval.config.build.wrapper;
@@ -9,7 +10,6 @@ let
     programs = {
       actionlint.enable = true;
       aiken.enable = true;
-      alejandra.enable = true;
       beautysh.enable = true;
       biome = {
         enable = true;
@@ -21,7 +21,6 @@ let
         ];
         formatUnsafe = true;
       };
-      black.enable = true;
       cabal-fmt.enable = true;
       clang-format.enable = true;
       cmake-format.enable = true;
@@ -62,7 +61,6 @@ let
         enable = true;
         strict = true;
       };
-      nixpkgs-fmt.enable = true;
       ocamlformat.enable = true;
       odinfmt.enable = false;
       ormolu.enable = true;
@@ -226,7 +224,7 @@ let
   };
 in
 formatter
-  // {
+// {
   passthru = formatter.passthru // {
     tests.check = treefmtEval.config.build.check flake;
   };

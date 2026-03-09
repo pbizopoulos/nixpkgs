@@ -1,5 +1,5 @@
-{ pkgs ? import <nixpkgs> { }
-,
+{
+  pkgs ? import <nixpkgs> { },
 }:
 let
   pname = "clj_template";

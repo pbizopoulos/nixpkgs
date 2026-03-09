@@ -1,6 +1,6 @@
-{ pkgs ? import <nixpkgs> { }
-, supabase-cli ? pkgs.supabase-cli
-,
+{
+  pkgs ? import <nixpkgs> { },
+  supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
   dontBuild = true;

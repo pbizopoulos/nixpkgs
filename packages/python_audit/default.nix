@@ -1,5 +1,5 @@
-{ pkgs ? import <nixpkgs> { }
-,
+{
+  pkgs ? import <nixpkgs> { },
 }:
 let
   python = pkgs.python313.withPackages (ps: [

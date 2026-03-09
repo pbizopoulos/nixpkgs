@@ -1,7 +1,7 @@
-{ lib
-, beamPackages
-, overrides ? (_x: _y: { })
-,
+{
+  lib,
+  beamPackages,
+  overrides ? (_x: _y: { }),
 }:
 let
   buildRebar3 = lib.makeOverridable beamPackages.buildRebar3;
