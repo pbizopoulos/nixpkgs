@@ -76,22 +76,24 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             ));
         }
     }
-    let head = repo.head().expect("Failed to get HEAD");
-    let branch_name = head.shorthand().expect("Failed to get branch name");
-    if branch_name != "main" {
-        warnings.push(format!(
-            "{}: should have 'main' as the active branch",
-            working_dir.display()
-        ));
-    }
-    let branches = repo
-        .branches(Some(git2::BranchType::Local))
-        .expect("Failed to get branches");
-    if branches.count() != 1 {
-        warnings.push(format!(
-            "{}: should have only one branch",
-            working_dir.display()
-        ));
+    let head = repo.head();
+    if let Ok(head) = head {
+        let branch_name = head.shorthand().expect("Failed to get branch name");
+        if branch_name != "main" {
+            warnings.push(format!(
+                "{}: should have 'main' as the active branch",
+                working_dir.display()
+            ));
+        }
+        let branches = repo
+            .branches(Some(git2::BranchType::Local))
+            .expect("Failed to get branches");
+        if branches.count() != 1 {
+            warnings.push(format!(
+                "{}: should have only one branch",
+                working_dir.display()
+            ));
+        }
     }
     let dir_name_str = working_dir.file_name().unwrap().to_str().unwrap();
     if dir_name_str != dir_name_str.to_lowercase()

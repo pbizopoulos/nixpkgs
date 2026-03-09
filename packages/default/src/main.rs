@@ -36,23 +36,21 @@ fn main() -> Result<()> {
         .current_dir(target_dir)
         .status()
         .context("Failed to run git init")?;
-    if target_dir.join("flake.nix").exists() {
-        println!("Target directory has flake.nix, running nix fmt...");
-        std_command::new("git")
-            .arg("add")
-            .arg("flake.nix")
-            .current_dir(target_dir)
-            .status()
-            .ok();
-        let status = std_command::new("nix")
-            .arg("fmt")
-            .current_dir(target_dir)
-            .status()
-            .context("Failed to run nix fmt")?;
-        if !status.success() {
-            anyhow::bail!("nix fmt failed in target directory");
-        }
-    }
+    std_command::new("git")
+        .args(["config", "user.email", "agent@example.com"])
+        .current_dir(target_dir)
+        .status()
+        .ok();
+    std_command::new("git")
+        .args(["config", "user.name", "Agent"])
+        .current_dir(target_dir)
+        .status()
+        .ok();
+    std_command::new("git")
+        .args(["commit", "--allow-empty", "-m", "Initial commit"])
+        .current_dir(target_dir)
+        .status()
+        .ok();
     let root_dir = get_root_dir()?;
     let flake_nix_src = root_dir.join("flake.nix");
     if flake_nix_src.exists() {
@@ -113,6 +111,14 @@ fn main() -> Result<()> {
         std_command::new("git")
             .arg("add")
             .arg(format!("packages/{}", template_name))
+            .current_dir(target_dir)
+            .status()
+            .ok();
+    }
+    if target_dir.join("flake.nix").exists() {
+        println!("Running nix fmt in target directory...");
+        std_command::new("nix")
+            .arg("fmt")
             .current_dir(target_dir)
             .status()
             .ok();

@@ -16,7 +16,8 @@ pkgs.buildNpmPackage rec {
     mkdir -p $out/lib/node_modules/${pname}
     cp -r . $out/lib/node_modules/${pname}
     mkdir -p $out/bin
-    ln -s $out/lib/node_modules/${pname}/scripts/start.js $out/bin/${pname}
+    cp $out/lib/node_modules/${pname}/scripts/start.js $out/bin/${pname}
+    chmod +x $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
       --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} \
       --set PKG_CONFIG_PATH ${pkgs.openssl.dev}/lib/pkgconfig \
