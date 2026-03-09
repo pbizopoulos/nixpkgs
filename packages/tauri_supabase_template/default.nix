@@ -58,7 +58,8 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${pkgs.lib.makeBinPath build_deps} \
       --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" dev_libraries}" \
-      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath libraries}"
+      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath libraries}" \
+      --prefix LIBRARY_PATH : "${pkgs.lib.makeLibraryPath libraries}"
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
