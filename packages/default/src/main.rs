@@ -16,8 +16,13 @@ fn main() -> Result<()> {
     let target_dir = Path::new(target_dir_str);
     let mut templates_to_copy = Vec::new();
     let available_templates = get_available_templates()?;
-    for (flag, path) in available_templates {
-        if matches.get_flag(&flag) {
+    let selected_templates: Vec<String> = matches
+        .get_many::<String>("templates")
+        .unwrap_or_default()
+        .map(|v| v.to_string())
+        .collect();
+    for (name, path) in available_templates {
+        if selected_templates.contains(&name) {
             templates_to_copy.push(path);
         }
     }
@@ -144,6 +149,7 @@ fn get_available_templates() -> Result<Vec<(String, PathBuf)>> {
             }
         }
     }
+    templates.sort_by(|a, b| a.0.cmp(&b.0));
     Ok(templates)
 }
 fn get_root_dir() -> Result<PathBuf> {
@@ -163,24 +169,33 @@ fn get_root_dir() -> Result<PathBuf> {
     }
 }
 fn parse_args() -> Result<clap::ArgMatches> {
-    let mut cmd = Command::new("default")
-        .about("Project initializer CLI")
+    let available_templates = get_available_templates()?;
+    let template_names: Vec<String> = available_templates.iter().map(|(n, _)| n.clone()).collect();
+    let template_names_leaked: Vec<&'static str> = template_names
+        .into_iter()
+        .map(|s| Box::leak(s.into_boxed_str()) as &'static str)
+        .collect();
+    Ok(Command::new("default")
+        .about("A CLI tool to initialize projects by copying templates and setting up a basic Nix/Git environment.")
+        .after_help("This tool is designed for both humans and automated agents. It dynamically generates available templates from the 'packages' directory.")
         .arg(
             Arg::new("directory")
-                .help("The directory to initialize")
+                .help("The target directory where the project will be initialized. If it doesn't exist, it will be created.")
+                .long_help("The target directory for project initialization. The tool will:\n1. Create the directory if needed.\n2. Initialize a git repository.\n3. Copy selected templates.\n4. Configure flake.nix and formatter.nix.")
                 .required(true)
                 .index(1),
-        );
-    let templates = get_available_templates()?;
-    for (flag, _) in templates {
-        let flag_leak: &'static str = Box::leak(flag.into_boxed_str());
-        cmd = cmd.arg(
-            Arg::new(flag_leak)
-                .long(flag_leak)
-                .action(ArgAction::SetTrue),
-        );
-    }
-    Ok(cmd.get_matches())
+        )
+        .arg(
+            Arg::new("templates")
+                .short('t')
+                .long("templates")
+                .help("Comma-separated list of templates to include (e.g., --templates rust,python).")
+                .long_help("Specify one or more templates to include in the project. You can provide multiple values separated by commas, or use the flag multiple times.\nExample: --templates rust,python")
+                .value_delimiter(',')
+                .action(ArgAction::Append)
+                .value_parser(template_names_leaked)
+        )
+        .get_matches())
 }
 fn run_tests() -> Result<()> {
     println!("Running tests...");
@@ -197,6 +212,16 @@ fn run_tests() -> Result<()> {
     let templates = get_available_templates().context("Failed to get available templates")?;
     if !templates.is_empty() {
         assert!(templates.iter().any(|(flag, _)| flag == "rust"));
+        if templates.len() > 1 {
+            for i in 0..templates.len() - 1 {
+                assert!(
+                    templates[i].0 <= templates[i + 1].0,
+                    "Templates are not sorted: {} > {}",
+                    templates[i].0,
+                    templates[i + 1].0
+                );
+            }
+        }
         println!("test_get_available_templates ... ok");
     } else {
         println!(
