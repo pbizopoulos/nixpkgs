@@ -9,6 +9,14 @@ import (
 func runCommand(name string, args ...string) error {
 	fmt.Printf("\n[bold blue]Running %s %s:[/bold blue]\n", name, strings.Join(args, " "))
 	cmd := exec.Command(name, args...)
+	tempDir, err := os.MkdirTemp("", "go-audit-*")
+	if err == nil {
+		cmd.Env = append(os.Environ(),
+			"GOPATH="+filepath.Join(tempDir, "go"),
+			"GOCACHE="+filepath.Join(tempDir, "cache"),
+		)
+		defer os.RemoveAll(tempDir)
+	}
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
