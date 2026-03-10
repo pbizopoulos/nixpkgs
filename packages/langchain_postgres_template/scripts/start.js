@@ -17,12 +17,7 @@ if (__dirname.endsWith("/bin")) {
 }
 let workDir = packageRoot;
 let isTemp = false;
-if (
-  packageRoot.startsWith("/nix/store") &&
-  !existsSync(join(packageRoot, "node_modules")) &&
-  !existsSync(join(packageRoot, "target")) &&
-  !existsSync(join(packageRoot, "vendor"))
-) {
+if (packageRoot.startsWith("/nix/store")) {
   isTemp = true;
   workDir = join(tmpdir(), `langchain_postgres_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });

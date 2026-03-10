@@ -222,6 +222,11 @@ let
         "*/prm/**"
         "*/tmp/**"
         "packages/prolog_template/main.pl"
+        "packages/django_postgres_template/**"
+        "packages/fastapi_postgres_template/**"
+        "packages/flask_postgres_template/**"
+        "packages/langchain_postgres_template/**"
+        "packages/micropython_template/**"
       ];
     };
   };

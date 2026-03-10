@@ -14,12 +14,7 @@ if (__dirname.endsWith("/bin")) {
 }
 let workDir = packageRoot;
 let isTemp = false;
-if (
-  packageRoot.startsWith("/nix/store") &&
-  !existsSync(join(packageRoot, "node_modules")) &&
-  !existsSync(join(packageRoot, "target")) &&
-  !existsSync(join(packageRoot, "vendor"))
-) {
+if (packageRoot.startsWith("/nix/store")) {
   isTemp = true;
   workDir = join(tmpdir(), `nextjs_postgres_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
@@ -75,7 +70,9 @@ if (process.env.DEBUG === "1") {
   process.exit(0);
 } else {
   let fullCmd = "";
-  const setupCmd = existsSync(join(workDir, "node_modules")) ? "" : "npm install --legacy-peer-deps";
+  const setupCmd = existsSync(join(workDir, "node_modules"))
+    ? ""
+    : "npm install --legacy-peer-deps";
   const buildCmd = existsSync(join(workDir, ".next")) ? "" : "npm run build";
   const startCmd = "npm start -- -p 3000";
   if (isTemp) {

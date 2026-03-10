@@ -2,9 +2,7 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  buildInputs = [
-    pkgs.nodejs
-  ];
+  buildInputs = [ pkgs.nodejs ];
   dontBuild = true;
   installPhase = ''
     runHook preInstall

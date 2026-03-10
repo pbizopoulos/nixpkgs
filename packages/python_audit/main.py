@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
 import typer
 from rich import print as rprint
 
@@ -27,7 +28,7 @@ def _run_command(cmd: list[str], env: dict[str, str] | None = None) -> int:
     return process.returncode
 
 
-def profile(directory: str, ) -> None:
+def profile(directory: str) -> None:
     """Run `DEBUG=1 <url>` under scalene and coverage, showing results in stdout."""
     nix_bin = shutil.which("nix") or "nix"
     python_bin = shutil.which("python3") or "python3"
@@ -45,8 +46,13 @@ def profile(directory: str, ) -> None:
             bin_name = Path(directory).name
             bin_path = Path(out_path) / "bin" / bin_name
             wrapped_path = bin_path.parent / f".{bin_path.name}-wrapped"
-            base_cmd = [str(wrapped_path)
-                        ] if wrapped_path.exists() else [str(bin_path)]
+            base_cmd = (
+                [
+                    str(wrapped_path),
+                ]
+                if wrapped_path.exists()
+                else [str(bin_path)]
+            )
         else:
             base_cmd = [nix_bin, "run", nixpkgs_url]
     except subprocess.CalledProcessError:
@@ -88,7 +94,7 @@ def profile(directory: str, ) -> None:
             rprint("[red]Coverage run failed[/red]")
             sys.exit(rc)
         rprint("\n[bold blue]Coverage Report:[/bold blue]")
-        subprocess.run(
+        subprocess.run(  # noqa: S603
             [python_bin, "-m", "coverage", "report"],
             env=env,
             check=False,

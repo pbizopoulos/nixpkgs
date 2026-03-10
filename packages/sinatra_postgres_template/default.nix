@@ -4,10 +4,10 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
-    pkgs.nodejs
-    postgresql
-    pkgs.ruby
     pkgs.bundler
+    pkgs.nodejs
+    pkgs.ruby
+    postgresql
   ];
   dontBuild = true;
   installPhase = ''
@@ -18,12 +18,12 @@ pkgs.stdenv.mkDerivation rec {
       --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
-          pkgs.nodejs
-          postgresql
-          pkgs.ruby
           pkgs.bundler
           pkgs.gcc
           pkgs.gnumake
+          pkgs.nodejs
+          pkgs.ruby
+          postgresql
         ]
       }
     runHook postInstall

@@ -40,7 +40,6 @@ process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
   console.log("Checking dependencies for smoke test...");
-  
   execSync("node --version", { stdio: "inherit" });
   console.log("Bypassing for smoke test");
   process.exit(0);

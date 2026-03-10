@@ -7,7 +7,6 @@ import os
 def run_tests() -> None:
     """Run tests."""
     assert 1 + 1 == 2  # noqa: PLR2004, S101
-    print("test ... ok")
 
 
 def main() -> None:
@@ -15,7 +14,7 @@ def main() -> None:
     if os.getenv("DEBUG") == "1":
         run_tests()
     else:
-        print("Hello World")
+        pass
 
 
 if __name__ == "__main__":
