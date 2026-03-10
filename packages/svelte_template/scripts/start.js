@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
-  packageRoot = join(__dirname, "../lib/node_modules/svelte_template");
+  packageRoot = join(__dirname, "../lib/svelte_template");
   if (!existsSync(packageRoot)) {
     packageRoot = join(__dirname, "../lib/svelte_template");
   }
@@ -39,29 +39,22 @@ process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
+  console.log("Checking dependencies for smoke test...");
+  
+  execSync("node --version", { stdio: "inherit" });
   console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
   let fullCmd = "";
   const setupCmd = "npm install --legacy-peer-deps";
   const buildCmd = "npm run build";
-  const startCmd = "npm start";
+  const startCmd = "npm run serve -- --port 3000";
   if (isTemp) {
     if (setupCmd) {
       fullCmd += `${setupCmd} && `;
     }
     if (buildCmd) {
       fullCmd += `${buildCmd} && `;
-    }
-  }
-  if (existsSync(join(workDir, "supabase", "config.toml"))) {
-    try {
-      console.log("Attempting to start Supabase...");
-      execSync("supabase start", { cwd: workDir, stdio: "inherit" });
-    } catch (_e) {
-      console.log(
-        "Supabase start failed (maybe docker is missing or already running)",
-      );
     }
   }
   fullCmd += startCmd;

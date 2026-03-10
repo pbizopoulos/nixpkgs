@@ -45,40 +45,42 @@ function startPostgres(workDir) {
   const pgData = join(workDir, ".pgdata");
   const pgPort = process.env.PGPORT || "54322";
   const pgHost = process.env.PGHOST || "127.0.0.1";
-
   if (!existsSync(pgData)) {
     console.log("Initializing Postgres database...");
+    mkdirSync(pgData, { recursive: true });
     execSync(`initdb -D ${pgData} --auth=trust`, { stdio: "inherit" });
   }
-
   console.log(`Starting Postgres on ${pgHost}:${pgPort}...`);
   try {
     const pgLog = join(workDir, "postgres.log");
-    execSync(`pg_ctl -D ${pgData} -l ${pgLog} -o "-p ${pgPort} -h ${pgHost}" start`, { stdio: "inherit" });
-  } catch (e) {
+    execSync(
+      `pg_ctl -D ${pgData} -l ${pgLog} -o "-p ${pgPort} -h ${pgHost}" start`,
+      { stdio: "inherit" },
+    );
+  } catch (_e) {
     console.log("Postgres might already be running or failed to start.");
   }
-
   const stopPostgres = () => {
     console.log("Stopping Postgres...");
     try {
       execSync(`pg_ctl -D ${pgData} stop`, { stdio: "inherit" });
-    } catch (e) {}
+    } catch (_e) {}
   };
-
   process.on("SIGINT", stopPostgres);
   process.on("SIGTERM", stopPostgres);
   process.on("exit", stopPostgres);
 }
-
 if (process.env.DEBUG === "1") {
-  console.log("Checking dependencies for smoke test..."); execSync("pg_ctl --version", { stdio: "inherit" }); execSync("node --version", { stdio: "inherit" }); console.log("Bypassing for smoke test");
+  console.log("Checking dependencies for smoke test...");
+  execSync("pg_ctl --version", { stdio: "inherit" });
+  execSync("node --version", { stdio: "inherit" });
+  console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
   let fullCmd = "";
-  const setupCmd = "npm install --legacy-peer-deps";
-  const buildCmd = "npm run build";
-  const startCmd = "npm start";
+  const setupCmd = "";
+  const buildCmd = "gradle build";
+  const startCmd = "gradle bootRun";
   if (isTemp) {
     if (setupCmd) {
       fullCmd += `${setupCmd} && `;
@@ -87,7 +89,7 @@ if (process.env.DEBUG === "1") {
       fullCmd += `${buildCmd} && `;
     }
   }
-    startPostgres(workDir);
+  startPostgres(workDir);
   fullCmd += startCmd;
   const app = spawn(fullCmd, [], {
     stdio: "inherit",

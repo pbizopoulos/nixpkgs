@@ -34,9 +34,9 @@ pkgs.stdenv.mkDerivation rec {
           pkgs.libXrandr
           pkgs.libxkbcommon
           pkgs.nodejs
+          pkgs.postgresql
           pkgs.rustc
           pkgs.stdenv.cc
-          pkgs.postgresql
           pkgs.udev
           pkgs.vulkan-loader
           pkgs.wayland

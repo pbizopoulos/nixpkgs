@@ -1,14 +1,11 @@
 {
-  "name": "typescript",
+  "name": "typescript-template",
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/main.js"
+    "start": "ts-node main.ts"
   },
-  "dependencies": {},
-  "devDependencies": {
-    "@types/node": "^22.13.5",
-    "typescript": "^5.7.3"
+  "dependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3"
   }
 }

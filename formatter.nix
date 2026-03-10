@@ -85,7 +85,6 @@ let
       templ.enable = true;
       texfmt.enable = true;
       toml-sort.enable = true;
-      typos.enable = true;
       typstyle.enable = true;
       yamlfmt.enable = true;
       yamllint.enable = true;

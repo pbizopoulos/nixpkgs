@@ -2,31 +2,28 @@
   pkgs ? import <nixpkgs> { },
   postgresql ? pkgs.postgresql,
 }:
-let
-  rubyEnv = pkgs.ruby.withPackages (ps: with ps; [ sinatra ]);
-in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.nodejs
-    rubyEnv
     postgresql
+    pkgs.ruby
+    pkgs.bundler
   ];
   dontBuild = true;
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/lib/${pname}
-    cp -rL . $out/lib/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Checking dependencies for smoke test..."; postgres --version; node --version; echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
-    echo "exec ${rubyEnv}/bin/ruby $out/lib/${pname}/app/app.rb -o 0.0.0.0" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
-          rubyEnv
           postgresql
+          pkgs.ruby
+          pkgs.bundler
+          pkgs.gcc
+          pkgs.gnumake
         ]
       }
     runHook postInstall

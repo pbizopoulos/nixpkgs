@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
-  packageRoot = join(__dirname, "../lib/node_modules/typescript_template");
+  packageRoot = join(__dirname, "../lib/typescript_template");
   if (!existsSync(packageRoot)) {
     packageRoot = join(__dirname, "../lib/typescript_template");
   }
@@ -39,6 +39,9 @@ process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
+  console.log("Checking dependencies for smoke test...");
+  
+  execSync("node --version", { stdio: "inherit" });
   console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
@@ -52,16 +55,6 @@ if (process.env.DEBUG === "1") {
     }
     if (buildCmd) {
       fullCmd += `${buildCmd} && `;
-    }
-  }
-  if (existsSync(join(workDir, "supabase", "config.toml"))) {
-    try {
-      console.log("Attempting to start Supabase...");
-      execSync("supabase start", { cwd: workDir, stdio: "inherit" });
-    } catch (_e) {
-      console.log(
-        "Supabase start failed (maybe docker is missing or already running)",
-      );
     }
   }
   fullCmd += startCmd;

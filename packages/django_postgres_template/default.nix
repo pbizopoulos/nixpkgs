@@ -16,8 +16,8 @@ in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.nodejs
-    pythonEnv
     postgresql
+    pythonEnv
   ];
   dontBuild = true;
   installPhase = ''

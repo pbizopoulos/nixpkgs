@@ -8,9 +8,9 @@ let
     makeWrapper
     nodejs
     pkg-config
+    postgresql
     rustc
     stdenv.cc
-    postgresql
   ];
   dev_libraries = map (l: l.dev or l) libraries;
   libraries = with pkgs; [
