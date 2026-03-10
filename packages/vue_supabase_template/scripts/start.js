@@ -7,10 +7,7 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {
-  packageRoot = join(
-    __dirname,
-    "../lib/node_modules/vue_supabase_template",
-  );
+  packageRoot = join(__dirname, "../lib/node_modules/vue_supabase_template");
   if (!existsSync(packageRoot)) {
     packageRoot = join(__dirname, "../lib/vue_supabase_template");
   }

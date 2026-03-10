@@ -15,8 +15,8 @@ in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     phpEnv
-    pkgs.php.packages.composer
     pkgs.nodejs
+    pkgs.php.packages.composer
     supabase-cli
   ];
   dontBuild = true;
@@ -29,8 +29,8 @@ pkgs.stdenv.mkDerivation rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           phpEnv
-          pkgs.php.packages.composer
           pkgs.nodejs
+          pkgs.php.packages.composer
           pkgs.supabase-cli
         ]
       } \

@@ -17,9 +17,7 @@ if (__dirname.endsWith("/bin")) {
 }
 let workDir = packageRoot;
 let isTemp = false;
-if (
-  packageRoot.startsWith("/nix/store")
-) {
+if (packageRoot.startsWith("/nix/store")) {
   isTemp = true;
   workDir = join(tmpdir(), `symfony_supabase_template-${Date.now()}`);
   mkdirSync(workDir, { recursive: true });
@@ -43,7 +41,6 @@ if (process.env.DEBUG === "1") {
   process.exit(0);
 } else {
   let fullCmd = "";
-  // Always dump-autoload to fix paths in the temporary directory
   const setupCmd = "composer dump-autoload --no-interaction";
   const startCmd = "npm start";
   if (isTemp) {
@@ -66,14 +63,14 @@ if (process.env.DEBUG === "1") {
     stdio: "inherit",
     cwd: workDir,
     shell: true,
-    env: { 
-      ...process.env, 
-      APP_ENV: "dev", 
+    env: {
+      ...process.env,
+      APP_ENV: "dev",
       APP_SECRET: "0",
       APP_CACHE_DIR: join(workDir, "var/cache"),
       APP_LOG_DIR: join(workDir, "var/log"),
-      DEFAULT_URI: "http://localhost:8000"
-    }
+      DEFAULT_URI: "http://localhost:8000",
+    },
   });
   app.on("close", (code) => {
     process.exit(code || 0);
