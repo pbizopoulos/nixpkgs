@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import type { PostgresClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -31,7 +31,7 @@ describe("Auth Callback route", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createServerClient).mockReturnValue(
-      mockPostgres as unknown as PostgresClient,
+      mockPostgres as unknown as SupabaseClient,
     );
     vi.mocked(cookies).mockResolvedValue(
       mockCookieStore as unknown as Awaited<ReturnType<typeof cookies>>,

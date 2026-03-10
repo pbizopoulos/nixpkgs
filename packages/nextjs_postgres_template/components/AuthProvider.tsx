@@ -1,6 +1,6 @@
 "use client";
 import { createBrowserClient } from "@supabase/ssr";
-import type { PostgresClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
 type Profile = {
   username: string | null;
@@ -9,7 +9,7 @@ type AuthContextType = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
-  postgres: PostgresClient;
+  postgres: SupabaseClient;
   signOut: () => Promise<void>;
   isAuthModalOpen: boolean;
   authModalRedirectPath: string | null;

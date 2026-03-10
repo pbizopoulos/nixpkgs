@@ -1,5 +1,5 @@
 import * as ssr from "@supabase/ssr";
-import type { PostgresClient, User } from "@supabase/supabase-js";
+import type { SupabaseClient, User } from "@supabase/supabase-js";
 import {
   act,
   cleanup,
@@ -38,7 +38,7 @@ describe("AuthProvider", () => {
     cleanup();
     vi.clearAllMocks();
     vi.mocked(ssr.createBrowserClient).mockReturnValue(
-      mockPostgres as unknown as PostgresClient,
+      mockPostgres as unknown as SupabaseClient,
     );
     mockPostgres.auth.getUser.mockResolvedValue({
       data: { user: null },

@@ -1,4 +1,4 @@
-import type { PostgresClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   cleanup,
   fireEvent,
@@ -36,7 +36,7 @@ describe("AuthForm", () => {
       mockSearchParams as any,
     );
     vi.mocked(authProvider.useAuth).mockReturnValue({
-      postgres: mockPostgres as unknown as PostgresClient,
+      postgres: mockPostgres as unknown as SupabaseClient,
     } as unknown as ReturnType<typeof authProvider.useAuth>);
   });
   afterEach(() => {

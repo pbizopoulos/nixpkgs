@@ -1,5 +1,5 @@
 import { createServerClient } from "@supabase/ssr";
-import type { PostgresClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 export async function createClient(useCookies = true) {
   const postgresUrl = process.env.NEXT_PUBLIC_POSTGRES_URL;
@@ -73,7 +73,7 @@ export async function createClient(useCookies = true) {
     },
   });
 }
-export async function getAuthenticatedUser(postgres: PostgresClient) {
+export async function getAuthenticatedUser(postgres: SupabaseClient) {
   const {
     data: { user },
   } = await postgres.auth.getUser();
