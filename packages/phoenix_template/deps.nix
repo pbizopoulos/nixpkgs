@@ -1,13 +1,12 @@
-{
-  beamPackages,
-  lib,
-  overrides ? _x: _y: { },
-}:
-let
-  buildMix = lib.makeOverridable beamPackages.buildMix;
-  buildRebar3 = lib.makeOverridable beamPackages.buildRebar3;
-  packages =
-    with beamPackages;
+{ beamPackages
+  , lib
+  , overrides ? _x:
+    _y:
+      {} }:
+  let
+    buildMix = lib.makeOverridable (beamPackages.buildMix);
+    buildRebar3 = lib.makeOverridable (beamPackages.buildRebar3);
+    packages = with beamPackages;
     with self;
     {
       bandit = buildMix rec {
@@ -40,7 +39,7 @@ let
         version = "3.3.2";
       };
       comeonin = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "comeonin";
         src = fetchHex {
           pkg = "comeonin";
@@ -50,7 +49,9 @@ let
         version = "5.5.1";
       };
       db_connection = buildMix rec {
-        beamDeps = [ telemetry ];
+        beamDeps = [
+          telemetry
+        ];
         name = "db_connection";
         src = fetchHex {
           pkg = "db_connection";
@@ -60,7 +61,7 @@ let
         version = "2.9.0";
       };
       decimal = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "decimal";
         src = fetchHex {
           pkg = "decimal";
@@ -70,7 +71,7 @@ let
         version = "2.3.0";
       };
       dns_cluster = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "dns_cluster";
         src = fetchHex {
           pkg = "dns_cluster";
@@ -109,7 +110,7 @@ let
         version = "3.13.5";
       };
       elixir_make = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "elixir_make";
         src = fetchHex {
           pkg = "elixir_make";
@@ -119,7 +120,9 @@ let
         version = "0.9.0";
       };
       esbuild = buildMix rec {
-        beamDeps = [ jason ];
+        beamDeps = [
+          jason
+        ];
         name = "esbuild";
         src = fetchHex {
           pkg = "esbuild";
@@ -129,7 +132,7 @@ let
         version = "0.10.0";
       };
       expo = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "expo";
         src = fetchHex {
           pkg = "expo";
@@ -139,7 +142,7 @@ let
         version = "1.1.1";
       };
       file_system = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "file_system";
         src = fetchHex {
           pkg = "file_system";
@@ -165,7 +168,9 @@ let
         version = "0.21.0";
       };
       gettext = buildMix rec {
-        beamDeps = [ expo ];
+        beamDeps = [
+          expo
+        ];
         name = "gettext";
         src = fetchHex {
           pkg = "gettext";
@@ -175,7 +180,7 @@ let
         version = "1.0.2";
       };
       hpax = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "hpax";
         src = fetchHex {
           pkg = "hpax";
@@ -185,7 +190,9 @@ let
         version = "1.0.3";
       };
       idna = buildRebar3 rec {
-        beamDeps = [ unicode_util_compat ];
+        beamDeps = [
+          unicode_util_compat
+        ];
         name = "idna";
         src = fetchHex {
           pkg = "idna";
@@ -195,7 +202,9 @@ let
         version = "6.1.1";
       };
       jason = buildMix rec {
-        beamDeps = [ decimal ];
+        beamDeps = [
+          decimal
+        ];
         name = "jason";
         src = fetchHex {
           pkg = "jason";
@@ -205,7 +214,7 @@ let
         version = "1.4.4";
       };
       mime = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "mime";
         src = fetchHex {
           pkg = "mime";
@@ -215,7 +224,9 @@ let
         version = "2.0.7";
       };
       mint = buildMix rec {
-        beamDeps = [ hpax ];
+        beamDeps = [
+          hpax
+        ];
         name = "mint";
         src = fetchHex {
           pkg = "mint";
@@ -225,7 +236,7 @@ let
         version = "1.7.1";
       };
       nimble_options = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "nimble_options";
         src = fetchHex {
           pkg = "nimble_options";
@@ -235,7 +246,7 @@ let
         version = "1.1.1";
       };
       nimble_pool = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "nimble_pool";
         src = fetchHex {
           pkg = "nimble_pool";
@@ -279,7 +290,7 @@ let
         version = "4.7.0";
       };
       phoenix_html = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "phoenix_html";
         src = fetchHex {
           pkg = "phoenix_html";
@@ -334,7 +345,7 @@ let
         version = "1.1.26";
       };
       phoenix_pubsub = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "phoenix_pubsub";
         src = fetchHex {
           pkg = "phoenix_pubsub";
@@ -344,7 +355,9 @@ let
         version = "2.2.0";
       };
       phoenix_template = buildMix rec {
-        beamDeps = [ phoenix_html ];
+        beamDeps = [
+          phoenix_html
+        ];
         name = "phoenix_template";
         src = fetchHex {
           pkg = "phoenix_template";
@@ -368,7 +381,7 @@ let
         version = "1.19.1";
       };
       plug_crypto = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "plug_crypto";
         src = fetchHex {
           pkg = "plug_crypto";
@@ -426,7 +439,7 @@ let
         version = "1.23.0";
       };
       tailwind = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "tailwind";
         src = fetchHex {
           pkg = "tailwind";
@@ -436,7 +449,7 @@ let
         version = "0.4.1";
       };
       telemetry = buildRebar3 rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "telemetry";
         src = fetchHex {
           pkg = "telemetry";
@@ -446,7 +459,9 @@ let
         version = "1.3.0";
       };
       telemetry_metrics = buildMix rec {
-        beamDeps = [ telemetry ];
+        beamDeps = [
+          telemetry
+        ];
         name = "telemetry_metrics";
         src = fetchHex {
           pkg = "telemetry_metrics";
@@ -456,7 +471,9 @@ let
         version = "1.1.0";
       };
       telemetry_poller = buildRebar3 rec {
-        beamDeps = [ telemetry ];
+        beamDeps = [
+          telemetry
+        ];
         name = "telemetry_poller";
         src = fetchHex {
           pkg = "telemetry_poller";
@@ -466,7 +483,9 @@ let
         version = "1.3.0";
       };
       thousand_island = buildMix rec {
-        beamDeps = [ telemetry ];
+        beamDeps = [
+          telemetry
+        ];
         name = "thousand_island";
         src = fetchHex {
           pkg = "thousand_island";
@@ -476,7 +495,7 @@ let
         version = "1.4.3";
       };
       unicode_util_compat = buildRebar3 rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "unicode_util_compat";
         src = fetchHex {
           pkg = "unicode_util_compat";
@@ -486,7 +505,7 @@ let
         version = "0.7.1";
       };
       websock = buildMix rec {
-        beamDeps = [ ];
+        beamDeps = [];
         name = "websock";
         src = fetchHex {
           pkg = "websock";
@@ -510,6 +529,5 @@ let
         version = "0.5.9";
       };
     };
-  self = packages // overrides self packages;
-in
-self
+    self = packages // overrides self packages;
+  in self

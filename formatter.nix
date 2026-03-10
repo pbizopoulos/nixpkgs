@@ -56,10 +56,7 @@ let
       mdsh.enable = true;
       mix-format.enable = true;
       nimpretty.enable = true;
-      nixfmt = {
-        enable = true;
-        strict = true;
-      };
+      nixfmt.enable = false;
       ocamlformat.enable = true;
       odinfmt.enable = false;
       ormolu.enable = true;
@@ -168,7 +165,7 @@ let
           command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
           includes = [ "*.nix" ];
           excludes = [ "formatter.nix" ];
-          priority = 0;
+          priority = 100;
         };
         php-cs-fixer.options = [ "--allow-risky=yes" ];
         protoc = {
@@ -209,7 +206,10 @@ let
             "/dev/null"
           ];
         };
-        ruff-check.options = [ "--unsafe-fixes" ];
+        ruff-check.options = [
+          "--cache-dir=/tmp/.ruff_cache"
+          "--unsafe-fixes"
+        ];
         xmllint = {
           command = "${pkgs.libxml2}/bin/xmllint";
           includes = [ "*.xml" ];
