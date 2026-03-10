@@ -1,5 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
+  supabase-cli ? pkgs.supabase-cli,
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
@@ -10,6 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.nodejs
     pkgs.ruby
     pkgs.sqlite
+    supabase-cli
   ];
   dontBuild = true;
   installPhase = ''
@@ -28,6 +30,7 @@ pkgs.stdenv.mkDerivation rec {
           pkgs.nodejs
           pkgs.ruby
           pkgs.sqlite
+          supabase-cli
         ]
       }
     runHook postInstall
