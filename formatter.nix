@@ -182,12 +182,7 @@ let
         };
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         rustfmt.priority = 1;
-        shfmt = {
-          options = [ "--posix" ];
-          excludes = [
-            "packages/echo_postgres_template/vendor/golang.org/x/sys/unix/mkerrors.sh"
-          ];
-        };
+        shfmt.options = [ "--posix" ];
         ssort = {
           command = pkgs.python3Packages.ssort;
           includes = [ "*.py" ];
