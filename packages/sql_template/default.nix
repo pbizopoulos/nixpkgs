@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.bash)
-      (pkgs.sqlite)
+      pkgs.bash
+      pkgs.sqlite
     ];
     installPhase = ''
           mkdir -p $out/bin

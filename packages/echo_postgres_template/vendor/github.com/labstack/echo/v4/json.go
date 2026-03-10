@@ -1,17 +1,13 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package echo
-
 import (
 	"encoding/json"
 	"fmt"
 	"net/http"
 )
-
 // DefaultJSONSerializer implements JSON encoding using encoding/json.
 type DefaultJSONSerializer struct{}
-
 // Serialize converts an interface into a json and writes it to the response.
 // You can optionally use the indent parameter to produce pretty JSONs.
 func (d DefaultJSONSerializer) Serialize(c Context, i interface{}, indent string) error {
@@ -21,7 +17,6 @@ func (d DefaultJSONSerializer) Serialize(c Context, i interface{}, indent string
 	}
 	return enc.Encode(i)
 }
-
 // Deserialize reads a JSON from a request body and converts it into an interface.
 func (d DefaultJSONSerializer) Deserialize(c Context, i interface{}) error {
 	err := json.NewDecoder(c.Request().Body).Decode(i)

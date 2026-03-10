@@ -7,7 +7,7 @@
         --add-flags "$out/bin/${pname}.php"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "php_template";
     src = ./.;

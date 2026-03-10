@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.nlohmann_json)
+      pkgs.nlohmann_json
     ];
     buildPhase = "g++ -o ${pname} main.cpp -O3 -Wall -Wextra -Werror";
     installPhase = ''

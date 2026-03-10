@@ -6,6 +6,5 @@ coverage:
     patch:
       default:
         threshold: 1%
-
 comment:
   require_changes: true

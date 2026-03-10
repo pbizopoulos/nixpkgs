@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.gfortran)
+      pkgs.gfortran
     ];
     buildPhase = "gfortran -o ${pname} main.f90";
     installPhase = ''

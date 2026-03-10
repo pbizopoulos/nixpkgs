@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.racket)
+      pkgs.racket
     ];
     buildPhase = ''
       raco exe -o ${pname} main.rkt

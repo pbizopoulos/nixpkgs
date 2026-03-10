@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.coffeescript)
-      (pkgs.nodejs)
+      pkgs.coffeescript
+      pkgs.nodejs
     ];
     buildPhase = ''
       coffee -c main.coffee

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.rakudo)
+      pkgs.rakudo
     ];
     installPhase = ''
           mkdir -p $out/bin

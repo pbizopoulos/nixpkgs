@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.maven)
-      (pkgs.openjdk)
+      pkgs.maven
+      pkgs.openjdk
     ];
     installPhase = ''
       mkdir -p $out/bin

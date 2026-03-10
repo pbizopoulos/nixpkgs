@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.gnuapl)
+      pkgs.gnuapl
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -12,7 +12,7 @@
       chmod +x $out/bin/${pname}
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "apl_template";
     src = ./.;

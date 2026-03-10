@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.julia-bin)
+      pkgs.julia-bin
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
         --add-flags "$out/bin/${pname}.jl"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "julia_template";
     src = ./.;

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.dotnet-sdk)
+      pkgs.dotnet-sdk
     ];
     dontBuild = true;
     installPhase = ''

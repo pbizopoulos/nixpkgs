@@ -1,3 +1,4 @@
+# ruff: noqa: D100, D103, ARG001, INP001
 from django.http import HttpRequest, HttpResponse
 
 

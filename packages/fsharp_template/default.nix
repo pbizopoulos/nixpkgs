@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.dotnet-sdk_9)
+      pkgs.dotnet-sdk_9
     ];
     buildPhase = ''
       export DOTNET_CLI_HOME=$TMPDIR
@@ -17,7 +17,7 @@
         --add-flags "$out/lib/fsharp/fsharp.dll"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "fsharp_template";
     src = ./.;

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.gnu-smalltalk)
+      pkgs.gnu-smalltalk
     ];
     installPhase = ''
           mkdir -p $out/bin

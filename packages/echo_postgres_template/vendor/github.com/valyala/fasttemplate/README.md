@@ -1,25 +1,20 @@
-fasttemplate
-============
-
+# fasttemplate
 Simple and fast template engine for Go.
-
 Fasttemplate performs only a single task - it substitutes template placeholders
 with user-defined values. At high speed :)
-
-Take a look at [quicktemplate](https://github.com/valyala/quicktemplate) if you  need fast yet powerful html template engine.
-
-*Please note that fasttemplate doesn't do any escaping on template values
-unlike [html/template](http://golang.org/pkg/html/template/) do. So values
-must be properly escaped before passing them to fasttemplate.*
-
-Fasttemplate is faster than [text/template](http://golang.org/pkg/text/template/),
+Take a look at [quicktemplate](https://github.com/valyala/quicktemplate) if you
+need fast yet powerful html template engine.
+_Please note that fasttemplate doesn't do any escaping on template values unlike
+[html/template](http://golang.org/pkg/html/template/) do. So values must be
+properly escaped before passing them to fasttemplate._
+Fasttemplate is faster than
+[text/template](http://golang.org/pkg/text/template/),
 [strings.Replace](http://golang.org/pkg/strings/#Replace),
-[strings.Replacer](http://golang.org/pkg/strings/#Replacer)
-and [fmt.Fprintf](https://golang.org/pkg/fmt/#Fprintf) on placeholders' substitution.
-
+[strings.Replacer](http://golang.org/pkg/strings/#Replacer) and
+[fmt.Fprintf](https://golang.org/pkg/fmt/#Fprintf) on placeholders'
+substitution.
 Below are benchmark results comparing fasttemplate performance to text/template,
 strings.Replace, strings.Replacer and fmt.Fprintf:
-
 ```
 $ go test -bench=. -benchmem
 PASS
@@ -33,17 +28,9 @@ BenchmarkFastTemplateExecuteFuncString-4	 3000000	       549 ns/op	     144 B/op
 BenchmarkFastTemplateExecuteString-4    	 3000000	       572 ns/op	     144 B/op	       1 allocs/op
 BenchmarkFastTemplateExecuteTagFunc-4   	 2000000	       743 ns/op	     144 B/op	       3 allocs/op
 ```
-
-
-Docs
-====
-
+# Docs
 See http://godoc.org/github.com/valyala/fasttemplate .
-
-
-Usage
-=====
-
+# Usage
 ```go
 	template := "http://{{host}}/?q={{query}}&foo={{bar}}{{bar}}"
 	t := fasttemplate.New(template, "{{", "}}")
@@ -53,15 +40,10 @@ Usage
 		"bar":   "foobar",
 	})
 	fmt.Printf("%s", s)
-
 	// Output:
 	// http://google.com/?q=hello%3Dworld&foo=foobarfoobar
 ```
-
-
-Advanced usage
-==============
-
+# Advanced usage
 ```go
 	template := "Hello, [user]! You won [prize]!!! [foobar]"
 	t, err := fasttemplate.NewTemplate(template, "[", "]")
@@ -79,7 +61,6 @@ Advanced usage
 		}
 	})
 	fmt.Printf("%s", s)
-
 	// Output:
 	// Hello, John! You won $100500!!! [unknown tag "foobar"]
 ```

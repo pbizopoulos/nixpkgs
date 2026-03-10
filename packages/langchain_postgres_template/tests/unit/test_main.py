@@ -1,3 +1,4 @@
+# ruff: noqa: D100, D103, INP001, S101
 from app.main import get_hello_world
 
 

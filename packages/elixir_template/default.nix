@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.elixir)
+      pkgs.elixir
     ];
     installPhase = ''
       mkdir -p $out/share/elixir
@@ -11,7 +11,7 @@
         --add-flags "$out/share/elixir/main.exs"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "elixir_template";
     src = ./.;

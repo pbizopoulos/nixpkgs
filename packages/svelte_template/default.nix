@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.nodejs)
+      pkgs.nodejs
     ];
     dontBuild = true;
     installPhase = ''
@@ -11,12 +11,12 @@
       makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
         --add-flags $out/lib/${pname}/scripts/start.js \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
+        pkgs.nodejs
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "svelte_template";
     src = ./.;

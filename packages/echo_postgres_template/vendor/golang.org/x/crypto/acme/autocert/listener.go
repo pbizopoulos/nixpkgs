@@ -1,9 +1,7 @@
 // Copyright 2017 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package autocert
-
 import (
 	"crypto/tls"
 	"log"
@@ -13,7 +11,6 @@ import (
 	"runtime"
 	"time"
 )
-
 // NewListener returns a net.Listener that listens on the standard TLS
 // port (443) on all interfaces and returns *tls.Conn connections with
 // LetsEncrypt certificates for the provided domain or domains.
@@ -50,14 +47,13 @@ func NewListener(domains ...string) net.Listener {
 		m.HostPolicy = HostWhitelist(domains...)
 	}
 	dir := cacheDir()
-	if err := os.MkdirAll(dir, 0700); err != nil {
+	if err := os.MkdirAll(dir, 0o700); err != nil {
 		log.Printf("warning: autocert.NewListener not using a cache: %v", err)
 	} else {
 		m.Cache = DirCache(dir)
 	}
 	return m.Listener()
 }
-
 // Listener listens on the standard TLS port (443) on all interfaces
 // and returns a net.Listener returning *tls.Conn connections.
 //
@@ -77,14 +73,11 @@ func (m *Manager) Listener() net.Listener {
 	ln.tcpListener, ln.tcpListenErr = net.Listen("tcp", ":443")
 	return ln
 }
-
 type listener struct {
 	conf *tls.Config
-
 	tcpListener  net.Listener
 	tcpListenErr error
 }
-
 func (ln *listener) Accept() (net.Conn, error) {
 	if ln.tcpListenErr != nil {
 		return nil, ln.tcpListenErr
@@ -94,36 +87,22 @@ func (ln *listener) Accept() (net.Conn, error) {
 		return nil, err
 	}
 	tcpConn := conn.(*net.TCPConn)
-
-	// Because Listener is a convenience function, help out with
-	// this too.  This is not possible for the caller to set once
-	// we return a *tcp.Conn wrapping an inaccessible net.Conn.
-	// If callers don't want this, they can do things the manual
-	// way and tweak as needed. But this is what net/http does
-	// itself, so copy that. If net/http changes, we can change
-	// here too.
 	tcpConn.SetKeepAlive(true)
 	tcpConn.SetKeepAlivePeriod(3 * time.Minute)
-
 	return tls.Server(tcpConn, ln.conf), nil
 }
-
 func (ln *listener) Addr() net.Addr {
 	if ln.tcpListener != nil {
 		return ln.tcpListener.Addr()
 	}
-	// net.Listen failed. Return something non-nil in case callers
-	// call Addr before Accept:
 	return &net.TCPAddr{IP: net.IP{0, 0, 0, 0}, Port: 443}
 }
-
 func (ln *listener) Close() error {
 	if ln.tcpListenErr != nil {
 		return ln.tcpListenErr
 	}
 	return ln.tcpListener.Close()
 }
-
 func homeDir() string {
 	if runtime.GOOS == "windows" {
 		return os.Getenv("HOMEDRIVE") + os.Getenv("HOMEPATH")
@@ -133,7 +112,6 @@ func homeDir() string {
 	}
 	return "/"
 }
-
 func cacheDir() string {
 	const base = "golang-autocert"
 	switch runtime.GOOS {
@@ -145,7 +123,6 @@ func cacheDir() string {
 				return filepath.Join(v, base)
 			}
 		}
-		// Worst case:
 		return filepath.Join(homeDir(), base)
 	}
 	if xdg := os.Getenv("XDG_CACHE_HOME"); xdg != "" {

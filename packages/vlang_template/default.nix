@@ -9,7 +9,7 @@
       cp ${pname} $out/bin/
       '';
     nativeBuildInputs = [
-      (pkgs.vlang)
+      pkgs.vlang
     ];
     pname = "vlang_template";
     src = ./.;

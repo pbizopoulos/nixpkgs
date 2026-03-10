@@ -1,14 +1,14 @@
 { pkgs ? import <nixpkgs> {} }:
   let
     auditing-tools = [
-      (pkgs.go)
-      (pkgs.gosec)
-      (pkgs.govulncheck)
-      (pkgs.nix)
+      pkgs.go
+      pkgs.gosec
+      pkgs.govulncheck
+      pkgs.nix
     ];
   in pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.go)
+      pkgs.go
     ];
     buildPhase = ''
       export GOCACHE=$TMPDIR/go-cache
@@ -26,7 +26,7 @@
       platforms = pkgs.lib.platforms.linux;
     };
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "go_audit";
     src = ./src;

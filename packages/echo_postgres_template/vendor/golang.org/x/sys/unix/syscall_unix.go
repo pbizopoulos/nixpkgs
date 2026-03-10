@@ -1,11 +1,8 @@
 // Copyright 2009 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 //go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris
-
 package unix
-
 import (
 	"bytes"
 	"sort"
@@ -13,13 +10,11 @@ import (
 	"syscall"
 	"unsafe"
 )
-
 var (
 	Stdin  = 0
 	Stdout = 1
 	Stderr = 2
 )
-
 // Do the interface allocations only once for common
 // Errno values.
 var (
@@ -27,12 +22,10 @@ var (
 	errEINVAL error = syscall.EINVAL
 	errENOENT error = syscall.ENOENT
 )
-
 var (
 	signalNameMapOnce sync.Once
 	signalNameMap     map[string]syscall.Signal
 )
-
 // errnoErr returns common boxed Errno values, to prevent
 // allocations at runtime.
 func errnoErr(e syscall.Errno) error {
@@ -48,7 +41,6 @@ func errnoErr(e syscall.Errno) error {
 	}
 	return e
 }
-
 // ErrnoName returns the error name for error number e.
 func ErrnoName(e syscall.Errno) string {
 	i := sort.Search(len(errorList), func(i int) bool {
@@ -59,7 +51,6 @@ func ErrnoName(e syscall.Errno) string {
 	}
 	return ""
 }
-
 // SignalName returns the signal name for signal number s.
 func SignalName(s syscall.Signal) string {
 	i := sort.Search(len(signalList), func(i int) bool {
@@ -70,7 +61,6 @@ func SignalName(s syscall.Signal) string {
 	}
 	return ""
 }
-
 // SignalNum returns the syscall.Signal for signal named s,
 // or 0 if a signal with such name is not found.
 // The signal name should start with "SIG".
@@ -83,7 +73,6 @@ func SignalNum(s string) syscall.Signal {
 	})
 	return signalNameMap[s]
 }
-
 // clen returns the index of the first NULL byte in n or len(n) if n contains no NULL byte.
 func clen(n []byte) int {
 	i := bytes.IndexByte(n, 0)
@@ -92,44 +81,32 @@ func clen(n []byte) int {
 	}
 	return i
 }
-
 // Mmap manager, for use by operating system-specific implementations.
-
 type mmapper struct {
 	sync.Mutex
-	active map[*byte][]byte // active mappings; key is last byte in mapping
+	active map[*byte][]byte 
 	mmap   func(addr, length uintptr, prot, flags, fd int, offset int64) (uintptr, error)
 	munmap func(addr uintptr, length uintptr) error
 }
-
 func (m *mmapper) Mmap(fd int, offset int64, length int, prot int, flags int) (data []byte, err error) {
 	if length <= 0 {
 		return nil, EINVAL
 	}
-
-	// Map the requested memory.
 	addr, errno := m.mmap(0, uintptr(length), prot, flags, fd, offset)
 	if errno != nil {
 		return nil, errno
 	}
-
-	// Use unsafe to convert addr into a []byte.
 	b := unsafe.Slice((*byte)(unsafe.Pointer(addr)), length)
-
-	// Register mapping in m and return it.
 	p := &b[cap(b)-1]
 	m.Lock()
 	defer m.Unlock()
 	m.active[p] = b
 	return b, nil
 }
-
 func (m *mmapper) Munmap(data []byte) (err error) {
 	if len(data) == 0 || len(data) != cap(data) {
 		return EINVAL
 	}
-
-	// Find the base of the mapping.
 	p := &data[cap(data)-1]
 	m.Lock()
 	defer m.Unlock()
@@ -137,32 +114,25 @@ func (m *mmapper) Munmap(data []byte) (err error) {
 	if b == nil || &b[0] != &data[0] {
 		return EINVAL
 	}
-
-	// Unmap the memory and update m.
 	if errno := m.munmap(uintptr(unsafe.Pointer(&b[0])), uintptr(len(b))); errno != nil {
 		return errno
 	}
 	delete(m.active, p)
 	return nil
 }
-
 func Mmap(fd int, offset int64, length int, prot int, flags int) (data []byte, err error) {
 	return mapper.Mmap(fd, offset, length, prot, flags)
 }
-
 func Munmap(b []byte) (err error) {
 	return mapper.Munmap(b)
 }
-
 func MmapPtr(fd int, offset int64, addr unsafe.Pointer, length uintptr, prot int, flags int) (ret unsafe.Pointer, err error) {
 	xaddr, err := mapper.mmap(uintptr(addr), length, prot, flags, fd, offset)
 	return unsafe.Pointer(xaddr), err
 }
-
 func MunmapPtr(addr unsafe.Pointer, length uintptr) (err error) {
 	return mapper.munmap(uintptr(addr), length)
 }
-
 func Read(fd int, p []byte) (n int, err error) {
 	n, err = read(fd, p)
 	if raceenabled {
@@ -175,7 +145,6 @@ func Read(fd int, p []byte) (n int, err error) {
 	}
 	return
 }
-
 func Write(fd int, p []byte) (n int, err error) {
 	if raceenabled {
 		raceReleaseMerge(unsafe.Pointer(&ioSync))
@@ -186,7 +155,6 @@ func Write(fd int, p []byte) (n int, err error) {
 	}
 	return
 }
-
 func Pread(fd int, p []byte, offset int64) (n int, err error) {
 	n, err = pread(fd, p, offset)
 	if raceenabled {
@@ -199,7 +167,6 @@ func Pread(fd int, p []byte, offset int64) (n int, err error) {
 	}
 	return
 }
-
 func Pwrite(fd int, p []byte, offset int64) (n int, err error) {
 	if raceenabled {
 		raceReleaseMerge(unsafe.Pointer(&ioSync))
@@ -210,23 +177,19 @@ func Pwrite(fd int, p []byte, offset int64) (n int, err error) {
 	}
 	return
 }
-
 // For testing: clients can set this flag to force
 // creation of IPv6 sockets to return EAFNOSUPPORT.
 var SocketDisableIPv6 bool
-
 // Sockaddr represents a socket address.
 type Sockaddr interface {
-	sockaddr() (ptr unsafe.Pointer, len _Socklen, err error) // lowercase; only we can define Sockaddrs
+	sockaddr() (ptr unsafe.Pointer, len _Socklen, err error) 
 }
-
 // SockaddrInet4 implements the Sockaddr interface for AF_INET type sockets.
 type SockaddrInet4 struct {
 	Port int
 	Addr [4]byte
 	raw  RawSockaddrInet4
 }
-
 // SockaddrInet6 implements the Sockaddr interface for AF_INET6 type sockets.
 type SockaddrInet6 struct {
 	Port   int
@@ -234,13 +197,11 @@ type SockaddrInet6 struct {
 	Addr   [16]byte
 	raw    RawSockaddrInet6
 }
-
 // SockaddrUnix implements the Sockaddr interface for AF_UNIX type sockets.
 type SockaddrUnix struct {
 	Name string
 	raw  RawSockaddrUnix
 }
-
 func Bind(fd int, sa Sockaddr) (err error) {
 	ptr, n, err := sa.sockaddr()
 	if err != nil {
@@ -248,7 +209,6 @@ func Bind(fd int, sa Sockaddr) (err error) {
 	}
 	return bind(fd, ptr, n)
 }
-
 func Connect(fd int, sa Sockaddr) (err error) {
 	ptr, n, err := sa.sockaddr()
 	if err != nil {
@@ -256,7 +216,6 @@ func Connect(fd int, sa Sockaddr) (err error) {
 	}
 	return connect(fd, ptr, n)
 }
-
 func Getpeername(fd int) (sa Sockaddr, err error) {
 	var rsa RawSockaddrAny
 	var len _Socklen = SizeofSockaddrAny
@@ -265,76 +224,65 @@ func Getpeername(fd int) (sa Sockaddr, err error) {
 	}
 	return anyToSockaddr(fd, &rsa)
 }
-
 func GetsockoptByte(fd, level, opt int) (value byte, err error) {
 	var n byte
 	vallen := _Socklen(1)
 	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
 	return n, err
 }
-
 func GetsockoptInt(fd, level, opt int) (value int, err error) {
 	var n int32
 	vallen := _Socklen(4)
 	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
 	return int(n), err
 }
-
 func GetsockoptInet4Addr(fd, level, opt int) (value [4]byte, err error) {
 	vallen := _Socklen(4)
 	err = getsockopt(fd, level, opt, unsafe.Pointer(&value[0]), &vallen)
 	return value, err
 }
-
 func GetsockoptIPMreq(fd, level, opt int) (*IPMreq, error) {
 	var value IPMreq
 	vallen := _Socklen(SizeofIPMreq)
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
 	return &value, err
 }
-
 func GetsockoptIPv6Mreq(fd, level, opt int) (*IPv6Mreq, error) {
 	var value IPv6Mreq
 	vallen := _Socklen(SizeofIPv6Mreq)
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
 	return &value, err
 }
-
 func GetsockoptIPv6MTUInfo(fd, level, opt int) (*IPv6MTUInfo, error) {
 	var value IPv6MTUInfo
 	vallen := _Socklen(SizeofIPv6MTUInfo)
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
 	return &value, err
 }
-
 func GetsockoptICMPv6Filter(fd, level, opt int) (*ICMPv6Filter, error) {
 	var value ICMPv6Filter
 	vallen := _Socklen(SizeofICMPv6Filter)
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&value), &vallen)
 	return &value, err
 }
-
 func GetsockoptLinger(fd, level, opt int) (*Linger, error) {
 	var linger Linger
 	vallen := _Socklen(SizeofLinger)
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&linger), &vallen)
 	return &linger, err
 }
-
 func GetsockoptTimeval(fd, level, opt int) (*Timeval, error) {
 	var tv Timeval
 	vallen := _Socklen(unsafe.Sizeof(tv))
 	err := getsockopt(fd, level, opt, unsafe.Pointer(&tv), &vallen)
 	return &tv, err
 }
-
 func GetsockoptUint64(fd, level, opt int) (value uint64, err error) {
 	var n uint64
 	vallen := _Socklen(8)
 	err = getsockopt(fd, level, opt, unsafe.Pointer(&n), &vallen)
 	return n, err
 }
-
 func Recvfrom(fd int, p []byte, flags int) (n int, from Sockaddr, err error) {
 	var rsa RawSockaddrAny
 	var len _Socklen = SizeofSockaddrAny
@@ -346,7 +294,6 @@ func Recvfrom(fd int, p []byte, flags int) (n int, from Sockaddr, err error) {
 	}
 	return
 }
-
 // Recvmsg receives a message from a socket using the recvmsg system call. The
 // received non-control data will be written to p, and any "out of band"
 // control data will be written to oob. The flags are passed to recvmsg.
@@ -368,13 +315,11 @@ func Recvmsg(fd int, p, oob []byte, flags int) (n, oobn int, recvflags int, from
 	}
 	var rsa RawSockaddrAny
 	n, oobn, recvflags, err = recvmsgRaw(fd, iov[:], oob, flags, &rsa)
-	// source address is only specified if the socket is unconnected
 	if rsa.Addr.Family != AF_UNSPEC {
 		from, err = anyToSockaddr(fd, &rsa)
 	}
 	return
 }
-
 // RecvmsgBuffers receives a message from a socket using the recvmsg system
 // call. This function is equivalent to Recvmsg, but non-control data read is
 // scattered into the buffers slices.
@@ -395,7 +340,6 @@ func RecvmsgBuffers(fd int, buffers [][]byte, oob []byte, flags int) (n, oobn in
 	}
 	return
 }
-
 // Sendmsg sends a message on a socket to an address using the sendmsg system
 // call. This function is equivalent to SendmsgN, but does not return the
 // number of bytes actually sent.
@@ -403,7 +347,6 @@ func Sendmsg(fd int, p, oob []byte, to Sockaddr, flags int) (err error) {
 	_, err = SendmsgN(fd, p, oob, to, flags)
 	return
 }
-
 // SendmsgN sends a message on a socket to an address using the sendmsg system
 // call. p contains the non-control data to send, and oob contains the "out of
 // band" control data. The flags are passed to sendmsg. The number of
@@ -444,7 +387,6 @@ func SendmsgN(fd int, p, oob []byte, to Sockaddr, flags int) (n int, err error) 
 	}
 	return sendmsgN(fd, iov[:], oob, ptr, salen, flags)
 }
-
 // SendmsgBuffers sends a message on a socket to an address using the sendmsg
 // system call. This function is equivalent to SendmsgN, but the non-control
 // data is gathered from buffers.
@@ -468,11 +410,9 @@ func SendmsgBuffers(fd int, buffers [][]byte, oob []byte, to Sockaddr, flags int
 	}
 	return sendmsgN(fd, iov, oob, ptr, salen, flags)
 }
-
 func Send(s int, buf []byte, flags int) (err error) {
 	return sendto(s, buf, flags, nil, 0)
 }
-
 func Sendto(fd int, p []byte, flags int, to Sockaddr) (err error) {
 	var ptr unsafe.Pointer
 	var salen _Socklen
@@ -484,36 +424,28 @@ func Sendto(fd int, p []byte, flags int, to Sockaddr) (err error) {
 	}
 	return sendto(fd, p, flags, ptr, salen)
 }
-
 func SetsockoptByte(fd, level, opt int, value byte) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(&value), 1)
 }
-
 func SetsockoptInt(fd, level, opt int, value int) (err error) {
-	var n = int32(value)
+	n := int32(value)
 	return setsockopt(fd, level, opt, unsafe.Pointer(&n), 4)
 }
-
 func SetsockoptInet4Addr(fd, level, opt int, value [4]byte) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(&value[0]), 4)
 }
-
 func SetsockoptIPMreq(fd, level, opt int, mreq *IPMreq) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPMreq)
 }
-
 func SetsockoptIPv6Mreq(fd, level, opt int, mreq *IPv6Mreq) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(mreq), SizeofIPv6Mreq)
 }
-
 func SetsockoptICMPv6Filter(fd, level, opt int, filter *ICMPv6Filter) error {
 	return setsockopt(fd, level, opt, unsafe.Pointer(filter), SizeofICMPv6Filter)
 }
-
 func SetsockoptLinger(fd, level, opt int, l *Linger) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(l), SizeofLinger)
 }
-
 func SetsockoptString(fd, level, opt int, s string) (err error) {
 	var p unsafe.Pointer
 	if len(s) > 0 {
@@ -521,15 +453,12 @@ func SetsockoptString(fd, level, opt int, s string) (err error) {
 	}
 	return setsockopt(fd, level, opt, p, uintptr(len(s)))
 }
-
 func SetsockoptTimeval(fd, level, opt int, tv *Timeval) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(tv), unsafe.Sizeof(*tv))
 }
-
 func SetsockoptUint64(fd, level, opt int, value uint64) (err error) {
 	return setsockopt(fd, level, opt, unsafe.Pointer(&value), 8)
 }
-
 func Socket(domain, typ, proto int) (fd int, err error) {
 	if domain == AF_INET6 && SocketDisableIPv6 {
 		return -1, EAFNOSUPPORT
@@ -537,7 +466,6 @@ func Socket(domain, typ, proto int) (fd int, err error) {
 	fd, err = socket(domain, typ, proto)
 	return
 }
-
 func Socketpair(domain, typ, proto int) (fd [2]int, err error) {
 	var fdx [2]int32
 	err = socketpair(domain, typ, proto, &fdx)
@@ -547,11 +475,8 @@ func Socketpair(domain, typ, proto int) (fd [2]int, err error) {
 	}
 	return
 }
-
 var ioSync int64
-
 func CloseOnExec(fd int) { fcntl(fd, F_SETFD, FD_CLOEXEC) }
-
 func SetNonblock(fd int, nonblocking bool) (err error) {
 	flag, err := fcntl(fd, F_GETFL, 0)
 	if err != nil {
@@ -568,7 +493,6 @@ func SetNonblock(fd int, nonblocking bool) (err error) {
 	_, err = fcntl(fd, F_SETFL, flag)
 	return err
 }
-
 // Exec calls execve(2), which replaces the calling executable in the process
 // tree. argv0 should be the full path to an executable ("/bin/ls") and the
 // executable name should also be the first argument in argv (["ls", "-l"]).
@@ -577,7 +501,6 @@ func SetNonblock(fd int, nonblocking bool) (err error) {
 func Exec(argv0 string, argv []string, envv []string) error {
 	return syscall.Exec(argv0, argv, envv)
 }
-
 // Lutimes sets the access and modification times tv on path. If path refers to
 // a symlink, it is not dereferenced and the timestamps are set on the symlink.
 // If tv is nil, the access and modification times are set to the current time.
@@ -596,7 +519,6 @@ func Lutimes(path string, tv []Timeval) error {
 	}
 	return UtimesNanoAt(AT_FDCWD, path, ts, AT_SYMLINK_NOFOLLOW)
 }
-
 // emptyIovecs reports whether there are no bytes in the slice of Iovec.
 func emptyIovecs(iov []Iovec) bool {
 	for i := range iov {
@@ -606,10 +528,7 @@ func emptyIovecs(iov []Iovec) bool {
 	}
 	return true
 }
-
 // Setrlimit sets a resource limit.
 func Setrlimit(resource int, rlim *Rlimit) error {
-	// Just call the syscall version, because as of Go 1.21
-	// it will affect starting a new process.
 	return syscall.Setrlimit(resource, (*syscall.Rlimit)(rlim))
 }

@@ -2,9 +2,9 @@
   let
     python = pkgs.python313.withPackages (ps:
       [
-        (ps.coverage)
-        (ps.scalene)
-        (ps.typer)
+        ps.coverage
+        ps.scalene
+        ps.typer
       ]);
   in pkgs.stdenv.mkDerivation rec {
     buildInputs = [
@@ -16,7 +16,7 @@
       chmod +x $out/bin/${pname}
       wrapProgram $out/bin/${pname} \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nix)
+        pkgs.nix
         python
       ]}
       '';
@@ -27,7 +27,7 @@
       ];
     };
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "python_audit";
     src = ./.;

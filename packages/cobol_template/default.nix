@@ -8,7 +8,7 @@
       cp ${pname} $out/bin/
       '';
     nativeBuildInputs = [
-      (pkgs.gnucobol)
+      pkgs.gnucobol
     ];
     pname = "cobol_template";
     src = ./.;

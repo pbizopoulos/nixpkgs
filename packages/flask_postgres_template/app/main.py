@@ -1,3 +1,4 @@
+# ruff: noqa: D100, D103, INP001, PGH003, S104
 from flask import Flask
 
 app = Flask(__name__)

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.kotlin)
+      pkgs.kotlin
     ];
     buildPhase = "kotlinc Main.kt -include-runtime -d ${pname}.jar";
     installPhase = ''
@@ -12,7 +12,7 @@
         --add-flags "-cp $out/share/kotlin/${pname}.jar MainKt"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "kotlin_template";
     src = ./.;

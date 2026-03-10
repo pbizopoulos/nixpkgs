@@ -42,12 +42,12 @@
         --set ERL_LIBS "${erlLibs}" \
         --prefix PATH : "${lib.makeBinPath [
         elixir
-        (pkgs.nodejs)
+        pkgs.nodejs
       ]}"
       runHook postInstall
       '';
     meta.mainProgram = pname;
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
   }

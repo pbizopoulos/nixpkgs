@@ -2,7 +2,7 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.nodejs)
+      pkgs.nodejs
       postgresql
     ];
     dontBuild = true;
@@ -15,15 +15,15 @@
         --set VITE_POSTGRES_URL "http://localhost:54321" \
         --set VITE_POSTGRES_ANON_KEY "build-placeholder" \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
-        (pkgs.postgresql)
+        pkgs.nodejs
+        pkgs.postgresql
       ]} \
         --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \
         --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}"
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "angular_postgres_template";
     src = ./.;

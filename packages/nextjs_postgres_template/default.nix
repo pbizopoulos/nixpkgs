@@ -2,7 +2,7 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.buildNpmPackage rec {
     buildInputs = [
-      (pkgs.nodejs)
+      pkgs.nodejs
       postgresql
     ];
     env = {
@@ -18,14 +18,14 @@
         --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} \
         --set PKG_CONFIG_PATH ${pkgs.openssl.dev}/lib/pkgconfig \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
+        pkgs.nodejs
         postgresql
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
-      (pkgs.openssl)
+      pkgs.makeWrapper
+      pkgs.openssl
       postgresql
     ];
     npmDepsHash = "sha256-MLlE686f3E98i3UAmTGOBChSHloK2SbNiXoteGFmZ3U=";

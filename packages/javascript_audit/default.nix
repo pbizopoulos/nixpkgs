@@ -1,12 +1,12 @@
 { pkgs ? import <nixpkgs> {} }:
   let
     auditing-tools = [
-      (pkgs.nix)
-      (pkgs.nodejs)
+      pkgs.nix
+      pkgs.nodejs
     ];
   in pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.nodejs)
+      pkgs.nodejs
     ];
     dontUnpack = true;
     installPhase = ''
@@ -21,7 +21,7 @@
       platforms = pkgs.lib.platforms.linux;
     };
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "javascript_audit";
     src = ./.;

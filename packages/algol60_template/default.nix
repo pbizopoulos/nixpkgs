@@ -9,8 +9,8 @@
       cp ${pname} $out/bin/
       '';
     nativeBuildInputs = [
-      (pkgs.gcc)
-      (pkgs.marst)
+      pkgs.gcc
+      pkgs.marst
     ];
     pname = "algol60_template";
     src = ./.;

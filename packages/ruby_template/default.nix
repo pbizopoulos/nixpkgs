@@ -10,7 +10,7 @@
       chmod +x $out/bin/${pname}
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "ruby_template";
     src = ./.;

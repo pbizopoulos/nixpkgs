@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.gnat)
+      pkgs.gnat
     ];
     buildPhase = ''
       gnatmake main.adb -o ${pname}

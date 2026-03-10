@@ -2,7 +2,7 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.buildGoModule rec {
     buildInputs = [
-      (pkgs.nodejs)
+      pkgs.nodejs
       postgresql
     ];
     env.CGO_ENABLED = "0";
@@ -17,13 +17,13 @@
       chmod +x $out/bin/${pname}
       wrapProgram $out/bin/${pname} \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
+        pkgs.nodejs
         postgresql
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "echo_postgres_template";
     src = ./.;

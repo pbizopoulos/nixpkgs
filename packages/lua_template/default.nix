@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.lua)
+      pkgs.lua
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
       wrapProgram $out/bin/${pname} --prefix PATH : ${pkgs.lua}/bin
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "lua_template";
     src = ./.;

@@ -1,13 +1,11 @@
 // Copyright 2018 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 // Package h2c implements the unencrypted "h2c" form of HTTP/2.
 //
 // The h2c protocol is the non-TLS version of HTTP/2 which is not available from
 // net/http or golang.org/x/net/http2.
 package h2c
-
 import (
 	"bufio"
 	"bytes"
@@ -21,22 +19,16 @@ import (
 	"net/textproto"
 	"os"
 	"strings"
-
 	"golang.org/x/net/http/httpguts"
 	"golang.org/x/net/http2"
 )
-
-var (
-	http2VerboseLogs bool
-)
-
+var http2VerboseLogs bool
 func init() {
 	e := os.Getenv("GODEBUG")
 	if strings.Contains(e, "http2debug=1") || strings.Contains(e, "http2debug=2") {
 		http2VerboseLogs = true
 	}
 }
-
 // h2cHandler is a Handler which implements h2c by hijacking the HTTP/1 traffic
 // that should be h2c traffic. There are two ways to begin a h2c connection
 // (RFC 7540 Section 3.2 and 3.4): (1) Starting with Prior Knowledge - this
@@ -49,7 +41,6 @@ type h2cHandler struct {
 	Handler http.Handler
 	s       *http2.Server
 }
-
 // NewHandler returns an http.Handler that wraps h, intercepting any h2c
 // traffic. If a request is an h2c connection, it's hijacked and redirected to
 // s.ServeConn. Otherwise the returned Handler just forwards requests to h. This
@@ -69,7 +60,6 @@ func NewHandler(h http.Handler, s *http2.Server) http.Handler {
 		s:       s,
 	}
 }
-
 // extractServer extracts existing http.Server instance from http.Request or create an empty http.Server
 func extractServer(r *http.Request) *http.Server {
 	server, ok := r.Context().Value(http.ServerContextKey).(*http.Server)
@@ -78,10 +68,8 @@ func extractServer(r *http.Request) *http.Server {
 	}
 	return new(http.Server)
 }
-
 // ServeHTTP implement the h2c support that is enabled by h2c.GetH2CHandler.
 func (s h2cHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// Handle h2c with prior knowledge (RFC 7540 Section 3.4)
 	if r.Method == "PRI" && len(r.Header) == 0 && r.URL.Path == "*" && r.Proto == "HTTP/2.0" {
 		if http2VerboseLogs {
 			log.Print("h2c: attempting h2c with prior knowledge.")
@@ -102,7 +90,6 @@ func (s h2cHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
-	// Handle Upgrade to h2c (RFC 7540 Section 3.2)
 	if isH2CUpgrade(r.Header) {
 		conn, settings, err := h2cUpgrade(w, r)
 		if err != nil {
@@ -125,7 +112,6 @@ func (s h2cHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	s.Handler.ServeHTTP(w, r)
 	return
 }
-
 // initH2CWithPriorKnowledge implements creating a h2c connection with prior
 // knowledge (Section 3.4) and creates a net.Conn suitable for http2.ServeConn.
 // All we have to do is look for the client preface that is suppose to be part
@@ -140,23 +126,18 @@ func initH2CWithPriorKnowledge(w http.ResponseWriter) (net.Conn, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	const expectedBody = "SM\r\n\r\n"
-
 	buf := make([]byte, len(expectedBody))
 	n, err := io.ReadFull(rw, buf)
 	if err != nil {
 		return nil, fmt.Errorf("h2c: error reading client preface: %s", err)
 	}
-
 	if string(buf[:n]) == expectedBody {
 		return newBufConn(conn, rw), nil
 	}
-
 	conn.Close()
 	return nil, errors.New("h2c: invalid client preface")
 }
-
 // h2cUpgrade establishes a h2c connection using the HTTP/1 upgrade (Section 3.2).
 func h2cUpgrade(w http.ResponseWriter, r *http.Request) (_ net.Conn, settings []byte, err error) {
 	settings, err = getH2Settings(r.Header)
@@ -167,31 +148,26 @@ func h2cUpgrade(w http.ResponseWriter, r *http.Request) (_ net.Conn, settings []
 	if !ok {
 		return nil, nil, errors.New("h2c: connection does not support Hijack")
 	}
-
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return nil, nil, err
 	}
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
-
 	conn, rw, err := hijacker.Hijack()
 	if err != nil {
 		return nil, nil, err
 	}
-
 	rw.Write([]byte("HTTP/1.1 101 Switching Protocols\r\n" +
 		"Connection: Upgrade\r\n" +
 		"Upgrade: h2c\r\n\r\n"))
 	return newBufConn(conn, rw), settings, nil
 }
-
 // isH2CUpgrade returns true if the header properly request an upgrade to h2c
 // as specified by Section 3.2.
 func isH2CUpgrade(h http.Header) bool {
 	return httpguts.HeaderValuesContainsToken(h[textproto.CanonicalMIMEHeaderKey("Upgrade")], "h2c") &&
 		httpguts.HeaderValuesContainsToken(h[textproto.CanonicalMIMEHeaderKey("Connection")], "HTTP2-Settings")
 }
-
 // getH2Settings returns the settings in the HTTP2-Settings header.
 func getH2Settings(h http.Header) ([]byte, error) {
 	vals, ok := h[textproto.CanonicalMIMEHeaderKey("HTTP2-Settings")]
@@ -207,23 +183,18 @@ func getH2Settings(h http.Header) ([]byte, error) {
 	}
 	return settings, nil
 }
-
 func newBufConn(conn net.Conn, rw *bufio.ReadWriter) net.Conn {
 	rw.Flush()
 	if rw.Reader.Buffered() == 0 {
-		// If there's no buffered data to be read,
-		// we can just discard the bufio.ReadWriter.
 		return conn
 	}
 	return &bufConn{conn, rw.Reader}
 }
-
 // bufConn wraps a net.Conn, but reads drain the bufio.Reader first.
 type bufConn struct {
 	net.Conn
 	*bufio.Reader
 }
-
 func (c *bufConn) Read(p []byte) (int, error) {
 	if c.Reader == nil {
 		return c.Conn.Read(p)

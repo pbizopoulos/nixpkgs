@@ -1,34 +1,27 @@
 // Copyright 2011 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package norm
-
 type valueRange struct {
-	value  uint16 // header: value:stride
-	lo, hi byte   // header: lo:n
+	value  uint16 
+	lo, hi byte   
 }
-
 type sparseBlocks struct {
 	values []valueRange
 	offset []uint16
 }
-
 var nfcSparse = sparseBlocks{
 	values: nfcSparseValues[:],
 	offset: nfcSparseOffset[:],
 }
-
 var nfkcSparse = sparseBlocks{
 	values: nfkcSparseValues[:],
 	offset: nfkcSparseOffset[:],
 }
-
 var (
 	nfcData  = newNfcTrie(0)
 	nfkcData = newNfkcTrie(0)
 )
-
 // lookup determines the type of block n and looks up the value for b.
 // For n < t.cutoff, the block is a simple lookup table. Otherwise, the block
 // is a list of ranges with an accompanying value. Given a matching range r,

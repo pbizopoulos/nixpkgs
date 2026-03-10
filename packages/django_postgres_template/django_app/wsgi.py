@@ -1,3 +1,4 @@
+# ruff: noqa: D100, INP001
 import os
 
 from django.core.wsgi import get_wsgi_application

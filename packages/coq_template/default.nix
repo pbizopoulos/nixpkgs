@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.coq)
+      pkgs.coq
     ];
     buildPhase = ''
       coqc main.v

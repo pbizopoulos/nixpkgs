@@ -1,23 +1,17 @@
 // Copyright 2009 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 //go:build 386 && linux
-
 package unix
-
 import (
 	"unsafe"
 )
-
 func setTimespec(sec, nsec int64) Timespec {
 	return Timespec{Sec: int32(sec), Nsec: int32(nsec)}
 }
-
 func setTimeval(sec, usec int64) Timeval {
 	return Timeval{Sec: int32(sec), Usec: int32(usec)}
 }
-
 // 64-bit file system and 32-bit uid calls
 // (386 default is 32-bit file system and 16-bit uid).
 //sys	EpollWait(epfd int, events []EpollEvent, msec int) (n int, err error)
@@ -48,10 +42,8 @@ func setTimeval(sec, usec int64) Timeval {
 //sysnb	getgroups(n int, list *_Gid_t) (nn int, err error) = SYS_GETGROUPS32
 //sysnb	setgroups(n int, list *_Gid_t) (err error) = SYS_SETGROUPS32
 //sys	Select(nfd int, r *FdSet, w *FdSet, e *FdSet, timeout *Timeval) (n int, err error) = SYS__NEWSELECT
-
 //sys	mmap2(addr uintptr, length uintptr, prot int, flags int, fd int, pageOffset uintptr) (xaddr uintptr, err error)
 //sys	Pause() (err error)
-
 func mmap(addr uintptr, length uintptr, prot int, flags int, fd int, offset int64) (xaddr uintptr, err error) {
 	page := uintptr(offset / 4096)
 	if offset != int64(page)*4096 {
@@ -59,35 +51,30 @@ func mmap(addr uintptr, length uintptr, prot int, flags int, fd int, offset int6
 	}
 	return mmap2(addr, length, prot, flags, fd, page)
 }
-
 type rlimit32 struct {
 	Cur uint32
 	Max uint32
 }
-
 //sysnb	getrlimit(resource int, rlim *rlimit32) (err error) = SYS_GETRLIMIT
-
-const rlimInf32 = ^uint32(0)
-const rlimInf64 = ^uint64(0)
-
+const (
+	rlimInf32 = ^uint32(0)
+	rlimInf64 = ^uint64(0)
+)
 func Getrlimit(resource int, rlim *Rlimit) (err error) {
 	err = Prlimit(0, resource, nil, rlim)
 	if err != ENOSYS {
 		return err
 	}
-
 	rl := rlimit32{}
 	err = getrlimit(resource, &rl)
 	if err != nil {
 		return
 	}
-
 	if rl.Cur == rlimInf32 {
 		rlim.Cur = rlimInf64
 	} else {
 		rlim.Cur = uint64(rl.Cur)
 	}
-
 	if rl.Max == rlimInf32 {
 		rlim.Max = rlimInf64
 	} else {
@@ -95,7 +82,6 @@ func Getrlimit(resource int, rlim *Rlimit) (err error) {
 	}
 	return
 }
-
 func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 	newoffset, errno := seek(fd, offset, whence)
 	if errno != 0 {
@@ -103,22 +89,18 @@ func Seek(fd int, offset int64, whence int) (newoffset int64, err error) {
 	}
 	return newoffset, nil
 }
-
 //sys	futimesat(dirfd int, path string, times *[2]Timeval) (err error)
 //sysnb	Gettimeofday(tv *Timeval) (err error)
 //sysnb	Time(t *Time_t) (tt Time_t, err error)
 //sys	Utime(path string, buf *Utimbuf) (err error)
 //sys	utimes(path string, times *[2]Timeval) (err error)
-
 // On x86 Linux, all the socket calls go through an extra indirection,
 // I think because the 5-register system call interface can't handle
 // the 6-argument calls like sendto and recvfrom. Instead the
 // arguments to the underlying system call are the number below
 // and a pointer to an array of uintptr. We hide the pointer in the
 // socketcall assembly to avoid allocation on every system call.
-
 const (
-	// see linux/net.h
 	_SOCKET      = 1
 	_BIND        = 2
 	_CONNECT     = 3
@@ -140,7 +122,6 @@ const (
 	_RECVMMSG    = 19
 	_SENDMMSG    = 20
 )
-
 func accept4(s int, rsa *RawSockaddrAny, addrlen *_Socklen, flags int) (fd int, err error) {
 	fd, e := socketcall(_ACCEPT4, uintptr(s), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), uintptr(flags), 0, 0)
 	if e != 0 {
@@ -148,7 +129,6 @@ func accept4(s int, rsa *RawSockaddrAny, addrlen *_Socklen, flags int) (fd int, 
 	}
 	return
 }
-
 func getsockname(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	_, e := rawsocketcall(_GETSOCKNAME, uintptr(s), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), 0, 0, 0)
 	if e != 0 {
@@ -156,7 +136,6 @@ func getsockname(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	}
 	return
 }
-
 func getpeername(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	_, e := rawsocketcall(_GETPEERNAME, uintptr(s), uintptr(unsafe.Pointer(rsa)), uintptr(unsafe.Pointer(addrlen)), 0, 0, 0)
 	if e != 0 {
@@ -164,7 +143,6 @@ func getpeername(s int, rsa *RawSockaddrAny, addrlen *_Socklen) (err error) {
 	}
 	return
 }
-
 func socketpair(domain int, typ int, flags int, fd *[2]int32) (err error) {
 	_, e := rawsocketcall(_SOCKETPAIR, uintptr(domain), uintptr(typ), uintptr(flags), uintptr(unsafe.Pointer(fd)), 0, 0)
 	if e != 0 {
@@ -172,7 +150,6 @@ func socketpair(domain int, typ int, flags int, fd *[2]int32) (err error) {
 	}
 	return
 }
-
 func bind(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	_, e := socketcall(_BIND, uintptr(s), uintptr(addr), uintptr(addrlen), 0, 0, 0)
 	if e != 0 {
@@ -180,7 +157,6 @@ func bind(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	}
 	return
 }
-
 func connect(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	_, e := socketcall(_CONNECT, uintptr(s), uintptr(addr), uintptr(addrlen), 0, 0, 0)
 	if e != 0 {
@@ -188,7 +164,6 @@ func connect(s int, addr unsafe.Pointer, addrlen _Socklen) (err error) {
 	}
 	return
 }
-
 func socket(domain int, typ int, proto int) (fd int, err error) {
 	fd, e := rawsocketcall(_SOCKET, uintptr(domain), uintptr(typ), uintptr(proto), 0, 0, 0)
 	if e != 0 {
@@ -196,7 +171,6 @@ func socket(domain int, typ int, proto int) (fd int, err error) {
 	}
 	return
 }
-
 func getsockopt(s int, level int, name int, val unsafe.Pointer, vallen *_Socklen) (err error) {
 	_, e := socketcall(_GETSOCKOPT, uintptr(s), uintptr(level), uintptr(name), uintptr(val), uintptr(unsafe.Pointer(vallen)), 0)
 	if e != 0 {
@@ -204,7 +178,6 @@ func getsockopt(s int, level int, name int, val unsafe.Pointer, vallen *_Socklen
 	}
 	return
 }
-
 func setsockopt(s int, level int, name int, val unsafe.Pointer, vallen uintptr) (err error) {
 	_, e := socketcall(_SETSOCKOPT, uintptr(s), uintptr(level), uintptr(name), uintptr(val), vallen, 0)
 	if e != 0 {
@@ -212,7 +185,6 @@ func setsockopt(s int, level int, name int, val unsafe.Pointer, vallen uintptr) 
 	}
 	return
 }
-
 func recvfrom(s int, p []byte, flags int, from *RawSockaddrAny, fromlen *_Socklen) (n int, err error) {
 	var base uintptr
 	if len(p) > 0 {
@@ -224,7 +196,6 @@ func recvfrom(s int, p []byte, flags int, from *RawSockaddrAny, fromlen *_Sockle
 	}
 	return
 }
-
 func sendto(s int, p []byte, flags int, to unsafe.Pointer, addrlen _Socklen) (err error) {
 	var base uintptr
 	if len(p) > 0 {
@@ -236,7 +207,6 @@ func sendto(s int, p []byte, flags int, to unsafe.Pointer, addrlen _Socklen) (er
 	}
 	return
 }
-
 func recvmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	n, e := socketcall(_RECVMSG, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags), 0, 0, 0)
 	if e != 0 {
@@ -244,7 +214,6 @@ func recvmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	}
 	return
 }
-
 func sendmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	n, e := socketcall(_SENDMSG, uintptr(s), uintptr(unsafe.Pointer(msg)), uintptr(flags), 0, 0, 0)
 	if e != 0 {
@@ -252,7 +221,6 @@ func sendmsg(s int, msg *Msghdr, flags int) (n int, err error) {
 	}
 	return
 }
-
 func Listen(s int, n int) (err error) {
 	_, e := socketcall(_LISTEN, uintptr(s), uintptr(n), 0, 0, 0, 0)
 	if e != 0 {
@@ -260,7 +228,6 @@ func Listen(s int, n int) (err error) {
 	}
 	return
 }
-
 func Shutdown(s, how int) (err error) {
 	_, e := socketcall(_SHUTDOWN, uintptr(s), uintptr(how), 0, 0, 0, 0)
 	if e != 0 {
@@ -268,7 +235,6 @@ func Shutdown(s, how int) (err error) {
 	}
 	return
 }
-
 func Fstatfs(fd int, buf *Statfs_t) (err error) {
 	_, _, e := Syscall(SYS_FSTATFS64, uintptr(fd), unsafe.Sizeof(*buf), uintptr(unsafe.Pointer(buf)))
 	if e != 0 {
@@ -276,7 +242,6 @@ func Fstatfs(fd int, buf *Statfs_t) (err error) {
 	}
 	return
 }
-
 func Statfs(path string, buf *Statfs_t) (err error) {
 	pathp, err := BytePtrFromString(path)
 	if err != nil {
@@ -288,27 +253,20 @@ func Statfs(path string, buf *Statfs_t) (err error) {
 	}
 	return
 }
-
 func (r *PtraceRegs) PC() uint64 { return uint64(uint32(r.Eip)) }
-
 func (r *PtraceRegs) SetPC(pc uint64) { r.Eip = int32(pc) }
-
 func (iov *Iovec) SetLen(length int) {
 	iov.Len = uint32(length)
 }
-
 func (msghdr *Msghdr) SetControllen(length int) {
 	msghdr.Controllen = uint32(length)
 }
-
 func (msghdr *Msghdr) SetIovlen(length int) {
 	msghdr.Iovlen = uint32(length)
 }
-
 func (cmsg *Cmsghdr) SetLen(length int) {
 	cmsg.Len = uint32(length)
 }
-
 func (rsa *RawSockaddrNFCLLCP) SetServiceNameLen(length int) {
 	rsa.Service_name_len = uint32(length)
 }

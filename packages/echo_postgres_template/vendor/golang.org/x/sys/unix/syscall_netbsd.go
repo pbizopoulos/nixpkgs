@@ -1,7 +1,6 @@
 // Copyright 2009,2010 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 // NetBSD system calls.
 // This file is compiled as ordinary Go code,
 // but it is also input to mksyscall,
@@ -9,14 +8,11 @@
 // Note that sometimes we use a lowercase //sys name and wrap
 // it in our own nicer implementation, either here or in
 // syscall_bsd.go or syscall_unix.go.
-
 package unix
-
 import (
 	"syscall"
 	"unsafe"
 )
-
 // SockaddrDatalink implements the Sockaddr interface for AF_LINK type sockets.
 type SockaddrDatalink struct {
 	Len    uint8
@@ -29,18 +25,12 @@ type SockaddrDatalink struct {
 	Data   [12]int8
 	raw    RawSockaddrDatalink
 }
-
 func anyToSockaddrGOOS(fd int, rsa *RawSockaddrAny) (Sockaddr, error) {
 	return nil, EAFNOSUPPORT
 }
-
 func Syscall9(trap, a1, a2, a3, a4, a5, a6, a7, a8, a9 uintptr) (r1, r2 uintptr, err syscall.Errno)
-
 func sysctlNodes(mib []_C_int) (nodes []Sysctlnode, err error) {
 	var olen uintptr
-
-	// Get a list of all sysctl nodes below the given MIB by performing
-	// a sysctl for the given MIB with CTL_QUERY appended.
 	mib = append(mib, CTL_QUERY)
 	qnode := Sysctlnode{Flags: SYSCTL_VERS_1}
 	qp := (*byte)(unsafe.Pointer(&qnode))
@@ -48,19 +38,14 @@ func sysctlNodes(mib []_C_int) (nodes []Sysctlnode, err error) {
 	if err = sysctl(mib, nil, &olen, qp, sz); err != nil {
 		return nil, err
 	}
-
-	// Now that we know the size, get the actual nodes.
 	nodes = make([]Sysctlnode, olen/sz)
 	np := (*byte)(unsafe.Pointer(&nodes[0]))
 	if err = sysctl(mib, np, &olen, qp, sz); err != nil {
 		return nil, err
 	}
-
 	return nodes, nil
 }
-
 func nametomib(name string) (mib []_C_int, err error) {
-	// Split name into components.
 	var parts []string
 	last := 0
 	for i := 0; i < len(name); i++ {
@@ -70,8 +55,6 @@ func nametomib(name string) (mib []_C_int, err error) {
 		}
 	}
 	parts = append(parts, name[last:])
-
-	// Discover the nodes and construct the MIB OID.
 	for partno, part := range parts {
 		nodes, err := sysctlNodes(mib)
 		if err != nil {
@@ -93,28 +76,22 @@ func nametomib(name string) (mib []_C_int, err error) {
 			return nil, EINVAL
 		}
 	}
-
 	return mib, nil
 }
-
 func direntIno(buf []byte) (uint64, bool) {
 	return readInt(buf, unsafe.Offsetof(Dirent{}.Fileno), unsafe.Sizeof(Dirent{}.Fileno))
 }
-
 func direntReclen(buf []byte) (uint64, bool) {
 	return readInt(buf, unsafe.Offsetof(Dirent{}.Reclen), unsafe.Sizeof(Dirent{}.Reclen))
 }
-
 func direntNamlen(buf []byte) (uint64, bool) {
 	return readInt(buf, unsafe.Offsetof(Dirent{}.Namlen), unsafe.Sizeof(Dirent{}.Namlen))
 }
-
 func SysctlUvmexp(name string) (*Uvmexp, error) {
 	mib, err := sysctlmib(name)
 	if err != nil {
 		return nil, err
 	}
-
 	n := uintptr(SizeofUvmexp)
 	var u Uvmexp
 	if err := sysctl(mib, (*byte)(unsafe.Pointer(&u)), &n, nil, 0); err != nil {
@@ -122,13 +99,10 @@ func SysctlUvmexp(name string) (*Uvmexp, error) {
 	}
 	return &u, nil
 }
-
 func Pipe(p []int) (err error) {
 	return Pipe2(p, 0)
 }
-
 //sysnb	pipe2(p *[2]_C_int, flags int) (err error)
-
 func Pipe2(p []int, flags int) error {
 	if len(p) != 2 {
 		return EINVAL
@@ -141,17 +115,14 @@ func Pipe2(p []int, flags int) error {
 	}
 	return err
 }
-
 //sys	Getdents(fd int, buf []byte) (n int, err error)
-
 func Getdirentries(fd int, buf []byte, basep *uintptr) (n int, err error) {
 	n, err = Getdents(fd, buf)
 	if err != nil || basep == nil {
 		return
 	}
-
 	var off int64
-	off, err = Seek(fd, 0, 1 /* SEEK_CUR */)
+	off, err = Seek(fd, 0, 1 )
 	if err != nil {
 		*basep = ^uintptr(0)
 		return
@@ -161,59 +132,44 @@ func Getdirentries(fd int, buf []byte, basep *uintptr) (n int, err error) {
 		return
 	}
 	if off>>32 != 0 {
-		// We can't stuff the offset back into a uintptr, so any
-		// future calls would be suspect. Generate an error.
-		// EIO is allowed by getdirentries.
 		err = EIO
 	}
 	return
 }
-
 //sys	Getcwd(buf []byte) (n int, err error) = SYS___GETCWD
-
 // TODO
 func sendfile(outfd int, infd int, offset *int64, count int) (written int, err error) {
 	return -1, ENOSYS
 }
-
 //sys	ioctl(fd int, req uint, arg uintptr) (err error)
 //sys	ioctlPtr(fd int, req uint, arg unsafe.Pointer) (err error) = SYS_IOCTL
-
 //sys	sysctl(mib []_C_int, old *byte, oldlen *uintptr, new *byte, newlen uintptr) (err error) = SYS___SYSCTL
-
 func IoctlGetPtmget(fd int, req uint) (*Ptmget, error) {
 	var value Ptmget
 	err := ioctlPtr(fd, req, unsafe.Pointer(&value))
 	return &value, err
 }
-
 func Uname(uname *Utsname) error {
 	mib := []_C_int{CTL_KERN, KERN_OSTYPE}
 	n := unsafe.Sizeof(uname.Sysname)
 	if err := sysctl(mib, &uname.Sysname[0], &n, nil, 0); err != nil {
 		return err
 	}
-
 	mib = []_C_int{CTL_KERN, KERN_HOSTNAME}
 	n = unsafe.Sizeof(uname.Nodename)
 	if err := sysctl(mib, &uname.Nodename[0], &n, nil, 0); err != nil {
 		return err
 	}
-
 	mib = []_C_int{CTL_KERN, KERN_OSRELEASE}
 	n = unsafe.Sizeof(uname.Release)
 	if err := sysctl(mib, &uname.Release[0], &n, nil, 0); err != nil {
 		return err
 	}
-
 	mib = []_C_int{CTL_KERN, KERN_VERSION}
 	n = unsafe.Sizeof(uname.Version)
 	if err := sysctl(mib, &uname.Version[0], &n, nil, 0); err != nil {
 		return err
 	}
-
-	// The version might have newlines or tabs in it, convert them to
-	// spaces.
 	for i, b := range uname.Version {
 		if b == '\n' || b == '\t' {
 			if i == len(uname.Version)-1 {
@@ -223,31 +179,25 @@ func Uname(uname *Utsname) error {
 			}
 		}
 	}
-
 	mib = []_C_int{CTL_HW, HW_MACHINE}
 	n = unsafe.Sizeof(uname.Machine)
 	if err := sysctl(mib, &uname.Machine[0], &n, nil, 0); err != nil {
 		return err
 	}
-
 	return nil
 }
-
 func Sendfile(outfd int, infd int, offset *int64, count int) (written int, err error) {
 	if raceenabled {
 		raceReleaseMerge(unsafe.Pointer(&ioSync))
 	}
 	return sendfile(outfd, infd, offset, count)
 }
-
 func Fstatvfs(fd int, buf *Statvfs_t) (err error) {
 	return Fstatvfs1(fd, buf, ST_WAIT)
 }
-
 func Statvfs(path string, buf *Statvfs_t) (err error) {
 	return Statvfs1(path, buf, ST_WAIT)
 }
-
 /*
  * Exposed directly
  */
@@ -357,15 +307,12 @@ func Statvfs(path string, buf *Statvfs_t) (err error) {
 //sys	mmap(addr uintptr, length uintptr, prot int, flag int, fd int, pos int64) (ret uintptr, err error)
 //sys	munmap(addr uintptr, length uintptr) (err error)
 //sys	utimensat(dirfd int, path string, times *[2]Timespec, flags int) (err error)
-
 const (
 	mremapFixed     = MAP_FIXED
 	mremapDontunmap = 0
 	mremapMaymove   = 0
 )
-
 //sys	mremapNetBSD(oldp uintptr, oldsize uintptr, newp uintptr, newsize uintptr, flags int) (xaddr uintptr, err error) = SYS_MREMAP
-
 func mremap(oldaddr uintptr, oldlength uintptr, newlength uintptr, flags int, newaddr uintptr) (uintptr, error) {
 	return mremapNetBSD(oldaddr, oldlength, newaddr, newlength, flags)
 }

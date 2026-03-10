@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.bash)
+      pkgs.bash
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
       wrapProgram $out/bin/${pname} --prefix PATH : ${pkgs.bash}/bin
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "bash_template";
     src = ./.;

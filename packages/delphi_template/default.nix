@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.fpc)
+      pkgs.fpc
     ];
     buildPhase = ''
       fpc main.pas -o${pname}

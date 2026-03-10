@@ -7,7 +7,7 @@
     meta.mainProgram = pname;
     pname = "python_template";
     propagatedBuildInputs = [
-      (pkgs.python3Packages.termcolor)
+      pkgs.python3Packages.termcolor
     ];
     pyproject = false;
     shellHook = ''

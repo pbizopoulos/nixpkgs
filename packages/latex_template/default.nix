@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.bash)
-      (pkgs.texliveFull)
+      pkgs.bash
+      pkgs.texliveFull
     ];
     buildPhase = ''
       mkdir -p .cache/latex

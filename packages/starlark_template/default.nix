@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.starlark)
+      pkgs.starlark
     ];
     installPhase = ''
       mkdir -p $out/bin

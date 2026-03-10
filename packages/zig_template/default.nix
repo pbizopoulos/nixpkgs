@@ -4,7 +4,7 @@
     buildPhase = "HOME=$TMPDIR zig build -Doptimize=ReleaseSafe --prefix $out";
     installPhase = ":";
     nativeBuildInputs = [
-      (pkgs.zig)
+      pkgs.zig
     ];
     pname = "zig_template";
     src = ./.;

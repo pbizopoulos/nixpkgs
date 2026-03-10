@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.odin)
+      pkgs.odin
     ];
     buildPhase = "HOME=$TMPDIR odin build . -out:${pname} -o:speed";
     installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";

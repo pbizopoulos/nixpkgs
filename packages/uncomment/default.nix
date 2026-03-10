@@ -8,7 +8,7 @@
       '';
     meta.mainProgram = pname;
     nativeBuildInputs = [
-      (pkgs.autoPatchelfHook)
+      pkgs.autoPatchelfHook
     ];
     pname = "uncomment";
     sourceRoot = ".";

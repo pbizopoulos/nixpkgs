@@ -3,8 +3,8 @@
   {
     boot.loader.grub.enable = false;
     environment.systemPackages = [
-      (pkgs.docker-compose)
-      (pkgs.supabase-cli)
+      pkgs.docker-compose
+      pkgs.supabase-cli
     ];
     fileSystems."/".device = "/dev/null";
     nixpkgs.hostPlatform = "x86_64-linux";

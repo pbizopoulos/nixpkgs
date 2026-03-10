@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.dart)
+      pkgs.dart
     ];
     installPhase = ''
       mkdir -p $out/lib/dart
@@ -11,7 +11,7 @@
         --add-flags "$out/lib/dart/main.dart"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "dart_template";
     src = ./.;

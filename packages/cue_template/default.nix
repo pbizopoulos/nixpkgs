@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.cue)
+      pkgs.cue
     ];
     installPhase = ''
           mkdir -p $out/bin

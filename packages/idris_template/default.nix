@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.idris2)
+      pkgs.idris2
     ];
     buildPhase = ''
       idris2 main.idr -o ${pname}

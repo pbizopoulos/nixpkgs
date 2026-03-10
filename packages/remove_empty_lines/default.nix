@@ -4,8 +4,8 @@
     cargoHash = "sha256-+zw72kFphEKceFEgjcZn8uHsVWTz38pNXgOIzvFn9cY=";
     meta.mainProgram = pname;
     nativeBuildInputs = [
-      (pkgs.pkg-config)
-      (pkgs.rustPlatform.bindgenHook)
+      pkgs.pkg-config
+      pkgs.rustPlatform.bindgenHook
     ];
     pname = "remove_empty_lines";
     src = ./.;

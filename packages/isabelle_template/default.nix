@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.isabelle)
+      pkgs.isabelle
     ];
     buildPhase = ''
       export HOME=$TMPDIR

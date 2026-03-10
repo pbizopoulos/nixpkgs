@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 // SPDX-FileCopyrightText: © 2015 LabStack LLC and Echo contributors
-
 package echo
-
 import (
-	"github.com/labstack/gommon/log"
 	"io"
+	"github.com/labstack/gommon/log"
 )
-
 // Logger defines the logging interface.
 type Logger interface {
 	Output() io.Writer

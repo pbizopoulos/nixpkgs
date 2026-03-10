@@ -1,14 +1,10 @@
 // Copyright 2020 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 //go:build zos && s390x
-
 // Hand edited based on ztypes_linux_s390x.go
 // TODO: auto-generate.
-
 package unix
-
 const (
 	SizeofPtr      = 0x8
 	SizeofShort    = 0x2
@@ -17,7 +13,6 @@ const (
 	SizeofLongLong = 0x8
 	PathMax        = 0x1000
 )
-
 const (
 	SizeofSockaddrAny   = 128
 	SizeofCmsghdr       = 12
@@ -33,44 +28,36 @@ const (
 	SizeofTCPInfo       = 0x68
 	SizeofUcred         = 12
 )
-
 type (
 	_C_short     int16
 	_C_int       int32
 	_C_long      int64
 	_C_long_long int64
 )
-
 type Timespec struct {
 	Sec  int64
 	Nsec int64
 }
-
 type Timeval struct {
 	Sec  int64
 	Usec int64
 }
-
-type timeval_zos struct { //correct (with padding and all)
+type timeval_zos struct { 
 	Sec  int64
-	_    [4]byte // pad
+	_    [4]byte 
 	Usec int32
 }
-
-type Tms struct { //clock_t is 4-byte unsigned int in zos
+type Tms struct { 
 	Utime  uint32
 	Stime  uint32
 	Cutime uint32
 	Cstime uint32
 }
-
 type Time_t int64
-
 type Utimbuf struct {
 	Actime  int64
 	Modtime int64
 }
-
 type Utsname struct {
 	Sysname  [16]byte
 	Nodename [32]byte
@@ -78,69 +65,57 @@ type Utsname struct {
 	Version  [8]byte
 	Machine  [16]byte
 }
-
 type Ucred struct {
 	Pid int32
 	Uid uint32
 	Gid uint32
 }
-
 type RawSockaddrInet4 struct {
 	Len    uint8
 	Family uint8
 	Port   uint16
-	Addr   [4]byte /* in_addr */
+	Addr   [4]byte 
 	Zero   [8]uint8
 }
-
 type RawSockaddrInet6 struct {
 	Len      uint8
 	Family   uint8
 	Port     uint16
 	Flowinfo uint32
-	Addr     [16]byte /* in6_addr */
+	Addr     [16]byte 
 	Scope_id uint32
 }
-
 type RawSockaddrUnix struct {
 	Len    uint8
 	Family uint8
 	Path   [108]int8
 }
-
 type RawSockaddr struct {
 	Len    uint8
 	Family uint8
 	Data   [14]uint8
 }
-
 type RawSockaddrAny struct {
 	Addr RawSockaddr
-	_    [112]uint8 // pad
+	_    [112]uint8 
 }
-
 type _Socklen uint32
-
 type Linger struct {
 	Onoff  int32
 	Linger int32
 }
-
 type Iovec struct {
 	Base *byte
 	Len  uint64
 }
-
 type IPMreq struct {
-	Multiaddr [4]byte /* in_addr */
-	Interface [4]byte /* in_addr */
+	Multiaddr [4]byte 
+	Interface [4]byte 
 }
-
 type IPv6Mreq struct {
-	Multiaddr [16]byte /* in6_addr */
+	Multiaddr [16]byte 
 	Interface uint32
 }
-
 type Msghdr struct {
 	Name       *byte
 	Iov        *Iovec
@@ -150,32 +125,26 @@ type Msghdr struct {
 	Iovlen     int32
 	Controllen int32
 }
-
 type Cmsghdr struct {
 	Len   int32
 	Level int32
 	Type  int32
 }
-
 type Inet4Pktinfo struct {
-	Addr    [4]byte /* in_addr */
+	Addr    [4]byte 
 	Ifindex uint32
 }
-
 type Inet6Pktinfo struct {
-	Addr    [16]byte /* in6_addr */
+	Addr    [16]byte 
 	Ifindex uint32
 }
-
 type IPv6MTUInfo struct {
 	Addr RawSockaddrInet6
 	Mtu  uint32
 }
-
 type ICMPv6Filter struct {
 	Data [8]uint32
 }
-
 type TCPInfo struct {
 	State          uint8
 	Ca_state       uint8
@@ -208,14 +177,11 @@ type TCPInfo struct {
 	Rcv_space      uint32
 	Total_retrans  uint32
 }
-
 type _Gid_t uint32
-
 type rusage_zos struct {
 	Utime timeval_zos
 	Stime timeval_zos
 }
-
 type Rusage struct {
 	Utime    Timeval
 	Stime    Timeval
@@ -234,20 +200,17 @@ type Rusage struct {
 	Nvcsw    int64
 	Nivcsw   int64
 }
-
 type Rlimit struct {
 	Cur uint64
 	Max uint64
 }
-
 // { int, short, short } in poll.h
 type PollFd struct {
 	Fd      int32
 	Events  int16
 	Revents int16
 }
-
-type Stat_t struct { //Linux Definition
+type Stat_t struct { 
 	Dev     uint64
 	Ino     uint64
 	Nlink   uint64
@@ -264,9 +227,8 @@ type Stat_t struct { //Linux Definition
 	Blocks  int64
 	_       [3]int64
 }
-
 type Stat_LE_t struct {
-	_            [4]byte // eye catcher
+	_            [4]byte 
 	Length       uint16
 	Version      uint16
 	Mode         int32
@@ -285,10 +247,10 @@ type Stat_LE_t struct {
 	Blksize      int32
 	Creatim31    [4]byte
 	AuditID      [16]byte
-	_            [4]byte // rsrvd1
+	_            [4]byte 
 	File_tag     struct {
 		Ccsid   uint16
-		Txtflag uint16 // aggregating Txflag:1 deferred:1 rsvflags:14
+		Txtflag uint16 
 	}
 	CharsetID [8]byte
 	Blocks    int64
@@ -297,19 +259,18 @@ type Stat_LE_t struct {
 	Fid       [8]byte
 	Filefmt   byte
 	Fspflag2  byte
-	_         [2]byte // rsrvd2
+	_         [2]byte 
 	Ctimemsec int32
 	Seclabel  [8]byte
-	_         [4]byte // rsrvd3
-	_         [4]byte // rsrvd4
+	_         [4]byte 
+	_         [4]byte 
 	Atim      Time_t
 	Mtim      Time_t
 	Ctim      Time_t
 	Creatim   Time_t
 	Reftim    Time_t
-	_         [24]byte // rsrvd5
+	_         [24]byte 
 }
-
 type Statvfs_t struct {
 	ID          [4]byte
 	Len         int32
@@ -331,7 +292,6 @@ type Statvfs_t struct {
 	Fsid        uint64
 	Namemax     uint64
 }
-
 type Statfs_t struct {
 	Type    uint64
 	Bsize   uint64
@@ -346,7 +306,6 @@ type Statfs_t struct {
 	Flags   uint64
 	_       [4]uint64
 }
-
 type direntLE struct {
 	Reclen uint16
 	Namlen uint16
@@ -354,7 +313,6 @@ type direntLE struct {
 	Extra  uintptr
 	Name   [256]byte
 }
-
 type Dirent struct {
 	Ino    uint64
 	Off    int64
@@ -363,11 +321,9 @@ type Dirent struct {
 	Name   [256]uint8
 	_      [5]byte
 }
-
 type FdSet struct {
 	Bits [64]int32
 }
-
 // This struct is packed on z/OS so it can't be used directly.
 type Flock_t struct {
 	Type   int16
@@ -376,13 +332,11 @@ type Flock_t struct {
 	Len    int64
 	Pid    int32
 }
-
 type F_cnvrt struct {
 	Cvtcmd int32
 	Pccsid int16
 	Fccsid int16
 }
-
 type Termios struct {
 	Cflag uint32
 	Iflag uint32
@@ -390,23 +344,20 @@ type Termios struct {
 	Oflag uint32
 	Cc    [11]uint8
 }
-
 type Winsize struct {
 	Row    uint16
 	Col    uint16
 	Xpixel uint16
 	Ypixel uint16
 }
-
 type W_Mnth struct {
 	Hid   [4]byte
 	Size  int32
-	Cur1  int32 //32bit pointer
-	Cur2  int32 //^
+	Cur1  int32 
+	Cur2  int32 
 	Devno uint32
 	_     [4]byte
 }
-
 type W_Mntent struct {
 	Fstype       uint32
 	Mode         uint32
@@ -427,14 +378,12 @@ type W_Mntent struct {
 	Quiesceowner [8]byte
 	_            [38]byte
 }
-
 type EpollEvent struct {
 	Events uint32
 	_      int32
 	Fd     int32
 	Pad    int32
 }
-
 type InotifyEvent struct {
 	Wd     int32
 	Mask   uint32
@@ -442,11 +391,9 @@ type InotifyEvent struct {
 	Len    uint32
 	Name   string
 }
-
 const (
 	SizeofInotifyEvent = 0x10
 )
-
 type ConsMsg2 struct {
 	Cm2Format       uint16
 	Cm2R1           uint16
@@ -468,7 +415,6 @@ type ConsMsg2 struct {
 	Cm2MsgConsid    [4]byte
 	Cm2R5           [12]byte
 }
-
 const (
 	CC_modify        = 1
 	CC_stop          = 2
@@ -476,15 +422,12 @@ const (
 	CONSOLE_FORMAT_3 = 3
 	CONSOLE_HRDCPY   = 0x80000000
 )
-
 type OpenHow struct {
 	Flags   uint64
 	Mode    uint64
 	Resolve uint64
 }
-
 const SizeofOpenHow = 0x18
-
 const (
 	RESOLVE_CACHED        = 0x20
 	RESOLVE_BENEATH       = 0x8
@@ -493,7 +436,6 @@ const (
 	RESOLVE_NO_SYMLINKS   = 0x4
 	RESOLVE_NO_XDEV       = 0x1
 )
-
 type Siginfo struct {
 	Signo int32
 	Errno int32
@@ -502,7 +444,6 @@ type Siginfo struct {
 	Uid   uint32
 	_     [44]byte
 }
-
 type SysvIpcPerm struct {
 	Uid  uint32
 	Gid  uint32
@@ -510,7 +451,6 @@ type SysvIpcPerm struct {
 	Cgid uint32
 	Mode int32
 }
-
 type SysvShmDesc struct {
 	Perm   SysvIpcPerm
 	_      [4]byte
@@ -530,7 +470,6 @@ type SysvShmDesc struct {
 	Dtime  Time_t
 	Ctime  Time_t
 }
-
 type SysvShmDesc64 struct {
 	Perm   SysvIpcPerm
 	_      [4]byte

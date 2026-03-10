@@ -1,11 +1,11 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.makeWrapper)
-      (pkgs.nodejs)
-      (pkgs.php)
-      (pkgs.phpPackages.composer)
-      (pkgs.unzip)
+      pkgs.makeWrapper
+      pkgs.nodejs
+      pkgs.php
+      pkgs.phpPackages.composer
+      pkgs.unzip
     ];
     dontBuild = true;
     installPhase = ''
@@ -15,18 +15,18 @@
       makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
         --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
-        (pkgs.php)
-        (pkgs.phpPackages.composer)
-        (pkgs.postgresql)
-        (pkgs.unzip)
+        pkgs.nodejs
+        pkgs.php
+        pkgs.phpPackages.composer
+        pkgs.postgresql
+        pkgs.unzip
       ]} \
         --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \
         --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}"
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "laravel_postgres_template";
     src = ./.;

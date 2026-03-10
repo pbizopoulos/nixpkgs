@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.picolisp)
+      pkgs.picolisp
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -11,7 +11,7 @@
       chmod +x $out/bin/${pname}
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "picolisp_template";
     src = ./.;

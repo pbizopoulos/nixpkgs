@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.jdk)
+      pkgs.jdk
     ];
     buildPhase = "javac src/main/java/Main.java -d .";
     installPhase = ''
@@ -12,7 +12,7 @@
         --add-flags "-cp $out/share/java Main"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "java_template";
     src = ./.;

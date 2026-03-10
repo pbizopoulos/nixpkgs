@@ -13,7 +13,7 @@
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "wordpress_template";
     src = ./.;

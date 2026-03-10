@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.scala)
+      pkgs.scala
     ];
     buildPhase = "scalac Main.scala -d .";
     installPhase = ''
@@ -12,7 +12,7 @@
         --add-flags "-cp $out/share/scala Main"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "scala_template";
     src = ./.;

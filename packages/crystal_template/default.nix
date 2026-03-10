@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.crystal)
+      pkgs.crystal
     ];
     buildPhase = ''
       crystal build main.cr -o ${pname}

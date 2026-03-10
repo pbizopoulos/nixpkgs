@@ -2,8 +2,8 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.makeWrapper)
-      (pkgs.nodejs)
+      pkgs.makeWrapper
+      pkgs.nodejs
       postgresql
     ];
     dontBuild = true;
@@ -14,63 +14,63 @@
       makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
         --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.nodejs)
-        (pkgs.postgresql)
+        pkgs.nodejs
+        pkgs.postgresql
       ]} \
         --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" (buildInputs ++ [
-        (pkgs.alsa-lib)
-        (pkgs.at-spi2-atk)
-        (pkgs.at-spi2-core)
-        (pkgs.atk)
-        (pkgs.cairo)
-        (pkgs.cups)
-        (pkgs.dbus)
-        (pkgs.expat)
-        (pkgs.gtk3)
-        (pkgs.libGL)
-        (pkgs.libX11)
-        (pkgs.libXcomposite)
-        (pkgs.libXdamage)
-        (pkgs.libXext)
-        (pkgs.libXfixes)
-        (pkgs.libXrandr)
-        (pkgs.libdrm)
-        (pkgs.libgbm)
-        (pkgs.libxshmfence)
-        (pkgs.mesa)
-        (pkgs.nspr)
-        (pkgs.nss)
-        (pkgs.pango)
+        pkgs.alsa-lib
+        pkgs.at-spi2-atk
+        pkgs.at-spi2-core
+        pkgs.atk
+        pkgs.cairo
+        pkgs.cups
+        pkgs.dbus
+        pkgs.expat
+        pkgs.gtk3
+        pkgs.libGL
+        pkgs.libX11
+        pkgs.libXcomposite
+        pkgs.libXdamage
+        pkgs.libXext
+        pkgs.libXfixes
+        pkgs.libXrandr
+        pkgs.libdrm
+        pkgs.libgbm
+        pkgs.libxshmfence
+        pkgs.mesa
+        pkgs.nspr
+        pkgs.nss
+        pkgs.pango
       ])}" \
         --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (buildInputs ++ [
-        (pkgs.alsa-lib)
-        (pkgs.at-spi2-atk)
-        (pkgs.at-spi2-core)
-        (pkgs.atk)
-        (pkgs.cairo)
-        (pkgs.cups)
-        (pkgs.dbus)
-        (pkgs.expat)
-        (pkgs.gtk3)
-        (pkgs.libGL)
-        (pkgs.libX11)
-        (pkgs.libXcomposite)
-        (pkgs.libXdamage)
-        (pkgs.libXext)
-        (pkgs.libXfixes)
-        (pkgs.libXrandr)
-        (pkgs.libdrm)
-        (pkgs.libgbm)
-        (pkgs.libxshmfence)
-        (pkgs.mesa)
-        (pkgs.nspr)
-        (pkgs.nss)
-        (pkgs.pango)
+        pkgs.alsa-lib
+        pkgs.at-spi2-atk
+        pkgs.at-spi2-core
+        pkgs.atk
+        pkgs.cairo
+        pkgs.cups
+        pkgs.dbus
+        pkgs.expat
+        pkgs.gtk3
+        pkgs.libGL
+        pkgs.libX11
+        pkgs.libXcomposite
+        pkgs.libXdamage
+        pkgs.libXext
+        pkgs.libXfixes
+        pkgs.libXrandr
+        pkgs.libdrm
+        pkgs.libgbm
+        pkgs.libxshmfence
+        pkgs.mesa
+        pkgs.nspr
+        pkgs.nss
+        pkgs.pango
       ])}"
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "electron_postgres_template";
     src = ./.;

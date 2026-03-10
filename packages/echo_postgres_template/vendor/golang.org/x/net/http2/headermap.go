@@ -1,24 +1,19 @@
 // Copyright 2014 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package http2
-
 import (
 	"net/http"
 	"sync"
 )
-
 var (
 	commonBuildOnce   sync.Once
-	commonLowerHeader map[string]string // Go-Canonical-Case -> lower-case
-	commonCanonHeader map[string]string // lower-case -> Go-Canonical-Case
+	commonLowerHeader map[string]string 
+	commonCanonHeader map[string]string 
 )
-
 func buildCommonHeaderMapsOnce() {
 	commonBuildOnce.Do(buildCommonHeaderMaps)
 }
-
 func buildCommonHeaderMaps() {
 	common := []string{
 		"accept",
@@ -87,7 +82,6 @@ func buildCommonHeaderMaps() {
 		commonCanonHeader[v] = chk
 	}
 }
-
 func lowerHeader(v string) (lower string, ascii bool) {
 	buildCommonHeaderMapsOnce()
 	if s, ok := commonLowerHeader[v]; ok {
@@ -95,7 +89,6 @@ func lowerHeader(v string) (lower string, ascii bool) {
 	}
 	return asciiToLower(v)
 }
-
 func canonicalHeader(v string) string {
 	buildCommonHeaderMapsOnce()
 	if s, ok := commonCanonHeader[v]; ok {

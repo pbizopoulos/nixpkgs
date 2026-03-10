@@ -45,9 +45,9 @@
       allPackages.${name}) templateNames;
   in pkgs.runCommand "check-all-templates" {
     buildInputs = templatePackages ++ [
-      (pkgs.curl)
-      (pkgs.nodejs)
-      (pkgs.postgresql)
+      pkgs.curl
+      pkgs.nodejs
+      pkgs.postgresql
     ];
   } ''
     export HOME=$TMPDIR

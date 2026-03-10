@@ -8,7 +8,7 @@
         --add-flags "$out/lib/fennel/main.fnl"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "fennel_template";
     src = ./.;

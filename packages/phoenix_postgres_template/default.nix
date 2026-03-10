@@ -42,16 +42,16 @@
         --set ERL_LIBS "${erlLibs}" \
         --prefix PATH : "${lib.makeBinPath [
         elixir
-        (pkgs.gcc)
-        (pkgs.gnumake)
-        (pkgs.nodejs)
-        (pkgs.postgresql)
-        (pkgs.postgresql)
+        pkgs.gcc
+        pkgs.gnumake
+        pkgs.nodejs
+        pkgs.postgresql
+        pkgs.postgresql
       ]}"
       runHook postInstall
       '';
     meta.mainProgram = pname;
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
   }

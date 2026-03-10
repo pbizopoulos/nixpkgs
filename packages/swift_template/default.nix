@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.swift)
+      pkgs.swift
     ];
     installPhase = ''
           mkdir -p $out/bin
@@ -18,7 +18,7 @@
           chmod +x $out/bin/${pname}
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "swift_template";
     src = ./.;

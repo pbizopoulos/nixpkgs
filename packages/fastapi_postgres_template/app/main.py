@@ -1,3 +1,4 @@
+# ruff: noqa: D100, D103, INP001
 from fastapi import FastAPI
 
 app = FastAPI()

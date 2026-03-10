@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.nim)
+      pkgs.nim
     ];
     buildPhase = "HOME=$TMPDIR nim c -o:nim main.nim";
     installPhase = "mkdir -p $out/bin && cp nim $out/bin/${pname}";

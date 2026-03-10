@@ -2,13 +2,13 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.bundler)
-      (pkgs.gcc)
-      (pkgs.gnumake)
-      (pkgs.makeWrapper)
-      (pkgs.nodejs)
-      (pkgs.ruby)
-      (pkgs.sqlite)
+      pkgs.bundler
+      pkgs.gcc
+      pkgs.gnumake
+      pkgs.makeWrapper
+      pkgs.nodejs
+      pkgs.ruby
+      pkgs.sqlite
       postgresql
     ];
     dontBuild = true;
@@ -21,18 +21,18 @@
       chmod +x $out/bin/${pname}
       wrapProgram $out/bin/${pname} \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.bundler)
-        (pkgs.gcc)
-        (pkgs.gnumake)
-        (pkgs.nodejs)
-        (pkgs.ruby)
-        (pkgs.sqlite)
+        pkgs.bundler
+        pkgs.gcc
+        pkgs.gnumake
+        pkgs.nodejs
+        pkgs.ruby
+        pkgs.sqlite
         postgresql
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "rails_postgres_template";
     src = ./.;

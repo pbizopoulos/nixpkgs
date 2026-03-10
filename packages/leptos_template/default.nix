@@ -2,8 +2,8 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.cargo)
-      (pkgs.rustc)
+      pkgs.cargo
+      pkgs.rustc
       postgresql
     ];
     dontBuild = true;
@@ -14,16 +14,16 @@
       makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
         --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.cargo)
-        (pkgs.nodejs)
-        (pkgs.postgresql)
-        (pkgs.rustc)
-        (pkgs.stdenv.cc)
+        pkgs.cargo
+        pkgs.nodejs
+        pkgs.postgresql
+        pkgs.rustc
+        pkgs.stdenv.cc
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "leptos_template";
     src = ./.;

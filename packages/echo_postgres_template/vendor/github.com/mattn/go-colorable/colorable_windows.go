@@ -1,8 +1,6 @@
 //go:build windows && !appengine
 // +build windows,!appengine
-
 package colorable
-
 import (
 	"bytes"
 	"io"
@@ -13,10 +11,8 @@ import (
 	"sync"
 	"syscall"
 	"unsafe"
-
 	"github.com/mattn/go-isatty"
 )
-
 const (
 	foregroundBlue      = 0x1
 	foregroundGreen     = 0x2
@@ -29,36 +25,31 @@ const (
 	backgroundIntensity = 0x80
 	backgroundMask      = (backgroundRed | backgroundBlue | backgroundGreen | backgroundIntensity)
 	commonLvbUnderscore = 0x8000
-
 	cENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x4
 )
-
 const (
 	genericRead  = 0x80000000
 	genericWrite = 0x40000000
 )
-
 const (
 	consoleTextmodeBuffer = 0x1
 )
-
-type wchar uint16
-type short int16
-type dword uint32
-type word uint16
-
+type (
+	wchar uint16
+	short int16
+	dword uint32
+	word  uint16
+)
 type coord struct {
 	x short
 	y short
 }
-
 type smallRect struct {
 	left   short
 	top    short
 	right  short
 	bottom short
 }
-
 type consoleScreenBufferInfo struct {
 	size              coord
 	cursorPosition    coord
@@ -66,12 +57,10 @@ type consoleScreenBufferInfo struct {
 	window            smallRect
 	maximumWindowSize coord
 }
-
 type consoleCursorInfo struct {
 	size    dword
 	visible int32
 }
-
 var (
 	kernel32                       = syscall.NewLazyDLL("kernel32.dll")
 	procGetConsoleScreenBufferInfo = kernel32.NewProc("GetConsoleScreenBufferInfo")
@@ -86,7 +75,6 @@ var (
 	procSetConsoleMode             = kernel32.NewProc("SetConsoleMode")
 	procCreateConsoleScreenBuffer  = kernel32.NewProc("CreateConsoleScreenBuffer")
 )
-
 // Writer provides colorable Writer to the console
 type Writer struct {
 	out       io.Writer
@@ -97,13 +85,11 @@ type Writer struct {
 	rest      bytes.Buffer
 	mutex     sync.Mutex
 }
-
 // NewColorable returns new instance of Writer which handles escape sequence from File.
 func NewColorable(file *os.File) io.Writer {
 	if file == nil {
 		panic("nil passed instead of *os.File to NewColorable()")
 	}
-
 	if isatty.IsTerminal(file.Fd()) {
 		var mode uint32
 		if r, _, _ := procGetConsoleMode.Call(file.Fd(), uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
@@ -116,17 +102,14 @@ func NewColorable(file *os.File) io.Writer {
 	}
 	return file
 }
-
 // NewColorableStdout returns new instance of Writer which handles escape sequence for stdout.
 func NewColorableStdout() io.Writer {
 	return NewColorable(os.Stdout)
 }
-
 // NewColorableStderr returns new instance of Writer which handles escape sequence for stderr.
 func NewColorableStderr() io.Writer {
 	return NewColorable(os.Stderr)
 }
-
 var color256 = map[int]int{
 	0:   0x000000,
 	1:   0x800000,
@@ -385,12 +368,10 @@ var color256 = map[int]int{
 	254: 0xe4e4e4,
 	255: 0xeeeeee,
 }
-
 // `\033]0;TITLESTR\007`
 func doTitleSequence(er *bytes.Reader) error {
 	var c byte
 	var err error
-
 	c, err = er.ReadByte()
 	if err != nil {
 		return err
@@ -424,7 +405,6 @@ func doTitleSequence(er *bytes.Reader) error {
 	}
 	return nil
 }
-
 // returns Atoi(s) unless s == "" in which case it returns def
 func atoiWithDefault(s string, def int) (int, error) {
 	if s == "" {
@@ -432,16 +412,13 @@ func atoiWithDefault(s string, def int) (int, error) {
 	}
 	return strconv.Atoi(s)
 }
-
 // Write writes data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
 	w.mutex.Lock()
 	defer w.mutex.Unlock()
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
-
 	handle := w.handle
-
 	var er *bytes.Reader
 	if w.rest.Len() > 0 {
 		var rest bytes.Buffer
@@ -472,7 +449,6 @@ loop:
 		if err != nil {
 			break loop
 		}
-
 		switch c2 {
 		case '>':
 			continue
@@ -490,7 +466,6 @@ loop:
 			}
 			w.rest.Reset()
 			continue
-		// https://github.com/mattn/go-colorable/issues/27
 		case '7':
 			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 			w.oldpos = csbi.cursorPosition
@@ -499,15 +474,12 @@ loop:
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&w.oldpos)))
 			continue
 		case 0x5b:
-			// execute part after switch
 		default:
 			continue
 		}
-
 		w.rest.WriteByte(c1)
 		w.rest.WriteByte(c2)
 		er.WriteTo(&w.rest)
-
 		var buf bytes.Buffer
 		var m byte
 		for i, c := range w.rest.Bytes()[2:] {
@@ -522,7 +494,6 @@ loop:
 		if m == 0 {
 			break loop
 		}
-
 		switch m {
 		case 'A':
 			n, err = atoiWithDefault(buf.String(), 1)
@@ -697,10 +668,9 @@ loop:
 					case (1 <= n && n <= 3) || n == 5:
 						attr |= foregroundIntensity
 					case n == 7 || n == 27:
-						attr =
-							(attr &^ (foregroundMask | backgroundMask)) |
-								((attr & foregroundMask) << 4) |
-								((attr & backgroundMask) >> 4)
+						attr = (attr &^ (foregroundMask | backgroundMask)) |
+							((attr & foregroundMask) << 4) |
+							((attr & backgroundMask) >> 4)
 					case n == 22:
 						attr &^= foregroundIntensity
 					case n == 24:
@@ -716,7 +686,7 @@ loop:
 						if (n-30)&4 != 0 {
 							attr |= foregroundBlue
 						}
-					case n == 38: // set foreground color.
+					case n == 38: 
 						if i < len(token)-2 && (token[i+1] == "5" || token[i+1] == "05") {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								if n256foreAttr == nil {
@@ -744,7 +714,7 @@ loop:
 						} else {
 							attr = attr & (w.oldattr & backgroundMask)
 						}
-					case n == 39: // reset foreground color.
+					case n == 39: 
 						attr &= backgroundMask
 						attr |= w.oldattr & foregroundMask
 					case 40 <= n && n <= 47:
@@ -758,7 +728,7 @@ loop:
 						if (n-40)&4 != 0 {
 							attr |= backgroundBlue
 						}
-					case n == 48: // set background color.
+					case n == 48: 
 						if i < len(token)-2 && token[i+1] == "5" {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								if n256backAttr == nil {
@@ -786,7 +756,7 @@ loop:
 						} else {
 							attr = attr & (w.oldattr & foregroundMask)
 						}
-					case n == 49: // reset foreground color.
+					case n == 49: 
 						attr &= foregroundMask
 						attr |= w.oldattr & backgroundMask
 					case 90 <= n && n <= 97:
@@ -862,10 +832,8 @@ loop:
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&w.oldpos)))
 		}
 	}
-
 	return len(data), nil
 }
-
 type consoleColor struct {
 	rgb       int
 	red       bool
@@ -873,7 +841,6 @@ type consoleColor struct {
 	blue      bool
 	intensity bool
 }
-
 func (c consoleColor) foregroundAttr() (attr word) {
 	if c.red {
 		attr |= foregroundRed
@@ -889,7 +856,6 @@ func (c consoleColor) foregroundAttr() (attr word) {
 	}
 	return
 }
-
 func (c consoleColor) backgroundAttr() (attr word) {
 	if c.red {
 		attr |= backgroundRed
@@ -905,7 +871,6 @@ func (c consoleColor) backgroundAttr() (attr word) {
 	}
 	return
 }
-
 var color16 = []consoleColor{
 	{0x000000, false, false, false, false},
 	{0x000080, false, false, true, false},
@@ -924,11 +889,9 @@ var color16 = []consoleColor{
 	{0xffff00, true, true, false, true},
 	{0xffffff, true, true, true, true},
 }
-
 type hsv struct {
 	h, s, v float32
 }
-
 func (a hsv) dist(b hsv) float32 {
 	dh := a.h - b.h
 	switch {
@@ -941,7 +904,6 @@ func (a hsv) dist(b hsv) float32 {
 	dv := a.v - b.v
 	return float32(math.Sqrt(float64(dh*dh + ds*ds + dv*dv)))
 }
-
 func toHSV(rgb int) hsv {
 	r, g, b := float32((rgb&0xFF0000)>>16)/256.0,
 		float32((rgb&0x00FF00)>>8)/256.0,
@@ -968,9 +930,7 @@ func toHSV(rgb int) hsv {
 	v := max
 	return hsv{h: h, s: s, v: v}
 }
-
 type hsvTable []hsv
-
 func toHSVTable(rgbTable []consoleColor) hsvTable {
 	t := make(hsvTable, len(rgbTable))
 	for i, c := range rgbTable {
@@ -978,7 +938,6 @@ func toHSVTable(rgbTable []consoleColor) hsvTable {
 	}
 	return t
 }
-
 func (t hsvTable) find(rgb int) consoleColor {
 	hsv := toHSV(rgb)
 	n := 7
@@ -991,7 +950,6 @@ func (t hsvTable) find(rgb int) consoleColor {
 	}
 	return color16[n]
 }
-
 func minmax3f(a, b, c float32) (min, max float32) {
 	if a < b {
 		if b < c {
@@ -1011,10 +969,10 @@ func minmax3f(a, b, c float32) (min, max float32) {
 		}
 	}
 }
-
-var n256foreAttr []word
-var n256backAttr []word
-
+var (
+	n256foreAttr []word
+	n256backAttr []word
+)
 func n256setup() {
 	n256foreAttr = make([]word, 256)
 	n256backAttr = make([]word, 256)
@@ -1025,7 +983,6 @@ func n256setup() {
 		n256backAttr[i] = c.backgroundAttr()
 	}
 }
-
 // EnableColorsStdout enable colors if possible.
 func EnableColorsStdout(enabled *bool) func() {
 	var mode uint32

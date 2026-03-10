@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.sbcl)
+      pkgs.sbcl
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
         --add-flags "--script $out/bin/${pname}.lisp"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "lisp_template";
     src = ./.;

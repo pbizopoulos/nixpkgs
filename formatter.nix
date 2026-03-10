@@ -161,12 +161,6 @@ let
             "--strict"
           ];
         };
-        nix-alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
-          includes = [ "*.nix" ];
-          excludes = [ "formatter.nix" ];
-          priority = 100;
-        };
         php-cs-fixer.options = [ "--allow-risky=yes" ];
         protoc = {
           command = "${pkgs.protobuf}/bin/protoc";
@@ -188,7 +182,12 @@ let
         };
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         rustfmt.priority = 1;
-        shfmt.options = [ "--posix" ];
+        shfmt = {
+          options = [ "--posix" ];
+          excludes = [
+            "packages/echo_postgres_template/vendor/golang.org/x/sys/unix/mkerrors.sh"
+          ];
+        };
         ssort = {
           command = pkgs.python3Packages.ssort;
           includes = [ "*.py" ];
@@ -217,16 +216,8 @@ let
         };
       };
       global.excludes = [
-        "**/node_modules/**"
-        "**/vendor/**"
         "*/prm/**"
         "*/tmp/**"
-        "packages/prolog_template/main.pl"
-        "packages/django_postgres_template/**"
-        "packages/fastapi_postgres_template/**"
-        "packages/flask_postgres_template/**"
-        "packages/langchain_postgres_template/**"
-        "packages/micropython_template/**"
       ];
     };
   };

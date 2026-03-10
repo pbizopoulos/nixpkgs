@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.groovy)
-      (pkgs.jdk)
+      pkgs.groovy
+      pkgs.jdk
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -11,7 +11,7 @@
         --add-flags "$out/bin/${pname}.groovy"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "groovy_template";
     src = ./.;

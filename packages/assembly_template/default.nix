@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.binutils)
-      (pkgs.nasm)
+      pkgs.binutils
+      pkgs.nasm
     ];
     buildPhase = ''
       nasm -f elf64 -o main.o main.asm

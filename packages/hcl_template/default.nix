@@ -1,8 +1,8 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.bash)
-      (pkgs.opentofu)
+      pkgs.bash
+      pkgs.opentofu
     ];
     installPhase = ''
           mkdir -p $out/bin

@@ -2,8 +2,8 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.dotnet-sdk)
-      (pkgs.nodejs)
+      pkgs.dotnet-sdk
+      pkgs.nodejs
       postgresql
     ];
     dontBuild = true;
@@ -18,14 +18,14 @@
       chmod +x $out/bin/${pname}
       wrapProgram $out/bin/${pname} \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.dotnet-sdk)
-        (pkgs.nodejs)
+        pkgs.dotnet-sdk
+        pkgs.nodejs
         postgresql
       ]}
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "dotnet_postgres_template";
     src = ./.;

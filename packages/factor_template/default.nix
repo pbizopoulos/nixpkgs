@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.factor-lang)
+      pkgs.factor-lang
     ];
     installPhase = ''
           mkdir -p $out/bin
@@ -18,7 +18,7 @@
           chmod +x $out/bin/${pname}
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "factor_template";
     src = ./.;

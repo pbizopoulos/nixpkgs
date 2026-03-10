@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.elmPackages.elm)
+      pkgs.elmPackages.elm
     ];
     installPhase = ''
           mkdir -p $out/bin

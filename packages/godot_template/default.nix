@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.godot_4)
+      pkgs.godot_4
     ];
     dontBuild = true;
     installPhase = ''
@@ -16,7 +16,7 @@
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "godot_template";
     src = ./.;

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.godot_4)
+      pkgs.godot_4
     ];
     installPhase = ''
       mkdir -p $out/bin

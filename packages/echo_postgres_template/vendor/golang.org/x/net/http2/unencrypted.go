@@ -1,17 +1,13 @@
 // Copyright 2024 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package http2
-
 import (
 	"crypto/tls"
 	"errors"
 	"net"
 )
-
 const nextProtoUnencryptedHTTP2 = "unencrypted_http2"
-
 // unencryptedNetConnFromTLSConn retrieves a net.Conn wrapped in a *tls.Conn.
 //
 // TLSNextProto functions accept a *tls.Conn.

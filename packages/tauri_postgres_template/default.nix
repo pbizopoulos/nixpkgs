@@ -9,7 +9,7 @@
       pkg-config
       postgresql
       rustc
-      (stdenv.cc)
+      stdenv.cc
     ];
     dev_libraries = map (l:
       l.dev or l) libraries;
@@ -63,7 +63,7 @@
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "tauri_postgres_template";
     src = ./.;

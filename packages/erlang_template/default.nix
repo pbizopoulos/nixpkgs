@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.erlang)
+      pkgs.erlang
     ];
     installPhase = ''
       mkdir -p $out/share/erlang
@@ -11,7 +11,7 @@
         --add-flags "$out/share/erlang/main.erl"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "erlang_template";
     src = ./.;

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# ruff: noqa: D100, D103, EXE001, PLC0415
 import os
 import sys
 

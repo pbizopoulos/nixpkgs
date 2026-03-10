@@ -4,8 +4,8 @@
     _y:
       {} }:
   let
-    buildMix = lib.makeOverridable (beamPackages.buildMix);
-    buildRebar3 = lib.makeOverridable (beamPackages.buildRebar3);
+    buildMix = lib.makeOverridable beamPackages.buildMix;
+    buildRebar3 = lib.makeOverridable beamPackages.buildRebar3;
     packages = with beamPackages;
     with self;
     {

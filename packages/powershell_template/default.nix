@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.powershell)
+      pkgs.powershell
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
         --add-flags "-File $out/bin/${pname}.ps1"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "powershell_template";
     src = ./.;

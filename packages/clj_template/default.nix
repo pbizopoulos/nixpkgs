@@ -8,7 +8,7 @@
             version
             src;
     buildInputs = [
-      (pkgs.clojure)
+      pkgs.clojure
     ];
     installPhase = ''
           mkdir -p $out/bin
@@ -29,6 +29,6 @@
       '';
     meta.mainProgram = pname;
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
   }

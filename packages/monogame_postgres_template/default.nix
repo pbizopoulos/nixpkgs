@@ -2,10 +2,10 @@
   , postgresql ? pkgs.postgresql }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.SDL2)
-      (pkgs.dotnet-sdk_9)
-      (pkgs.libGL)
-      (pkgs.openal)
+      pkgs.SDL2
+      pkgs.dotnet-sdk_9
+      pkgs.libGL
+      pkgs.openal
       postgresql
     ];
     dontBuild = true;
@@ -16,27 +16,27 @@
       makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
         --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
         --prefix PATH : ${pkgs.lib.makeBinPath [
-        (pkgs.SDL2)
-        (pkgs.dotnet-sdk_9)
-        (pkgs.libGL)
-        (pkgs.nodejs)
-        (pkgs.openal)
-        (pkgs.postgresql)
+        pkgs.SDL2
+        pkgs.dotnet-sdk_9
+        pkgs.libGL
+        pkgs.nodejs
+        pkgs.openal
+        pkgs.postgresql
       ]} \
         --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" (buildInputs ++ [
-        (pkgs.SDL2)
-        (pkgs.libGL)
-        (pkgs.openal)
+        pkgs.SDL2
+        pkgs.libGL
+        pkgs.openal
       ])}" \
         --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath (buildInputs ++ [
-        (pkgs.SDL2)
-        (pkgs.libGL)
-        (pkgs.openal)
+        pkgs.SDL2
+        pkgs.libGL
+        pkgs.openal
       ])}"
       runHook postInstall
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
       postgresql
     ];
     pname = "monogame_postgres_template";

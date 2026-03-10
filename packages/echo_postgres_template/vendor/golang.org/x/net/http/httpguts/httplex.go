@@ -1,17 +1,13 @@
 // Copyright 2016 The Go Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
-
 package httpguts
-
 import (
 	"net"
 	"strings"
 	"unicode/utf8"
-
 	"golang.org/x/net/idna"
 )
-
 var isTokenTable = [256]bool{
 	'!':  true,
 	'#':  true,
@@ -91,11 +87,9 @@ var isTokenTable = [256]bool{
 	'|':  true,
 	'~':  true,
 }
-
 func IsTokenRune(r rune) bool {
 	return r < utf8.RuneSelf && isTokenTable[byte(r)]
 }
-
 // HeaderValuesContainsToken reports whether any string in values
 // contains the provided token, ASCII case-insensitively.
 func HeaderValuesContainsToken(values []string, token string) bool {
@@ -106,18 +100,13 @@ func HeaderValuesContainsToken(values []string, token string) bool {
 	}
 	return false
 }
-
 // isOWS reports whether b is an optional whitespace byte, as defined
 // by RFC 7230 section 3.2.3.
 func isOWS(b byte) bool { return b == ' ' || b == '\t' }
-
 // trimOWS returns x with all optional whitespace removes from the
 // beginning and end.
 func trimOWS(x string) string {
 	// TODO: consider using strings.Trim(x, " \t") instead,
-	// if and when it's fast enough. See issue 10292.
-	// But this ASCII-only code will probably always beat UTF-8
-	// aware code.
 	for len(x) > 0 && isOWS(x[0]) {
 		x = x[1:]
 	}
@@ -126,7 +115,6 @@ func trimOWS(x string) string {
 	}
 	return x
 }
-
 // headerValueContainsToken reports whether v (assumed to be a
 // 0#element, in the ABNF extension described in RFC 7230 section 7)
 // contains token amongst its comma-separated tokens, ASCII
@@ -140,7 +128,6 @@ func headerValueContainsToken(v string, token string) bool {
 	}
 	return tokenEqual(trimOWS(v), token)
 }
-
 // lowerASCII returns the ASCII lowercase version of b.
 func lowerASCII(b byte) byte {
 	if 'A' <= b && b <= 'Z' {
@@ -148,7 +135,6 @@ func lowerASCII(b byte) byte {
 	}
 	return b
 }
-
 // tokenEqual reports whether t1 and t2 are equal, ASCII case-insensitively.
 func tokenEqual(t1, t2 string) bool {
 	if len(t1) != len(t2) {
@@ -156,7 +142,6 @@ func tokenEqual(t1, t2 string) bool {
 	}
 	for i, b := range t1 {
 		if b >= utf8.RuneSelf {
-			// No UTF-8 or non-ASCII allowed in tokens.
 			return false
 		}
 		if lowerASCII(byte(b)) != lowerASCII(t2[i]) {
@@ -165,23 +150,20 @@ func tokenEqual(t1, t2 string) bool {
 	}
 	return true
 }
-
 // isLWS reports whether b is linear white space, according
 // to http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.2
 //
 //	LWS            = [CRLF] 1*( SP | HT )
 func isLWS(b byte) bool { return b == ' ' || b == '\t' }
-
 // isCTL reports whether b is a control byte, according
 // to http://www.w3.org/Protocols/rfc2616/rfc2616-sec2.html#sec2.2
 //
 //	CTL            = <any US-ASCII control character
 //	                 (octets 0 - 31) and DEL (127)>
 func isCTL(b byte) bool {
-	const del = 0x7f // a CTL
+	const del = 0x7f 
 	return b < ' ' || b == del
 }
-
 // ValidHeaderFieldName reports whether v is a valid HTTP/1.x header name.
 // HTTP/2 imposes the additional restriction that uppercase ASCII
 // letters are not allowed.
@@ -204,20 +186,8 @@ func ValidHeaderFieldName(v string) bool {
 	}
 	return true
 }
-
 // ValidHostHeader reports whether h is a valid host header.
 func ValidHostHeader(h string) bool {
-	// The latest spec is actually this:
-	//
-	// http://tools.ietf.org/html/rfc7230#section-5.4
-	//     Host = uri-host [ ":" port ]
-	//
-	// Where uri-host is:
-	//     http://tools.ietf.org/html/rfc3986#section-3.2.2
-	//
-	// But we're going to be much more lenient for now and just
-	// search for any byte that's not a valid byte in any of those
-	// expressions.
 	for i := 0; i < len(h); i++ {
 		if !validHostByte[h[i]] {
 			return false
@@ -225,43 +195,38 @@ func ValidHostHeader(h string) bool {
 	}
 	return true
 }
-
 // See the validHostHeader comment.
 var validHostByte = [256]bool{
 	'0': true, '1': true, '2': true, '3': true, '4': true, '5': true, '6': true, '7': true,
 	'8': true, '9': true,
-
 	'a': true, 'b': true, 'c': true, 'd': true, 'e': true, 'f': true, 'g': true, 'h': true,
 	'i': true, 'j': true, 'k': true, 'l': true, 'm': true, 'n': true, 'o': true, 'p': true,
 	'q': true, 'r': true, 's': true, 't': true, 'u': true, 'v': true, 'w': true, 'x': true,
 	'y': true, 'z': true,
-
 	'A': true, 'B': true, 'C': true, 'D': true, 'E': true, 'F': true, 'G': true, 'H': true,
 	'I': true, 'J': true, 'K': true, 'L': true, 'M': true, 'N': true, 'O': true, 'P': true,
 	'Q': true, 'R': true, 'S': true, 'T': true, 'U': true, 'V': true, 'W': true, 'X': true,
 	'Y': true, 'Z': true,
-
-	'!':  true, // sub-delims
-	'$':  true, // sub-delims
-	'%':  true, // pct-encoded (and used in IPv6 zones)
-	'&':  true, // sub-delims
-	'(':  true, // sub-delims
-	')':  true, // sub-delims
-	'*':  true, // sub-delims
-	'+':  true, // sub-delims
-	',':  true, // sub-delims
-	'-':  true, // unreserved
-	'.':  true, // unreserved
-	':':  true, // IPv6address + Host expression's optional port
-	';':  true, // sub-delims
-	'=':  true, // sub-delims
+	'!':  true, 
+	'$':  true, 
+	'%':  true, 
+	'&':  true, 
+	'(':  true, 
+	')':  true, 
+	'*':  true, 
+	'+':  true, 
+	',':  true, 
+	'-':  true, 
+	'.':  true, 
+	':':  true, 
+	';':  true, 
+	'=':  true, 
 	'[':  true,
-	'\'': true, // sub-delims
+	'\'': true, 
 	']':  true,
-	'_':  true, // unreserved
-	'~':  true, // unreserved
+	'_':  true, 
+	'~':  true, 
 }
-
 // ValidHeaderFieldValue reports whether v is a valid "field-value" according to
 // http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.2 :
 //
@@ -309,7 +274,6 @@ func ValidHeaderFieldValue(v string) bool {
 	}
 	return true
 }
-
 func isASCII(s string) bool {
 	for i := 0; i < len(s); i++ {
 		if s[i] >= utf8.RuneSelf {
@@ -318,26 +282,19 @@ func isASCII(s string) bool {
 	}
 	return true
 }
-
 // PunycodeHostPort returns the IDNA Punycode version
 // of the provided "host" or "host:port" string.
 func PunycodeHostPort(v string) (string, error) {
 	if isASCII(v) {
 		return v, nil
 	}
-
 	host, port, err := net.SplitHostPort(v)
 	if err != nil {
-		// The input 'v' argument was just a "host" argument,
-		// without a port. This error should not be returned
-		// to the caller.
 		host = v
 		port = ""
 	}
 	host, err = idna.ToASCII(host)
 	if err != nil {
-		// Non-UTF-8? Not representable in Punycode, in any
-		// case.
 		return "", err
 	}
 	if port == "" {

@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {} }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
-      (pkgs.R)
+      pkgs.R
     ];
     installPhase = ''
       mkdir -p $out/bin
@@ -10,7 +10,7 @@
         --add-flags "$out/bin/${pname}.R"
       '';
     nativeBuildInputs = [
-      (pkgs.makeWrapper)
+      pkgs.makeWrapper
     ];
     pname = "r_template";
     src = ./.;
