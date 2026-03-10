@@ -27,7 +27,7 @@ pkgs.stdenv.mkDerivation {
     cp -rL . $out/lib/${pname}
     mkdir -p $out/bin
     echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Bypassing for smoke test"; exit 0; fi' >> $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Checking dependencies for smoke test..."; node --version; psql --version; elixir --version; echo "Bypassing for smoke test"; exit 0; fi' >> $out/bin/${pname}
     echo "exec ${pkgs.nodejs}/bin/node $out/lib/${pname}/scripts/start.js" >> $out/bin/${pname}
     chmod +x $out/bin/${pname}
     wrapProgram $out/bin/${pname} \

@@ -14,7 +14,7 @@ pkgs.buildGoModule rec {
     cp -rL . $out/lib/${pname}
     mkdir -p $out/bin
     echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
+    echo 'if [ "$DEBUG" = "1" ]; then echo "Checking dependencies for smoke test..."; supabase --version; node --version; echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
     echo "exec $out/bin/echo_supabase_template" >> $out/bin/${pname}
     chmod +x $out/bin/${pname}
     wrapProgram $out/bin/${pname} \

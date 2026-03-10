@@ -39,7 +39,7 @@ process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
 if (process.env.DEBUG === "1") {
-  console.log("Bypassing for smoke test");
+  console.log("Checking dependencies for smoke test..."); execSync("supabase --version", { stdio: "inherit" }); execSync("node --version", { stdio: "inherit" }); console.log("Bypassing for smoke test");
   process.exit(0);
 } else {
   let fullCmd = "";
