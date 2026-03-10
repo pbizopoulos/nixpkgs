@@ -75,8 +75,8 @@ if (process.env.DEBUG === "1") {
   process.exit(0);
 } else {
   let fullCmd = "";
-  const setupCmd = "npm install --legacy-peer-deps";
-  const buildCmd = "npm run build";
+  const setupCmd = existsSync(join(workDir, "node_modules")) ? "" : "npm install --legacy-peer-deps";
+  const buildCmd = existsSync(join(workDir, ".next")) ? "" : "npm run build";
   const startCmd = "npm start -- -p 3000";
   if (isTemp) {
     if (setupCmd) {

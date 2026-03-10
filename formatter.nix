@@ -68,6 +68,10 @@ let
       php-cs-fixer.enable = true;
       prettier.enable = true;
       ruff-format.enable = true;
+      ruff-check = {
+        enable = true;
+        extendSelect = [ "ALL" ];
+      };
       rufo.enable = true;
       rustfmt.enable = true;
       scalafmt.enable = true;
@@ -205,6 +209,7 @@ let
             "/dev/null"
           ];
         };
+        ruff-check.options = [ "--unsafe-fixes" ];
         xmllint = {
           command = "${pkgs.libxml2}/bin/xmllint";
           includes = [ "*.xml" ];
