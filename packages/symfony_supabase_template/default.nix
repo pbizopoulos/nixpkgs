@@ -15,27 +15,27 @@ in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     phpEnv
+    pkgs.php.packages.composer
     pkgs.nodejs
     supabase-cli
   ];
   dontBuild = true;
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/lib/${pname}
-    cp -rL . $out/lib/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
-    echo "exec ${phpEnv}/bin/php $out/lib/${pname}/app/public/index.php" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           phpEnv
+          pkgs.php.packages.composer
           pkgs.nodejs
-          supabase-cli
+          pkgs.supabase-cli
         ]
-      }
+      } \
+      --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \
+      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}"
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
