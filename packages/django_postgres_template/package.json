@@ -1,0 +1,26 @@
+{
+  "name": "django_postgres_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "python manage.py runserver",
+    "format": "nix fmt",
+    "build": "python manage.py collectstatic --noinput",
+    "start": "python manage.py runserver 0.0.0.0:8000",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "pytest tests/unit",
+    "test:e2e": "E2E_MODE=prod playwright test",
+    "test:e2e:dev": "playwright test",
+    "test:audit": "npm run build && E2E_MODE=prod playwright test --project=audit",
+    "test:visual": "E2E_MODE=prod playwright test --update-snapshots",
+    "test:cpd": "jscpd .",
+    "test:coverage": "pytest --cov=.",
+    "db:start": "postgres start",
+    "db:stop": "postgres stop"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5"
+  }
+}

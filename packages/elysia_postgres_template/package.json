@@ -1,0 +1,27 @@
+{
+  "name": "elysia_postgres_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "format": "nix fmt",
+    "build": "echo 'No build step for Elysia'",
+    "start": "bun run src/index.ts",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "bun test",
+    "test:e2e": "playwright test",
+    "test:cpd": "jscpd .",
+    "db:start": "postgres start",
+    "db:stop": "postgres stop"
+  },
+  "dependencies": {
+    "elysia": "^1.1.26",
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "devDependencies": {
+    "bun-types": "latest",
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5"
+  }
+}

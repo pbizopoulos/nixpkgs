@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-supabase
-pytest
-httpx
-playwright
-pytest-playwright

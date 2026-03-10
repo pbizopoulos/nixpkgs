@@ -1,7 +1,0 @@
-{
-  "threshold": 0,
-  "reproducers": 1,
-  "ignore": ["deps/**", "_build/**", "assets/vendor/**", "priv/static/**"],
-  "format": ["elixir", "heex", "javascript", "css"],
-  "exitCode": 1
-}

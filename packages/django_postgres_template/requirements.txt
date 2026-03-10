@@ -1,0 +1,7 @@
+django>=5.1
+django-cors-headers
+postgres
+pytest
+pytest-django
+playwright
+pytest-playwright

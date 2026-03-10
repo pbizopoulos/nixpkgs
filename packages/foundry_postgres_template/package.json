@@ -1,0 +1,19 @@
+{
+  "name": "foundry_postgres_template",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "anvil",
+    "format": "nix fmt",
+    "build": "forge build",
+    "start": "echo 'Run forge run'",
+    "test": "npm run test:unit && npm run test:cpd",
+    "test:unit": "forge test",
+    "test:cpd": "jscpd .",
+    "db:start": "postgres start",
+    "db:stop": "postgres stop"
+  },
+  "devDependencies": {
+    "jscpd": "^4.0.5"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "name": "fastify_postgres_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch app/index.js",
+    "format": "nix fmt",
+    "build": "echo 'No build step for Fastify'",
+    "start": "node app/index.js",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "node --test tests/unit",
+    "test:e2e": "E2E_MODE=prod playwright test",
+    "test:e2e:dev": "playwright test",
+    "test:audit": "npm run build && E2E_MODE=prod playwright test --project=audit",
+    "test:visual": "E2E_MODE=prod playwright test --update-snapshots",
+    "test:cpd": "jscpd .",
+    "db:start": "postgres start",
+    "db:stop": "postgres stop"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5"
+  },
+  "dependencies": {
+    "fastify": "^5.2.1",
+    "@supabase/supabase-js": "^2.49.1"
+  }
+}

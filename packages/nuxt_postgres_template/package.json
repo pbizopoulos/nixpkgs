@@ -1,0 +1,31 @@
+{
+  "name": "nuxt-postgres-template",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare",
+    "start": "node .output/server/index.mjs",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:cpd": "jscpd .",
+    "db:start": "postgres start",
+    "db:stop": "postgres stop"
+  },
+  "dependencies": {
+    "nuxt": "^3.15.4",
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0",
+    "@supabase/supabase-js": "^2.97.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18",
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5",
+    "typescript": "~5.9.3"
+  }
+}

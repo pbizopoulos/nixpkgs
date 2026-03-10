@@ -1,0 +1,4 @@
+Flask==3.0.3
+postgres==2.5.2
+pytest==8.2.2
+pytest-playwright==0.5.0

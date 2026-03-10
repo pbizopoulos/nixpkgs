@@ -178,11 +178,6 @@ let
             "--include_imports"
           ];
         };
-        python_alphabetize = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.python_alphabetize;
-          includes = [ "*.py" ];
-          priority = 0;
-        };
         raku = {
           command = "${pkgs.rakudo}/bin/raku";
           includes = [ "*.raku" ];

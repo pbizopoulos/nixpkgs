@@ -1,28 +1,29 @@
 {
   pkgs ? import <nixpkgs> { },
+  postgresql ? pkgs.postgresql,
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.nodejs
-    pkgs.postgresql
+    postgresql
   ];
   dontBuild = true;
   installPhase = ''
     runHook preInstall
-    mkdir -p $out/lib/${pname}
-    cp -rL . $out/lib/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Checking dependencies for smoke test..."; node --version; psql --version; echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
-    echo "true" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    wrapProgram $out/bin/${pname} \
+    mkdir -p $out/lib/node_modules/${pname}
+    cp -rL . $out/lib/node_modules/${pname}
+    makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
+      --add-flags $out/lib/node_modules/${pname}/scripts/start.js \
+      --set POSTGRES_URL "http://localhost:54321" \
+      --set POSTGRES_ANON_KEY "build-placeholder" \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.nodejs
           pkgs.postgresql
         ]
-      }
+      } \
+      --prefix PKG_CONFIG_PATH : "${pkgs.lib.makeSearchPath "lib/pkgconfig" buildInputs}" \
+      --prefix LD_LIBRARY_PATH : "${pkgs.lib.makeLibraryPath buildInputs}"
     runHook postInstall
   '';
   nativeBuildInputs = [ pkgs.makeWrapper ];
