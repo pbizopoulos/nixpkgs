@@ -1,8 +1,0 @@
-(define (run-tests)
-  (if (= (+ 1 1) 2)
-      (display "test ... ok\n")
-      (begin (display "test ... failed\n") (exit 1))))
-(let ((debug (getenv "DEBUG")))
-  (if (equal? debug "1")
-      (run-tests)
-      (display "Hello World\n")))

@@ -1,5 +1,0 @@
-IF get env("DEBUG") = "1" THEN
-  print(("test ... ok", newline))
-ELSE
-  print(("Hello World", newline))
-FI

@@ -51,42 +51,54 @@
     ];
   } ''
     export HOME=$TMPDIR
-    ${pkgs.lib.concatMapStringsSep "\n" (name:
-      ''
-        echo "Checking ${name}..."
-        if ${if isWeb name
-          then "true"
-          else "false"}; then
-          PORT=${getPort name}
-          # Run in background
-          ${name} > ${name}.log 2>&1 &
-          PID=$!
-          # Wait for server
-          MAX_RETRIES=30
-          COUNT=0
-          SUCCESS=0
-          while [ $COUNT -lt $MAX_RETRIES ]; do
-            if curl -sSf http://localhost:$PORT > /dev/null 2>&1; then
-              SUCCESS=1
-              break
-            fi
-            sleep 2
-            COUNT=$((COUNT + 1))
-          done
-          if [ $SUCCESS -eq 0 ]; then
-            echo "${name} failed to respond on port $PORT."
-            echo "Last 20 lines of log:"
-            tail -n 20 ${name}.log
-            kill $PID || true
-            # exit 1 # Uncomment to make flake check fail on first error
-          else
-            echo "${name} is up!"
-            kill $PID || true
+    check_template() {
+      name=$1
+      is_web=$2
+      port=$3
+      pg_port=$4
+      echo "Checking $name (PGPORT=$pg_port)..."
+      if [ "$is_web" = "true" ]; then
+        # Run in background with unique ports
+        PGPORT=$pg_port $name > $name.log 2>&1 &
+        PID=$!
+        # Wait for server
+        MAX_RETRIES=30
+        COUNT=0
+        SUCCESS=0
+        while [ $COUNT -lt $MAX_RETRIES ]; do
+          if curl -sSf http://localhost:$port > /dev/null 2>&1; then
+            SUCCESS=1
+            break
           fi
+          sleep 2
+          COUNT=$((COUNT + 1))
+        done
+        if [ $SUCCESS -eq 0 ]; then
+          echo "$name failed to respond on port $port."
+          echo "Last 20 lines of log:"
+          tail -n 20 $name.log
+          # find . -name "postgres.log" -exec echo "--- {} ---" \; -exec cat {} \;
+          kill $PID || true
+          return 1
         else
-          # CLI/Source smoke test
-          DEBUG=1 ${name}
+          echo "$name is up!"
+          kill $PID || true
+          return 0
         fi
-        '') templateNames}
+      else
+        # CLI/Source smoke test
+        DEBUG=1 $name
+        return $?
+      fi
+    }
+    ${pkgs.lib.concatStringsSep "\n" (pkgs.lib.lists.imap0 (index: name:
+      ''
+        check_template "${name}" "${if isWeb name then "true" else "false"}" "${getPort name}" "$((54322 + ${toString index}))" &
+        # Limit concurrency to 8
+        if [ $((( ${toString index} + 1 ) % 8)) -eq 0 ]; then
+          wait
+        fi
+      '') templateNames)}
+    wait
     touch $out
     ''

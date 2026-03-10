@@ -1,2 +1,0 @@
-10 PRINT "Hello, BASIC!"
-20 END

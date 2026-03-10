@@ -1,3 +1,0 @@
-session "isabelle_template" = HOL +
-  theories
-    Main

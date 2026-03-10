@@ -9,7 +9,6 @@ let
   treefmtEval = inputs.treefmt-nix.lib.evalModule pkgs {
     programs = {
       actionlint.enable = true;
-      aiken.enable = true;
       beautysh.enable = true;
       biome = {
         enable = true;
@@ -23,7 +22,6 @@ let
       };
       cabal-fmt.enable = true;
       clang-format.enable = true;
-      cmake-format.enable = true;
       cue.enable = true;
       dart-format.enable = true;
       deadnix.enable = true;
@@ -51,7 +49,6 @@ let
       };
       jsonnet-lint.enable = true;
       jsonnetfmt.enable = true;
-      just.enable = true;
       mdformat.enable = true;
       mdsh.enable = true;
       mix-format.enable = true;
@@ -82,10 +79,8 @@ let
       stylua.enable = true;
       swift-format.enable = true;
       taplo.enable = true;
-      templ.enable = true;
       texfmt.enable = true;
       toml-sort.enable = true;
-      typstyle.enable = true;
       yamlfmt.enable = true;
       yamllint.enable = true;
       zig.enable = true;
@@ -93,11 +88,6 @@ let
     projectRootFile = "flake.nix";
     settings = {
       formatter = {
-        asmfmt = {
-          command = "${pkgs.asmfmt}/bin/asmfmt";
-          includes = [ "*.asm" ];
-          options = [ "-w" ];
-        };
         bibtex-tidy = {
           command = pkgs.bibtex-tidy;
           includes = [ "*.bib" ];
@@ -129,18 +119,6 @@ let
           includes = [ "*.cs" ];
           options = [ "format" ];
         };
-        fprettify = {
-          command = "${pkgs.fprettify}/bin/fprettify";
-          includes = [
-            "*.f"
-            "*.f90"
-          ];
-        };
-        idris2 = {
-          command = "${pkgs.idris2}/bin/idris2";
-          includes = [ "*.idr" ];
-          options = [ "--check" ];
-        };
         kdlfmt = {
           command = "${pkgs.kdlfmt}/bin/kdlfmt";
           includes = [ "*.kdl" ];
@@ -162,6 +140,7 @@ let
           ];
         };
         php-cs-fixer.options = [ "--allow-risky=yes" ];
+        prettier.options = [ "--max-diagnostics=none" ];
         protoc = {
           command = "${pkgs.protobuf}/bin/protoc";
           includes = [ "*.proto" ];

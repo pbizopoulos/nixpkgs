@@ -27,6 +27,6 @@
     ];
     pname = "echo_postgres_template";
     src = ./.;
-    vendorHash = null;
+    vendorHash = "sha256-hK1sxp4NRaxQBEJTZNnfVHeH26a8WlBgi+L2PQ/rtds=";
     version = "0.0.0";
   }
