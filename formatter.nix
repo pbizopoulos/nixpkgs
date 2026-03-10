@@ -45,7 +45,6 @@ let
       goimports.enable = true;
       google-java-format.enable = true;
       hlint.enable = true;
-      isort.enable = true;
       jsonfmt = {
         enable = true;
         excludes = [ "**/tsconfig.json" ];
@@ -88,7 +87,6 @@ let
       typstyle.enable = true;
       yamlfmt.enable = true;
       yamllint.enable = true;
-      yapf.enable = true;
       zig.enable = true;
     };
     projectRootFile = "flake.nix";

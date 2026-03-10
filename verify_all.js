@@ -18,6 +18,7 @@ async function checkUrl(url, timeout = 60000) {
 }
 
 function getPort(pkg, startJs) {
+    if (pkg.includes('spring_boot')) return '8080';
     if (pkg.includes('adonisjs')) return '3333';
     if (pkg.includes('flask')) return '8000';
     if (pkg.includes('phoenix')) return '4000';
