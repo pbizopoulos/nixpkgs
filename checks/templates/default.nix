@@ -46,11 +46,25 @@
       pkgs.curl
       pkgs.nodejs
       pkgs.postgresql
+      pkgs.util-linux
     ];
   } ''
     export HOME=$TMPDIR
     timings_dir=$TMPDIR/timings
     mkdir -p "$timings_dir"
+    pids_file=$TMPDIR/template_pids
+    : > "$pids_file"
+    cleanup() {
+      if [ -f "$pids_file" ]; then
+        while read -r pid; do
+          [ -n "$pid" ] || continue
+          kill -TERM -- -"''${pid}" 2>/dev/null || true
+          wait "$pid" 2>/dev/null || true
+          kill -KILL -- -"''${pid}" 2>/dev/null || true
+        done < "$pids_file"
+      fi
+    }
+    trap cleanup EXIT INT TERM
     check_template() {
       name=$1
       is_web=$2
@@ -61,8 +75,9 @@
       echo "Checking $name (PGPORT=$pg_port)..."
       if [ "$is_web" = "true" ]; then
         # Run in background with unique ports
-        PGPORT=$pg_port $name > $name.log 2>&1 &
+        PGPORT=$pg_port setsid $name > $name.log 2>&1 &
         PID=$!
+        echo "$PID" >> "$pids_file"
         # Wait for server
         MAX_RETRIES=60
         COUNT=0
@@ -86,13 +101,17 @@
           echo "Last 20 lines of log:"
           tail -n 20 $name.log
           # find . -name "postgres.log" -exec echo "--- {} ---" \; -exec cat {} \;
-          kill $PID || true
+          kill -TERM -- -"$PID" 2>/dev/null || true
+          wait "$PID" 2>/dev/null || true
+          kill -KILL -- -"$PID" 2>/dev/null || true
           return 1
         else
           end_ms=$(date +%s%3N)
           echo "$name	start_ready_ms=$((end_ms - start_ms))" > "$timings_dir/$name.txt"
           echo "$name is up!"
-          kill $PID || true
+          kill -TERM -- -"$PID" 2>/dev/null || true
+          wait "$PID" 2>/dev/null || true
+          kill -KILL -- -"$PID" 2>/dev/null || true
           return 0
         fi
       else
