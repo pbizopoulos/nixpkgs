@@ -38,37 +38,26 @@ const cleanup = () => {
 process.on("SIGINT", cleanup);
 process.on("SIGTERM", cleanup);
 process.on("exit", cleanup);
-function startPostgres(workDir) {
-  const pgData = join(workDir, ".pgdata");
-  const pgPort = process.env.PGPORT || "54322";
-  const pgHost = process.env.PGHOST || "127.0.0.1";
-  if (!existsSync(pgData)) {
-    console.log("Initializing Postgres database...");
-    execSync(`initdb -D ${pgData} --auth=trust`, { stdio: "inherit" });
-  }
-  console.log(`Starting Postgres on ${pgHost}:${pgPort}...`);
+function startSupabase(workDir) {
+  console.log("Starting Supabase...");
   try {
-    const pgLog = join(workDir, "postgres.log");
-    execSync(
-      `pg_ctl -D ${pgData} -l ${pgLog} -o "-p ${pgPort} -h ${pgHost}" start`,
-      { stdio: "inherit" },
-    );
+    execSync("supabase start", { stdio: "inherit", cwd: workDir });
   } catch (_e) {
-    console.log("Postgres might already be running or failed to start.");
+    console.log("Supabase might already be running or failed to start.");
   }
-  const stopPostgres = () => {
-    console.log("Stopping Postgres...");
+  const stopSupabase = () => {
+    console.log("Stopping Supabase...");
     try {
-      execSync(`pg_ctl -D ${pgData} stop`, { stdio: "inherit" });
+      execSync("supabase stop", { stdio: "inherit", cwd: workDir });
     } catch (_e) {}
   };
-  process.on("SIGINT", stopPostgres);
-  process.on("SIGTERM", stopPostgres);
-  process.on("exit", stopPostgres);
+  process.on("SIGINT", stopSupabase);
+  process.on("SIGTERM", stopSupabase);
+  process.on("exit", stopSupabase);
 }
 if (process.env.DEBUG === "1") {
   console.log("Checking dependencies for smoke test...");
-  execSync("pg_ctl --version", { stdio: "inherit" });
+  execSync("supabase --version", { stdio: "inherit" });
   execSync("node --version", { stdio: "inherit" });
   console.log("Bypassing for smoke test");
   process.exit(0);
@@ -85,7 +74,7 @@ if (process.env.DEBUG === "1") {
       fullCmd += `${buildCmd} && `;
     }
   }
-  startPostgres(workDir);
+  startSupabase(workDir);
   fullCmd += startCmd;
   const app = spawn(fullCmd, [], {
     stdio: "inherit",

@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-postgres
-pytest
-httpx
-playwright
-pytest-playwright

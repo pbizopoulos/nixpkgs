@@ -1,10 +1,10 @@
 { pkgs ? import <nixpkgs> {}
-  , postgresql ? pkgs.postgresql }:
+  , supabaseCli ? pkgs.supabase-cli }:
   pkgs.stdenv.mkDerivation rec {
     buildInputs = [
       pkgs.cargo
       pkgs.rustc
-      postgresql
+      supabaseCli
     ];
     dontBuild = true;
     installPhase = ''
@@ -16,7 +16,7 @@
         --prefix PATH : ${pkgs.lib.makeBinPath [
         pkgs.cargo
         pkgs.nodejs
-        pkgs.postgresql
+        pkgs.supabase-cli
         pkgs.rustc
         pkgs.stdenv.cc
       ]}

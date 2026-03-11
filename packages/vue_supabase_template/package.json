@@ -1,0 +1,31 @@
+{
+  "name": "vue_supabase_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "format": "nix fmt",
+    "build": "vite build",
+    "start": "vite",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:cpd": "jscpd .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop"
+  },
+  "dependencies": {
+    "vue": "^3.5.13",
+    "@supabase/supabase-js": "^2.49.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "typescript": "~5.2.2",
+    "vite": "^6.0.0",
+    "vitest": "^4.0.18",
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5",
+    "vue-tsc": "^2.1.10"
+  }
+}

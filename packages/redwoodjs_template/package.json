@@ -1,0 +1,25 @@
+{
+  "name": "redwoodjs_template",
+  "private": true,
+  "workspaces": {
+    "packages": [
+      "api",
+      "web"
+    ]
+  },
+  "devDependencies": {
+    "@redwoodjs/core": "8.6.0"
+  },
+  "eslintConfig": {
+    "extends": "@redwoodjs/eslint-config",
+    "root": true
+  },
+  "engines": {
+    "node": "=20",
+    "npm": ">=10"
+  },
+  "prisma": {
+    "seed": "node scripts/seed.js"
+  },
+  "packageManager": "npm@10.8.2"
+}

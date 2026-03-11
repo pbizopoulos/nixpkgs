@@ -1,0 +1,39 @@
+{
+  "name": "refine_supabase_template",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "format": "nix fmt",
+    "build": "vite build",
+    "start": "vite",
+    "test": "npm run test:unit && npm run test:e2e && npm run test:cpd && npm run test:audit",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:cpd": "jscpd .",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^5.5.0",
+    "@refinedev/antd": "^5.44.0",
+    "@refinedev/core": "^4.57.0",
+    "@refinedev/react-router": "^1.13.0",
+    "@refinedev/supabase": "^6.3.0",
+    "antd": "^5.21.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^6.27.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.4",
+    "typescript": "~5.2.2",
+    "vite": "^6.0.0",
+    "vitest": "^4.0.18",
+    "@playwright/test": "1.57.0",
+    "jscpd": "^4.0.5"
+  }
+}
