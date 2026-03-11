@@ -2,7 +2,7 @@ export default {
   packageManager: "npm",
   reporters: ["html", "clear-text", "progress", "json"],
   testRunner: "vitest",
-  concurrency: "cpus",
+  concurrency: "100%",
   incremental: true,
   vitest: {
     configFile: "vitest.config.ts",

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   mockNextNavigation,
   mockToast,
@@ -46,11 +46,13 @@ describe("test-utils", () => {
   });
 
   it("should test suppressNavigationWarnings", () => {
-    const sw = suppressNavigationWarnings();
+    const passthrough = vi.fn();
+    const sw = suppressNavigationWarnings({ logger: passthrough });
     sw.setup();
     console.error("Not implemented: navigation");
     console.error({ toString: () => "Not implemented: navigation" });
     console.error("Real error");
+    expect(passthrough).toHaveBeenCalledWith("Real error");
     sw.cleanup();
   });
 });

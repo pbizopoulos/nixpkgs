@@ -59,8 +59,10 @@ export const mockToast = () => {
   return { toast, mocks: { toastSuccess, toastError } };
 };
 
-export const suppressNavigationWarnings = () => {
-  const originalConsoleError = console.error;
+export const suppressNavigationWarnings = (
+  options: { logger?: (...args: unknown[]) => void } = {},
+) => {
+  const originalConsoleError = options.logger ?? console.error;
 
   const setup = () => {
     vi.spyOn(console, "error").mockImplementation((msg, ...args) => {
