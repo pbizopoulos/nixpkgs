@@ -40,16 +40,20 @@ function startPostgres(workDir) {
   const pgData = join(workDir, ".pgdata");
   const pgPort = process.env.PGPORT || "54322";
   const pgHost = process.env.PGHOST || "127.0.0.1";
+  const pgSocketDir = process.env.PGSOCKETDIR || join(workDir, ".pgsocket");
   if (!existsSync(pgData)) {
     console.log("Initializing Postgres database...");
     mkdirSync(pgData, { recursive: true });
     execSync(`initdb -D ${pgData} --auth=trust`, { stdio: "inherit" });
   }
+  if (!existsSync(pgSocketDir)) {
+    mkdirSync(pgSocketDir, { recursive: true });
+  }
   console.log(`Starting Postgres on ${pgHost}:${pgPort}...`);
   try {
     const pgLog = join(workDir, "postgres.log");
     execSync(
-      `pg_ctl -D ${pgData} -l ${pgLog} -o "-p ${pgPort} -h ${pgHost}" start`,
+      `pg_ctl -D ${pgData} -l ${pgLog} -o "-p ${pgPort} -h ${pgHost} -k ${pgSocketDir}" start`,
       { stdio: "inherit" },
     );
   } catch (_e) {
