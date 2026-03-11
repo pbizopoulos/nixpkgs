@@ -1,27 +1,22 @@
 import { notFound } from "next/navigation";
 import { createClient } from "../../lib/supabase";
-
 export const dynamic = "force-dynamic";
-
 export default async function Page({
   params,
 }: {
   params: Promise<{ username: string }>;
 }) {
   const { username } = await params;
-
   const supabase = await createClient();
   const { data: userProfile } = await supabase
     .from("users")
     .select("id, username, full_name")
     .eq("username", username)
     .maybeSingle();
-
   if (!userProfile) {
     notFound();
     return null;
   }
-
   return (
     <div style={{ padding: "2rem", maxWidth: "64rem", margin: "0 auto" }}>
       <div
@@ -59,7 +54,6 @@ export default async function Page({
           )}
         </div>
       </div>
-
       <div
         style={{
           backgroundColor: "#f9fafb",

@@ -1,6 +1,5 @@
 import type { AuthBindings } from "@refinedev/core";
 import { supabaseClient } from "./utility/supabaseClient";
-
 export const authProvider: AuthBindings = {
   login: async ({ email, password }) => {
     const { error } = await supabaseClient.auth.signInWithPassword({

@@ -10,11 +10,9 @@ vi.mock("next/navigation", () => ({
   }),
   usePathname: () => "/",
 }));
-
 vi.mock("../../components/AuthProvider", () => ({
   useAuth: vi.fn(),
 }));
-
 vi.mock("../../components/AuthForm", () => ({
   default: ({ onSuccess }: { onSuccess?: () => void }) => (
     <div data-testid="auth-form-mock">
@@ -24,19 +22,15 @@ vi.mock("../../components/AuthForm", () => ({
     </div>
   ),
 }));
-
 describe("AuthRedirect Logic", () => {
   const closeAuthModal = vi.fn();
-
   beforeEach(() => {
     vi.clearAllMocks();
     cleanup();
   });
-
   afterEach(() => {
     cleanup();
   });
-
   it("should redirect to authModalRedirectPath on success", () => {
     vi.mocked(authProvider.useAuth).mockReturnValue({
       isAuthModalOpen: true,
@@ -44,15 +38,11 @@ describe("AuthRedirect Logic", () => {
       closeAuthModal,
       user: { id: "1" } as any,
     } as any);
-
     render(<AuthModal />);
-
     fireEvent.click(screen.getByText("Success"));
-
     expect(closeAuthModal).toHaveBeenCalled();
     expect(mockPush).toHaveBeenCalledWith("/original-target");
   });
-
   it("should NOT redirect if authModalRedirectPath is null", () => {
     vi.mocked(authProvider.useAuth).mockReturnValue({
       isAuthModalOpen: true,
@@ -60,11 +50,8 @@ describe("AuthRedirect Logic", () => {
       closeAuthModal,
       user: { id: "1" } as any,
     } as any);
-
     render(<AuthModal />);
-
     fireEvent.click(screen.getByText("Success"));
-
     expect(closeAuthModal).toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();
   });

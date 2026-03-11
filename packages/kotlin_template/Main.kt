@@ -1,4 +1,5 @@
 import kotlin.system.exitProcess
+
 fun runTests() {
     if (1 + 1 == 2) {
         println("test ... ok")
@@ -7,6 +8,7 @@ fun runTests() {
         exitProcess(1)
     }
 }
+
 fun main() {
     val debug = System.getenv("DEBUG")
     if (debug == "1") {

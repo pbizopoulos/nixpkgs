@@ -1,5 +1,4 @@
 "use client";
-
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import { isValidUsername, SLUG_MAX_LENGTH } from "../lib/validation";
@@ -8,7 +7,6 @@ import { useAuth } from "./AuthProvider";
 interface AuthFormProps {
   onSuccess?: () => void;
 }
-
 export default function AuthForm({ onSuccess }: AuthFormProps) {
   return (
     <Suspense fallback={<div>Loading...</div>}>
@@ -16,7 +14,6 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
     </Suspense>
   );
 }
-
 function AuthFormContent({ onSuccess }: AuthFormProps) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -30,14 +27,11 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const redirect = searchParams.get("redirect") || "/";
-
   const { supabase } = useAuth();
-
   const handleAuth = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setMessage(null);
-
     if (mode === "signup") {
       if (!isValidUsername(name)) {
         setMessage({
@@ -47,7 +41,6 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
         setLoading(false);
         return;
       }
-
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
@@ -56,7 +49,6 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       });
-
       if (error) {
         setMessage({ type: "error", text: error.message });
       } else if (data.user && !data.session) {
@@ -84,12 +76,10 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
     }
     setLoading(false);
   };
-
   return (
     <div data-testid="auth-form">
       <h1>{mode === "signin" ? "Sign In" : "Sign Up"}</h1>
       <p>{mode === "signin" ? "Welcome back" : "Create a new account"}</p>
-
       {message && (
         <div
           style={{
@@ -99,13 +89,14 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
             fontSize: "0.875rem",
             backgroundColor: message.type === "error" ? "#fef2f2" : "#f0fdf4",
             color: message.type === "error" ? "#dc2626" : "#16a34a",
-            border: `1px solid ${message.type === "error" ? "#fee2e2" : "#dcfce7"}`,
+            border: `1px solid ${
+              message.type === "error" ? "#fee2e2" : "#dcfce7"
+            }`,
           }}
         >
           {message.text}
         </div>
       )}
-
       <form
         onSubmit={handleAuth}
         style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -180,7 +171,6 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
             placeholder="••••••••"
           />
         </div>
-
         <button
           type="submit"
           data-testid="auth-submit"
@@ -201,7 +191,6 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
               : "Create Account"}
         </button>
       </form>
-
       <div
         style={{
           marginTop: "1.5rem",

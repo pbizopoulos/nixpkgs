@@ -7,5 +7,4 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["@supabase/ssr"],
   },
 };
-
 export default nextConfig;

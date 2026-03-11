@@ -1,4 +1,5 @@
 import type { BlitzPage } from "blitz";
+
 const Home: BlitzPage = () => {
   return (
     <div>

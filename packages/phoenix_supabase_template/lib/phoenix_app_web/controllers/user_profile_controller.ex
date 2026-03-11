@@ -1,6 +1,7 @@
 defmodule PhoenixAppWeb.UserProfileController do
   use PhoenixAppWeb, :controller
   alias PhoenixApp.Accounts
+
   def show(conn, %{"username" => username}) do
     if user = Accounts.get_user_by_username(username) do
       render(conn, :show, user: user)

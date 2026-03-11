@@ -1,6 +1,5 @@
 import { List, useTable } from "@refinedev/antd";
 import { Table } from "antd";
-
 export function PostList() {
   const { tableProps } = useTable({
     resource: "posts",

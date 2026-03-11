@@ -6,6 +6,7 @@ def run_tests
     exit 1
   end
 end
+
 if ENV["DEBUG"]? == "1"
   run_tests
 else

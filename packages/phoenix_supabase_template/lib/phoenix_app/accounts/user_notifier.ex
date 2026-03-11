@@ -3,6 +3,7 @@ defmodule PhoenixApp.Accounts.UserNotifier do
     IO.inspect({recipient, subject, body}, label: "UserNotifier.deliver")
     {:ok, %{recipient: recipient, subject: subject, body: body}}
   end
+
   @doc """
   Deliver instructions to update a user email.
   """
@@ -16,12 +17,14 @@ defmodule PhoenixApp.Accounts.UserNotifier do
     ==============================
     """)
   end
+
   @doc """
   Deliver instructions to log in with a magic link.
   """
   def deliver_login_instructions(user, url) do
     deliver_magic_link_instructions(user, url)
   end
+
   defp deliver_magic_link_instructions(user, url) do
     deliver(user.email, "Log in instructions", """
     ==============================
@@ -32,6 +35,7 @@ defmodule PhoenixApp.Accounts.UserNotifier do
     ==============================
     """)
   end
+
   defp deliver_confirmation_instructions(user, url) do
     deliver(user.email, "Confirmation instructions", """
     ==============================

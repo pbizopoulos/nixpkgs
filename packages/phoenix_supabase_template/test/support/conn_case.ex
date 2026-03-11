@@ -13,6 +13,7 @@ defmodule PhoenixAppWeb.ConnCase do
   this option is not recommended for other databases.
   """
   use ExUnit.CaseTemplate
+
   using do
     quote do
       @endpoint PhoenixAppWeb.Endpoint
@@ -22,10 +23,12 @@ defmodule PhoenixAppWeb.ConnCase do
       import PhoenixAppWeb.ConnCase
     end
   end
+
   setup tags do
     PhoenixApp.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
+
   @doc """
   Setup helper that registers and logs in users.
       setup :register_and_log_in_user
@@ -35,12 +38,15 @@ defmodule PhoenixAppWeb.ConnCase do
   def register_and_log_in_user(%{conn: conn} = context) do
     user = PhoenixApp.AccountsFixtures.user_fixture()
     scope = PhoenixApp.Accounts.Scope.for_user(user)
+
     opts =
       context
       |> Map.take([:token_authenticated_at])
       |> Enum.into([])
+
     %{conn: log_in_user(conn, user, opts), user: user, scope: scope}
   end
+
   @doc """
   Logs the given `user` into the `conn`.
   It returns an updated `conn`.
@@ -48,11 +54,14 @@ defmodule PhoenixAppWeb.ConnCase do
   def log_in_user(conn, user, opts \\ []) do
     token = PhoenixApp.Accounts.generate_user_session_token(user)
     maybe_set_token_authenticated_at(token, opts[:token_authenticated_at])
+
     conn
     |> Phoenix.ConnTest.init_test_session(%{})
     |> Plug.Conn.put_session(:user_token, token)
   end
+
   defp maybe_set_token_authenticated_at(_token, nil), do: nil
+
   defp maybe_set_token_authenticated_at(token, authenticated_at) do
     PhoenixApp.AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
   end

@@ -12,6 +12,7 @@ defmodule PhoenixApp.DataCase do
   this option is not recommended for other databases.
   """
   use ExUnit.CaseTemplate
+
   using do
     quote do
       alias PhoenixApp.Repo
@@ -21,10 +22,12 @@ defmodule PhoenixApp.DataCase do
       import PhoenixApp.DataCase
     end
   end
+
   setup tags do
     PhoenixApp.DataCase.setup_sandbox(tags)
     :ok
   end
+
   @doc """
   Sets up the sandbox based on the test tags.
   """
@@ -32,6 +35,7 @@ defmodule PhoenixApp.DataCase do
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(PhoenixApp.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
+
   @doc """
   A helper that transforms changeset errors into a map of messages.
       assert {:error, changeset} = Accounts.create_user(%{password: "short"})

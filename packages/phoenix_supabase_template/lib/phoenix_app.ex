@@ -17,6 +17,7 @@ defmodule PhoenixApp do
         pool_size: 10
       )
     end
+
     if Application.get_env(:phoenix_app, PhoenixAppWeb.Endpoint) == nil do
       Application.put_env(:phoenix_app, PhoenixAppWeb.Endpoint,
         url: [host: "localhost"],
@@ -32,6 +33,7 @@ defmodule PhoenixApp do
         server: true
       )
     end
+
     if System.get_env("DEBUG") == "1" do
       IO.puts("Smoke testing PhoenixApp...")
       Application.ensure_all_started(:phoenix_app)

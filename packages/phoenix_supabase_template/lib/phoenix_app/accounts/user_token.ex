@@ -17,6 +17,7 @@ defmodule PhoenixApp.Accounts.UserToken do
     belongs_to(:user, PhoenixApp.Accounts.User)
     timestamps(type: :utc_datetime, updated_at: false)
   end
+
   @doc """
   Generates a token that will be stored in a signed place,
   such as session or cookie. As they are signed, those
@@ -39,6 +40,7 @@ defmodule PhoenixApp.Accounts.UserToken do
     dt = user.authenticated_at || DateTime.utc_now(:second)
     {token, %UserToken{token: token, context: "session", user_id: user.id, authenticated_at: dt}}
   end
+
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
   The query returns the user found by the token, if any, along with the token's creation time.
@@ -52,8 +54,10 @@ defmodule PhoenixApp.Accounts.UserToken do
         where: token.inserted_at > ago(@session_validity_in_days, "day"),
         select: {%{user | authenticated_at: token.authenticated_at}, token.inserted_at}
       )
+
     {:ok, query}
   end
+
   @doc """
   Builds a token and its hash to be delivered to the user's email.
   The non-hashed token is sent to the user email while the
@@ -68,9 +72,11 @@ defmodule PhoenixApp.Accounts.UserToken do
   def build_email_token(user, context) do
     build_hashed_token(user, context, user.email)
   end
+
   defp build_hashed_token(user, context, sent_to) do
     token = :crypto.strong_rand_bytes(@rand_size)
     hashed_token = :crypto.hash(@hash_algorithm, token)
+
     {Base.url_encode64(token, padding: false),
      %UserToken{
        token: hashed_token,
@@ -79,6 +85,7 @@ defmodule PhoenixApp.Accounts.UserToken do
        user_id: user.id
      }}
   end
+
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
   If found, the query returns a tuple of the form `{user, token}`.
@@ -90,6 +97,7 @@ defmodule PhoenixApp.Accounts.UserToken do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+
         query =
           from(token in by_token_and_context_query(hashed_token, "login"),
             join: user in assoc(token, :user),
@@ -97,11 +105,14 @@ defmodule PhoenixApp.Accounts.UserToken do
             where: token.sent_to == user.email,
             select: {user, token}
           )
+
         {:ok, query}
+
       :error ->
         :error
     end
   end
+
   @doc """
   Checks if the token is valid and returns its underlying lookup query.
   The query returns the user_token found by the token, if any.
@@ -115,15 +126,19 @@ defmodule PhoenixApp.Accounts.UserToken do
     case Base.url_decode64(token, padding: false) do
       {:ok, decoded_token} ->
         hashed_token = :crypto.hash(@hash_algorithm, decoded_token)
+
         query =
           from(token in by_token_and_context_query(hashed_token, context),
             where: token.inserted_at > ago(@change_email_validity_in_days, "day")
           )
+
         {:ok, query}
+
       :error ->
         :error
     end
   end
+
   defp by_token_and_context_query(token, context) do
     from(UserToken, where: [token: ^token, context: ^context])
   end

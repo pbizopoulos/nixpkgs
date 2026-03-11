@@ -10,12 +10,10 @@ const inter = localFont({
   src: "./Inter.ttf",
   variable: "--font-inter",
 });
-
 const robotoMono = localFont({
   src: "./RobotoMono.ttf",
   variable: "--font-roboto-mono",
 });
-
 export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
   title: {
@@ -37,7 +35,6 @@ export const metadata: Metadata = {
     description: "A simple Next.js and Supabase boilerplate.",
   },
 };
-
 export default function RootLayout({
   children,
 }: {

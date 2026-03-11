@@ -1,4 +1,5 @@
 import Config
+
 config :phoenix_app, PhoenixApp.Repo,
   username: "supabase",
   password: "supabase",
@@ -8,6 +9,7 @@ config :phoenix_app, PhoenixApp.Repo,
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
+
 config :phoenix_app, PhoenixAppWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}],
   check_origin: false,
@@ -18,6 +20,7 @@ config :phoenix_app, PhoenixAppWeb.Endpoint,
     esbuild: {Esbuild, :install_and_run, [:phoenix_app, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:phoenix_app, ~w(--watch)]}
   ]
+
 config :phoenix_app, PhoenixAppWeb.Endpoint,
   live_reload: [
     web_console_logger: true,
@@ -28,10 +31,12 @@ config :phoenix_app, PhoenixAppWeb.Endpoint,
       ~r"lib/phoenix_app_web/(controllers|live|components)/.*\.(ex|heex)$"
     ]
   ]
+
 config :phoenix_app, dev_routes: true
 config :logger, :default_formatter, format: "[$level] $message\n"
 config :phoenix, :stacktrace_depth, 20
 config :phoenix, :plug_init_mode, :runtime
+
 config :phoenix_live_view,
   debug_heex_annotations: true,
   debug_attributes: true,

@@ -1,13 +1,10 @@
 import { createClient } from "../lib/supabase";
-
 export const dynamic = "force-dynamic";
-
 export default async function Page() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
   return (
     <main>
       <div style={{ textAlign: "center", padding: "5rem 0" }}>

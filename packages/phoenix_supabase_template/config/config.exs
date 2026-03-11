@@ -1,4 +1,5 @@
 import Config
+
 config :phoenix_app, :scopes,
   user: [
     default: true,
@@ -11,9 +12,11 @@ config :phoenix_app, :scopes,
     test_data_fixture: PhoenixApp.AccountsFixtures,
     test_setup_helper: :register_and_log_in_user
   ]
+
 config :phoenix_app,
   ecto_repos: [PhoenixApp.Repo],
   generators: [timestamp_type: :utc_datetime, binary_id: true]
+
 config :phoenix_app, PhoenixAppWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
@@ -23,6 +26,7 @@ config :phoenix_app, PhoenixAppWeb.Endpoint,
   ],
   pubsub_server: PhoenixApp.PubSub,
   live_view: [signing_salt: "NGmKbuNC"]
+
 config :esbuild,
   version: "0.25.4",
   phoenix_app: [
@@ -31,6 +35,7 @@ config :esbuild,
     cd: Path.expand("../assets", __DIR__),
     env: %{"NODE_PATH" => [Path.expand("../deps", __DIR__), Mix.Project.build_path()]}
   ]
+
 config :tailwind,
   version: "4.1.12",
   phoenix_app: [
@@ -40,8 +45,10 @@ config :tailwind,
     ),
     cd: Path.expand("..", __DIR__)
   ]
+
 config :logger, :default_formatter,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
 config :phoenix, :json_library, Jason
 import_config "#{config_env()}.exs"

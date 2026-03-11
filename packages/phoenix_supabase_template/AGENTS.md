@@ -1,11 +1,15 @@
 This is a web application written using the Phoenix web framework.
+
 ## Project guidelines
+
 - Use `mix precommit` alias when you are done with all changes and fix any
   pending issues
 - Use the already included and available `:req` (`Req`) library for HTTP
   requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by
   default and is the preferred HTTP client for Phoenix apps
+
 ### Phoenix v1.8 guidelines
+
 - **Always** begin your LiveView templates with
   `<Layouts.app flash={@flash} ...>` which wraps all inner content
 - The `MyAppWeb.Layouts` module is aliased in the `my_app_web.ex` file, so you
@@ -29,7 +33,9 @@ This is a web application written using the Phoenix web framework.
   (`<.input class="myclass px-2 py-1 rounded-lg">)`) class with your own values,
   no default classes are inherited, so your custom classes must fully style the
   input
+
 ### JS and CSS guidelines
+
 - **Use Tailwind CSS classes and custom CSS rules** to create polished,
   responsive, and visually stunning interfaces.
 - Tailwindcss v4 **no longer needs a tailwind.config.js** and uses a new import
@@ -50,7 +56,9 @@ This is a web application written using the Phoenix web framework.
     layouts
   - You must import the vendor deps into app.js and app.css to use them
   - **Never write inline <script>custom js</script> tags within templates**
+
 ### UI/UX & design guidelines
+
 - **Produce world-class UI designs** with a focus on usability, aesthetics, and
   modern design principles
 - Implement **subtle micro-interactions** (e.g., button hover effects, and
@@ -59,8 +67,11 @@ This is a web application written using the Phoenix web framework.
   premium look
 - Focus on **delightful details** like hover effects, loading states, and smooth
   page transitions
+
 <!-- phoenix-gen-auth-start -->
+
 ## Authentication
+
 - **Always** handle authentication flow at the router level with proper
   redirects
 - **Always** be mindful of where to place routes. `phx.gen.auth` creates
@@ -93,9 +104,12 @@ This is a web application written using the Phoenix web framework.
 - Anytime you hit `current_scope` errors or the logged in session isn't
   displaying the right content, **always double check the router and ensure you
   are using the correct plug and `live_session` as described below**
+
 ### Routes that require authentication
+
 LiveViews that require login should **always be placed inside the **existing**
 `live_session :require_authenticated_user` block**:
+
 ```
 scope "/", AppWeb do
   pipe_through [:browser, :require_authenticated_user]
@@ -109,17 +123,22 @@ scope "/", AppWeb do
   end
 end
 ```
+
 Controller routes must be placed in a scope that sets the
 `:require_authenticated_user` plug:
+
 ```
 scope "/", AppWeb do
   pipe_through [:browser, :require_authenticated_user]
   get "/", MyControllerThatRequiresAuth, :index
 end
 ```
+
 ### Routes that work with or without authentication
+
 LiveViews that can work with or without authentication, **always use the
 **existing** `:current_user` scope**, ie:
+
 ```
 scope "/", MyAppWeb do
   pipe_through [:browser]
@@ -130,12 +149,18 @@ scope "/", MyAppWeb do
   end
 end
 ```
+
 Controllers automatically have the `current_scope` available if they use the
 `:browser` pipeline.
+
 <!-- phoenix-gen-auth-end -->
+
 <!-- usage-rules-start -->
+
 <!-- phoenix:elixir-start -->
+
 ## Elixir guidelines
+
 - Elixir lists **do not support index based access via the access syntax**
   **Never do this (invalid)**:
   ```
@@ -187,14 +212,18 @@ Controllers automatically have the `current_scope` available if they use the
 - Use `Task.async_stream(collection, callback, options)` for concurrent
   enumeration with back-pressure. The majority of times you will want to pass
   `timeout: :infinity` as option
+
 ## Mix guidelines
+
 - Read the docs and options before using tasks (by using `mix help task_name`)
 - To debug test failures, run tests in a specific file with
   `mix test test/my_test.exs` or run all previously failed tests with
   `mix test --failed`
 - `mix deps.clean --all` is **almost never needed**. **Avoid** using it unless
   you have good reason
+
 ## Test guidelines
+
 - **Always use `start_supervised!/1`** to start processes in tests as it
   guarantees cleanup between tests
 - **Avoid** `Process.sleep/1` and `Process.alive?/1` in tests
@@ -203,9 +232,13 @@ Controllers automatically have the `current_scope` available if they use the
     Process.monitor(pid) assert_receive {:DOWN, ^ref, :process, ^pid, :normal}
   - Instead of sleeping to synchronize before the next call, **always** use
     `_ = :sys.get_state/1` to ensure the process has handled prior messages
+
 <!-- phoenix:elixir-end -->
+
 <!-- phoenix:phoenix-start -->
+
 ## Phoenix guidelines
+
 - Remember Phoenix router `scope` blocks include an optional alias which is
   prefixed for all routes within the scope. **Always** be mindful of this when
   creating routes within a scope to avoid duplicate module prefixes.
@@ -219,9 +252,13 @@ Controllers automatically have the `current_scope` available if they use the
   ```
   the UserLive route would point to the `AppWeb.Admin.UserLive` module
 - `Phoenix.View` no longer is needed or included with Phoenix, don't use it
+
 <!-- phoenix:phoenix-end -->
+
 <!-- phoenix:ecto-start -->
+
 ## Ecto Guidelines
+
 - **Always** preload Ecto associations in queries when they'll be accessed in
   templates, ie a message that needs to reference the `message.user.email`
 - Remember `import Ecto.Query` and other supporting modules when you write
@@ -240,9 +277,13 @@ Controllers automatically have the `current_scope` available if they use the
 - **Always** invoke `mix ecto.gen.migration migration_name_using_underscores`
   when generating migration files, so the correct timestamp and conventions are
   applied
+
 <!-- phoenix:ecto-end -->
+
 <!-- phoenix:html-start -->
+
 ## Phoenix HTML guidelines
+
 - Phoenix templates **always** use `~H` or .html.heex files (known as HEEx),
   **never** use `~E`
 - **Always** use the imported `Phoenix.Component.form/1` and
@@ -338,9 +379,13 @@ Controllers automatically have the `current_scope` available if they use the
     {end}
   </div>
   ```
+
 <!-- phoenix:html-end -->
+
 <!-- phoenix:liveview-start -->
+
 ## Phoenix LiveView guidelines
+
 - **Never** use the deprecated `live_redirect` and `live_patch` functions,
   instead **always** use the `<.link navigate={href}>` and
   `<.link patch={href}>` in templates, and `push_navigate` and `push_patch`
@@ -350,7 +395,9 @@ Controllers automatically have the `current_scope` available if they use the
   When you go to add LiveView routes to the router, the default `:browser` scope
   is **already aliased** with the `AppWeb` module, so you can just do
   `live "/weather", WeatherLive`
+
 ### LiveView streams
+
 - **Always** use LiveView streams for collections for assigning regular lists to
   avoid memory ballooning and runtime termination with the following operations:
   - basic append of N items - `stream(socket, :messages, [new_msg])`
@@ -430,7 +477,9 @@ Controllers automatically have the `current_scope` available if they use the
   ```
 - **Never** use the deprecated `phx-update="append"` or `phx-update="prepend"`
   for collections
+
 ### LiveView JavaScript interop
+
 - Remember anytime you use `phx-hook="MyHook"` and that JS hook manages its own
   DOM, you **must** also set the `phx-update="ignore"` attribute
 - **Always** provide an unique DOM id alongside `phx-hook` otherwise a compiler
@@ -438,11 +487,14 @@ Controllers automatically have the `current_scope` available if they use the
   for "inline" scripts defined inside HEEx, and 2) external `phx-hook`
   annotations where JavaScript object literals are defined and passed to the
   `LiveSocket` constructor.
+
 #### Inline colocated js hooks
+
 **Never** write raw embedded `<script>` tags in heex as they are incompatible
 with LiveView. Instead, **always use a colocated js hook script tag
 (`:type={Phoenix.LiveView.ColocatedHook}`) when writing scripts inside the
 template**:
+
 ```
 <input type="text" name="user[phone_number]" id="user-phone-number" phx-hook=".PhoneNumber" />
 <script :type={Phoenix.LiveView.ColocatedHook} name=".PhoneNumber">
@@ -458,12 +510,16 @@ template**:
   }
 </script>
 ```
+
 - colocated hooks are automatically integrated into the app.js bundle
 - colocated hooks names **MUST ALWAYS** start with a `.` prefix, i.e.
   `.PhoneNumber`
+
 #### External phx-hook
+
 External JS hooks (`<div id="myhook" phx-hook="MyHook">`) must be placed in
 `assets/js/` and passed to the LiveSocket constructor:
+
 ```
 const MyHook = {
   mounted() { ... }
@@ -472,10 +528,13 @@ let liveSocket = new LiveSocket("/live", Socket, {
   hooks: { MyHook }
 });
 ```
+
 #### Pushing events between client and server
+
 Use LiveView's `push_event/3` when you need to push events/data to the client
 for a phx-hook to handle. **Always** return or rebind the socket on
 `push_event/3` when pushing events:
+
 ```
 # re-bind socket so we maintain event state to be pushed
 socket = push_event(socket, "my_event", %{...})
@@ -484,14 +543,18 @@ def handle_event("some_event", _, socket) do
   {:noreply, push_event(socket, "my_event", %{...})}
 end
 ```
+
 Pushed events can then be picked up in a JS hook with `this.handleEvent`:
+
 ```
 mounted() {
   this.handleEvent("my_event", data => console.log("from server:", data));
 }
 ```
+
 Clients can also push an event to the server and receive a reply with
 `this.pushEvent`:
+
 ```
 mounted() {
   this.el.addEventListener("click", e => {
@@ -499,13 +562,17 @@ mounted() {
   })
 }
 ```
+
 Where the server handled it via:
+
 ```
 def handle_event("my_event", %{"one" => 1}, socket) do
   {:reply, %{two: 2}, socket}
 end
 ```
+
 ### LiveView tests
+
 - `Phoenix.LiveViewTest` module and `LazyHTML` (included) for making your
   assertions
 - Form tests are driven by `Phoenix.LiveViewTest`'s `render_submit/2` and
@@ -532,69 +599,91 @@ end
   matches = LazyHTML.filter(document, "your-complex-selector")
   IO.inspect(matches, label: "Matches")
   ```
+
 ### Form handling
+
 #### Creating a form from params
+
 If you want to create a form based on `handle_event` params:
+
 ```
 def handle_event("submitted", params, socket) do
   {:noreply, assign(socket, form: to_form(params))}
 end
 ```
+
 When you pass a map to `to_form/1`, it assumes said map contains the form
 params, which are expected to have string keys. You can also specify a name to
 nest the params:
+
 ```
 def handle_event("submitted", %{"user" => user_params}, socket) do
   {:noreply, assign(socket, form: to_form(user_params, as: :user))}
 end
 ```
+
 #### Creating a form from changesets
+
 When using changesets, the underlying data, form params, and errors are
 retrieved from it. The `:as` option is automatically computed too. E.g. if you
 have a user schema:
+
 ```
 defmodule MyApp.Users.User do
   use Ecto.Schema
   ...
 end
 ```
+
 And then you create a changeset that you pass to `to_form`:
+
 ```
 %MyApp.Users.User{}
 |> Ecto.Changeset.change()
 |> to_form()
 ```
+
 Once the form is submitted, the params will be available under
 `%{"user" => user_params}`. In the template, the form form assign can be passed
 to the `<.form>` function component:
+
 ```
 <.form for={@form} id="todo-form" phx-change="validate" phx-submit="save">
   <.input field={@form[:field]} type="text" />
 </.form>
 ```
+
 Always give the form an explicit, unique DOM ID, like `id="todo-form"`.
+
 #### Avoiding form errors
+
 **Always** use a form assigned via `to_form/2` in the LiveView, and the
 `<.input>` component in the template. In the template **always access forms
 this**:
+
 ```
 <%!-- ALWAYS do this (valid) --%>
 <.form for={@form} id="my-form">
   <.input field={@form[:field]} type="text" />
 </.form>
 ```
+
 And **never** do this:
+
 ```
 <%!-- NEVER do this (invalid) --%>
 <.form for={@changeset} id="my-form">
   <.input field={@changeset[:field]} type="text" />
 </.form>
 ```
+
 - You are FORBIDDEN from accessing the changeset in the template as it will
   cause errors
 - **Never** use `<.form let={f} ...>` in the template, instead **always use
   `<.form for={@form} ...>`**, then drive all form references from the form
   assign as in `@form[:field]`. The UI should **always** be driven by a
   `to_form/2` assigned in the LiveView module that is derived from a changeset
+
 <!-- phoenix:liveview-end -->
+
 <!-- usage-rules-end -->

@@ -17,6 +17,7 @@ defmodule PhoenixApp.Accounts do
   def get_user_by_email(email) when is_binary(email) do
     Repo.get_by(User, email: email)
   end
+
   @doc """
   Gets a user by email and password.
   ## Examples
@@ -30,6 +31,7 @@ defmodule PhoenixApp.Accounts do
     user = Repo.get_by(User, email: email)
     if User.valid_password?(user, password), do: user
   end
+
   @doc """
   Gets a single user.
   Raises `Ecto.NoResultsError` if the User does not exist.
@@ -40,12 +42,14 @@ defmodule PhoenixApp.Accounts do
       ** (Ecto.NoResultsError)
   """
   def get_user!(id), do: Repo.get!(User, id)
+
   @doc """
   Gets a user by username.
   """
   def get_user_by_username(username) when is_binary(username) do
     Repo.get_by(User, username: username)
   end
+
   ## User registration
   @doc """
   Registers a user.
@@ -60,6 +64,7 @@ defmodule PhoenixApp.Accounts do
     |> User.registration_changeset(attrs)
     |> Repo.insert()
   end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for registering a user.
   See `PhoenixApp.Accounts.User.registration_changeset/3` for a list of supported options.
@@ -67,6 +72,7 @@ defmodule PhoenixApp.Accounts do
   def change_user_registration(%User{} = user, attrs \\ %{}, opts \\ []) do
     User.registration_changeset(user, attrs, opts)
   end
+
   ## Settings
   @doc """
   Checks whether the user is in sudo mode.
@@ -74,10 +80,13 @@ defmodule PhoenixApp.Accounts do
   than 20 minutes ago. The limit can be given as second argument in minutes.
   """
   def sudo_mode?(user, minutes \\ -20)
+
   def sudo_mode?(%User{authenticated_at: ts}, minutes) when is_struct(ts, DateTime) do
     DateTime.after?(ts, DateTime.utc_now() |> DateTime.add(minutes, :minute))
   end
+
   def sudo_mode?(_user, _minutes), do: false
+
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
   See `PhoenixApp.Accounts.User.email_changeset/3` for a list of supported options.
@@ -88,12 +97,14 @@ defmodule PhoenixApp.Accounts do
   def change_user_email(user, attrs \\ %{}, opts \\ []) do
     User.email_changeset(user, attrs, opts)
   end
+
   @doc """
   Updates the user email using the given token.
   If the token matches, the user email is updated and the token is deleted.
   """
   def update_user_email(user, token) do
     context = "change:#{user.email}"
+
     Repo.transact(fn ->
       with {:ok, query} <- UserToken.verify_change_email_token_query(token, context),
            %UserToken{sent_to: email} <- Repo.one(query),
@@ -106,6 +117,7 @@ defmodule PhoenixApp.Accounts do
       end
     end)
   end
+
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user password.
   See `PhoenixApp.Accounts.User.password_changeset/3` for a list of supported options.
@@ -116,6 +128,7 @@ defmodule PhoenixApp.Accounts do
   def change_user_password(user, attrs \\ %{}, opts \\ []) do
     User.password_changeset(user, attrs, opts)
   end
+
   @doc """
   Updates the user password.
   Returns a tuple with the updated user, as well as a list of expired tokens.
@@ -130,6 +143,7 @@ defmodule PhoenixApp.Accounts do
     |> User.password_changeset(attrs)
     |> update_user_and_delete_all_tokens()
   end
+
   ## Session
   @doc """
   Generates a session token.
@@ -139,6 +153,7 @@ defmodule PhoenixApp.Accounts do
     Repo.insert!(user_token)
     token
   end
+
   @doc """
   Gets the user with the given signed token.
   If the token is valid `{user, token_inserted_at}` is returned, otherwise `nil` is returned.
@@ -147,6 +162,7 @@ defmodule PhoenixApp.Accounts do
     {:ok, query} = UserToken.verify_session_token_query(token)
     Repo.one(query)
   end
+
   @doc """
   Gets the user with the given magic link token.
   """
@@ -158,6 +174,7 @@ defmodule PhoenixApp.Accounts do
       _ -> nil
     end
   end
+
   @doc """
   Logs the user in by magic link.
   There are three cases to consider:
@@ -174,6 +191,7 @@ defmodule PhoenixApp.Accounts do
   """
   def login_user_by_magic_link(token) do
     {:ok, query} = UserToken.verify_magic_link_token_query(token)
+
     case Repo.one(query) do
       {%User{confirmed_at: nil, hashed_password: hash}, _token} when not is_nil(hash) ->
         raise """
@@ -182,17 +200,21 @@ defmodule PhoenixApp.Accounts do
         might have adapted the code to a different use case. Please make sure to read the
         "Mixing magic link and password registration" section of `mix help phx.gen.auth`.
         """
+
       {%User{confirmed_at: nil} = user, _token} ->
         user
         |> User.confirm_changeset()
         |> update_user_and_delete_all_tokens()
+
       {user, token} ->
         Repo.delete!(token)
         {:ok, {user, []}}
+
       nil ->
         {:error, :not_found}
     end
   end
+
   @doc ~S"""
   Delivers the update email instructions to the given user.
   ## Examples
@@ -205,6 +227,7 @@ defmodule PhoenixApp.Accounts do
     Repo.insert!(user_token)
     UserNotifier.deliver_update_email_instructions(user, update_email_url_fun.(encoded_token))
   end
+
   @doc """
   Delivers the magic link login instructions to the given user.
   """
@@ -214,6 +237,7 @@ defmodule PhoenixApp.Accounts do
     Repo.insert!(user_token)
     UserNotifier.deliver_login_instructions(user, magic_link_url_fun.(encoded_token))
   end
+
   @doc """
   Deletes the signed token with the given context.
   """
@@ -221,6 +245,7 @@ defmodule PhoenixApp.Accounts do
     Repo.delete_all(from(UserToken, where: [token: ^token, context: "session"]))
     :ok
   end
+
   ## Token helper
   defp update_user_and_delete_all_tokens(changeset) do
     Repo.transact(fn ->

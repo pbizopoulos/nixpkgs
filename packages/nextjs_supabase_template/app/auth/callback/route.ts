@@ -1,12 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const next = searchParams.get("next") ?? "/";
-
   if (code) {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -62,7 +60,6 @@ export async function GET(request: Request) {
     if (!error) {
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
-
       if (isLocalEnv) {
         return NextResponse.redirect(`${origin}${next}`);
       } else if (forwardedHost) {
@@ -74,6 +71,5 @@ export async function GET(request: Request) {
       console.error("Auth callback error:", error);
     }
   }
-
   return NextResponse.redirect(`${origin}/?error=auth`);
 }

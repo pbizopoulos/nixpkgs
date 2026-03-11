@@ -1,5 +1,6 @@
 defmodule PhoenixApp.MixProject do
   use Mix.Project
+
   def project do
     [
       app: :phoenix_app,
@@ -13,19 +14,23 @@ defmodule PhoenixApp.MixProject do
       compilers: [:phoenix_live_view] ++ Mix.compilers()
     ]
   end
+
   def application do
     [
       mod: {PhoenixApp.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end
+
   def cli do
     [
       preferred_envs: [precommit: :test]
     ]
   end
+
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
+
   defp deps do
     [
       {:bcrypt_elixir, "~> 3.0"},
@@ -55,6 +60,7 @@ defmodule PhoenixApp.MixProject do
       {:bandit, "~> 1.5"}
     ]
   end
+
   defp aliases do
     [
       setup: ["deps.get", "ecto.setup", "assets.setup", "assets.build"],

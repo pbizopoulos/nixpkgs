@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   const supabaseUrl = String.fromEnvironment(
@@ -13,6 +14,7 @@ Future<void> main() async {
   await Supabase.initialize(url: supabaseUrl, anonKey: supabaseAnonKey);
   runApp(const MyApp());
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
@@ -27,11 +29,13 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
+
 class _MyHomePageState extends State<MyHomePage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -43,12 +47,14 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     _loadUser();
   }
+
   Future<void> _loadUser() async {
     final response = await _client.auth.getUser();
     setState(() {
       _userEmail = response.user?.email;
     });
   }
+
   Future<void> _signUp() async {
     setState(() => _status = 'Signing up...');
     final response = await _client.auth.signUp(
@@ -64,6 +70,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _userEmail = response.user?.email;
     });
   }
+
   Future<void> _signIn() async {
     setState(() => _status = 'Signing in...');
     final response = await _client.auth.signInWithPassword(
@@ -75,6 +82,7 @@ class _MyHomePageState extends State<MyHomePage> {
       _userEmail = response.user?.email;
     });
   }
+
   Future<void> _signOut() async {
     setState(() => _status = 'Signing out...');
     await _client.auth.signOut();
@@ -83,12 +91,14 @@ class _MyHomePageState extends State<MyHomePage> {
       _userEmail = null;
     });
   }
+
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -119,9 +129,18 @@ class _MyHomePageState extends State<MyHomePage> {
               spacing: 8,
               runSpacing: 8,
               children: [
-                ElevatedButton(onPressed: _signUp, child: const Text('Sign up')),
-                ElevatedButton(onPressed: _signIn, child: const Text('Sign in')),
-                OutlinedButton(onPressed: _signOut, child: const Text('Sign out')),
+                ElevatedButton(
+                  onPressed: _signUp,
+                  child: const Text('Sign up'),
+                ),
+                ElevatedButton(
+                  onPressed: _signIn,
+                  child: const Text('Sign in'),
+                ),
+                OutlinedButton(
+                  onPressed: _signOut,
+                  child: const Text('Sign out'),
+                ),
               ],
             ),
             const SizedBox(height: 12),

@@ -1,6 +1,9 @@
 {-# LANGUAGE LambdaCase #-}
+
 module Main (main) where
+
 import           System.Environment (lookupEnv)
+
 main :: IO ()
 main =
   lookupEnv "DEBUG" >>= \case

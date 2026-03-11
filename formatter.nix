@@ -154,11 +154,6 @@ let
           includes = [ "*.raku" ];
           options = [ "-c" ];
         };
-        remove_empty_lines = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
-          includes = [ "*" ];
-          priority = 0;
-        };
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         rustfmt.priority = 1;
         shfmt.options = [ "--posix" ];

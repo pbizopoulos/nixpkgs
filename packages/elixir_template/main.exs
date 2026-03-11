@@ -7,6 +7,7 @@ defmodule Main do
       System.halt(1)
     end
   end
+
   def main do
     if System.get_env("DEBUG") == "1" do
       run_tests()
@@ -15,4 +16,5 @@ defmodule Main do
     end
   end
 end
+
 Main.main()

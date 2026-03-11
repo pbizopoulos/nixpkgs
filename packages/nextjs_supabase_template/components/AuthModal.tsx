@@ -1,17 +1,14 @@
 "use client";
-
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import AuthForm from "./AuthForm";
 import { useAuth } from "./AuthProvider";
-
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuthModal, user, authModalRedirectPath } =
     useAuth();
   const modalRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const router = useRouter();
-
   const handleClose = () => {
     closeAuthModal();
     const isProtectedRoute = pathname.endsWith("/edit");
@@ -19,14 +16,12 @@ export default function AuthModal() {
       router.push("/");
     }
   };
-
   const handleSuccess = () => {
     closeAuthModal();
     if (authModalRedirectPath) {
       router.push(authModalRedirectPath);
     }
   };
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -36,28 +31,23 @@ export default function AuthModal() {
         handleClose();
       }
     };
-
     const handleEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         handleClose();
       }
     };
-
     if (isAuthModalOpen) {
       document.addEventListener("mousedown", handleClickOutside);
       document.addEventListener("keydown", handleEscape);
       document.body.style.overflow = "hidden";
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
   }, [isAuthModalOpen, handleClose]);
-
   if (!isAuthModalOpen) return null;
-
   return (
     <div
       style={{

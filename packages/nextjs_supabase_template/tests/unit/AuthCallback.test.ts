@@ -8,11 +8,9 @@ import { GET } from "../../app/auth/callback/route";
 vi.mock("@supabase/ssr", () => ({
   createServerClient: vi.fn(),
 }));
-
 vi.mock("next/headers", () => ({
   cookies: vi.fn(),
 }));
-
 vi.mock("next/server", () => ({
   NextResponse: {
     redirect: vi.fn((url) => ({
@@ -21,19 +19,16 @@ vi.mock("next/server", () => ({
     })),
   },
 }));
-
 describe("Auth Callback route", () => {
   const mockSupabase = {
     auth: {
       exchangeCodeForSession: vi.fn(),
     },
   };
-
   const mockCookieStore = {
     getAll: vi.fn().mockReturnValue([]),
     set: vi.fn(),
   };
-
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(createServerClient).mockReturnValue(
@@ -43,14 +38,12 @@ describe("Auth Callback route", () => {
       mockCookieStore as unknown as Awaited<ReturnType<typeof cookies>>,
     );
   });
-
   it("should test the custom fetch and cookie handling in createServerClient", async () => {
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_URL", "http://localhost:54321");
     vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", "key");
     vi.mocked(mockSupabase.auth.exchangeCodeForSession).mockResolvedValue({
       error: null,
     });
-
     let capturedOptions: any;
     vi.mocked(createServerClient).mockImplementation(((
       _url: string,
@@ -60,28 +53,22 @@ describe("Auth Callback route", () => {
       capturedOptions = options;
       return mockSupabase;
     }) as any);
-
     const req = {
       url: "http://localhost:3000/auth/callback?code=123",
       headers: new Headers(),
     } as unknown as Request;
     await GET(req);
-
     global.fetch = vi.fn().mockResolvedValue({} as any);
     await capturedOptions.global.fetch("url", {
       headers: { Authorization: "Bearer a.b.c", apikey: "a.b.c" },
     });
-
     const headersObj = new Headers();
     headersObj.set("Authorization", "Bearer invalid");
     headersObj.set("apikey", "invalid");
     await capturedOptions.global.fetch("url", { headers: headersObj });
-
     await capturedOptions.global.fetch("url", { headers: {} });
-
     await capturedOptions.global.fetch("url");
     await capturedOptions.global.fetch("url", {});
-
     mockCookieStore.getAll.mockReturnValue([
       { name: "not-sb", value: "val" },
       { name: "sb-valid", value: "a.b.c" },
@@ -93,13 +80,11 @@ describe("Auth Callback route", () => {
     ]);
     const filtered = capturedOptions.cookies.getAll();
     expect(filtered).toHaveLength(2);
-
     capturedOptions.cookies.setAll([
       { name: "test", value: "val", options: {} },
     ]);
     expect(mockCookieStore.set).toHaveBeenCalledWith("test", "val", {});
   });
-
   it("should redirect to login if no code is present", async () => {
     const req = {
       url: "http://localhost:3000/auth/callback",
@@ -110,7 +95,6 @@ describe("Auth Callback route", () => {
       "http://localhost:3000/?error=auth",
     );
   });
-
   it("should redirect to login if exchangeCodeForSession fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.mocked(mockSupabase.auth.exchangeCodeForSession).mockResolvedValue({
@@ -126,7 +110,6 @@ describe("Auth Callback route", () => {
     );
     consoleSpy.mockRestore();
   });
-
   it("should redirect to the next url after successful exchange in development", async () => {
     vi.stubEnv("NODE_ENV", "development");
     vi.mocked(mockSupabase.auth.exchangeCodeForSession).mockResolvedValue({
@@ -141,7 +124,6 @@ describe("Auth Callback route", () => {
       "http://localhost:3000/test",
     );
   });
-
   it("should redirect using x-forwarded-host headers in non-dev environment", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.mocked(mockSupabase.auth.exchangeCodeForSession).mockResolvedValue({
@@ -156,7 +138,6 @@ describe("Auth Callback route", () => {
     await GET(req);
     expect(NextResponse.redirect).toHaveBeenCalledWith("https://example.com/");
   });
-
   it("should fallback to origin if x-forwarded-host is missing in non-dev environment", async () => {
     vi.stubEnv("NODE_ENV", "production");
     vi.mocked(mockSupabase.auth.exchangeCodeForSession).mockResolvedValue({

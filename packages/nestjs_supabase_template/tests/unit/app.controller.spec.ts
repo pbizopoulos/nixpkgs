@@ -2,6 +2,7 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { beforeEach, describe, expect, it } from "vitest";
 import { AppController } from "../../src/app.controller.js";
 import { AppService } from "../../src/app.service.js";
+
 describe("AppController", () => {
   let appController: AppController;
   beforeEach(async () => {

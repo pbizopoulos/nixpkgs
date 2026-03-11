@@ -3,6 +3,7 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import { hooks as colocatedHooks } from "phoenix-colocated/phoenix_app";
 import topbar from "../vendor/topbar";
+
 const csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");

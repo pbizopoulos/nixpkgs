@@ -1,14 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { StatusBar } from "expo-status-bar";
 import { createClient } from "@supabase/supabase-js";
+import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useState } from "react";
-import {
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Button, StyleSheet, Text, TextInput, View } from "react-native";
 export default function App() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

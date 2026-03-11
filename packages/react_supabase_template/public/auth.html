@@ -7,7 +7,12 @@
     <style>
       :root {
         color-scheme: light;
-        font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+        font-family:
+          "Inter",
+          "Segoe UI",
+          system-ui,
+          -apple-system,
+          sans-serif;
       }
       body {
         margin: 0;
@@ -85,17 +90,24 @@
   <body>
     <main>
       <h1>Supabase Auth UI</h1>
-      <p>Enter your Supabase project URL and anon key to use email/password auth.</p>
+      <p>
+        Enter your Supabase project URL and anon key to use email/password auth.
+      </p>
       <div class="grid">
         <label>
           Supabase URL
-          <input id="supabase-url" placeholder="https://xyzcompany.supabase.co" />
+          <input
+            id="supabase-url"
+            placeholder="https://xyzcompany.supabase.co"
+          />
         </label>
         <label>
           Supabase anon key
           <input id="supabase-key" placeholder="eyJhbGciOi..." />
         </label>
-        <button id="save-config" class="ghost" type="button">Save config</button>
+        <button id="save-config" class="ghost" type="button">
+          Save config
+        </button>
       </div>
       <hr style="margin: 20px 0; border: none; border-top: 1px solid #e2e8f0" />
       <div class="grid">
@@ -127,11 +139,9 @@
       const statusEl = document.getElementById("status");
       const userEl = document.getElementById("user");
       let supabase = null;
-
       const setStatus = (message) => {
         statusEl.textContent = message;
       };
-
       const loadConfig = () => {
         try {
           const stored = JSON.parse(localStorage.getItem(storageKey) || "{}");
@@ -141,14 +151,15 @@
           // Ignore malformed storage.
         }
       };
-
       const saveConfig = () => {
         localStorage.setItem(
           storageKey,
-          JSON.stringify({ url: urlInput.value.trim(), key: keyInput.value.trim() }),
+          JSON.stringify({
+            url: urlInput.value.trim(),
+            key: keyInput.value.trim(),
+          }),
         );
       };
-
       const initClient = () => {
         const url = urlInput.value.trim();
         const key = keyInput.value.trim();
@@ -166,7 +177,6 @@
         supabase = lib.createClient(url, key);
         setStatus("Supabase client ready.");
       };
-
       const refreshUser = async () => {
         if (!supabase) {
           userEl.textContent = "none";
@@ -180,13 +190,11 @@
         }
         userEl.textContent = data.user?.email || "none";
       };
-
       document.getElementById("save-config").addEventListener("click", () => {
         saveConfig();
         initClient();
         refreshUser();
       });
-
       document.getElementById("sign-up").addEventListener("click", async () => {
         if (!supabase) {
           setStatus("Configure Supabase first.");
@@ -204,7 +212,6 @@
         setStatus("Check your email to confirm the account.");
         refreshUser();
       });
-
       document.getElementById("sign-in").addEventListener("click", async () => {
         if (!supabase) {
           setStatus("Configure Supabase first.");
@@ -222,22 +229,22 @@
         setStatus("Signed in.");
         userEl.textContent = data.user?.email || "none";
       });
-
-      document.getElementById("sign-out").addEventListener("click", async () => {
-        if (!supabase) {
-          setStatus("Configure Supabase first.");
-          return;
-        }
-        setStatus("Signing out...");
-        const { error } = await supabase.auth.signOut();
-        if (error) {
-          setStatus(error.message);
-          return;
-        }
-        userEl.textContent = "none";
-        setStatus("Signed out.");
-      });
-
+      document
+        .getElementById("sign-out")
+        .addEventListener("click", async () => {
+          if (!supabase) {
+            setStatus("Configure Supabase first.");
+            return;
+          }
+          setStatus("Signing out...");
+          const { error } = await supabase.auth.signOut();
+          if (error) {
+            setStatus(error.message);
+            return;
+          }
+          userEl.textContent = "none";
+          setStatus("Signed out.");
+        });
       loadConfig();
       initClient();
       refreshUser();

@@ -6,7 +6,6 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextBin = join(__dirname, "../node_modules/.bin/next");
-
 if (process.env.DEBUG === "1") {
   if (existsSync(join(__dirname, "../package.json"))) {
     console.log("Checking dependencies for smoke test...");
@@ -23,7 +22,6 @@ if (process.env.DEBUG === "1") {
     stdio: "inherit",
     cwd: workingDir,
   });
-
   next.on("close", (code) => {
     process.exit(code || 0);
   });

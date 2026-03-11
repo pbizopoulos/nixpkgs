@@ -1,18 +1,19 @@
-import { Authenticated, NavigateToResource, Refine } from "@refinedev/core";
 import { AuthPage, RefineThemes, ThemedLayoutV2 } from "@refinedev/antd";
-import { ErrorComponent } from "@refinedev/core";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import {
+  Authenticated,
+  ErrorComponent,
+  NavigateToResource,
+  Refine,
+} from "@refinedev/core";
 import { routerProvider } from "@refinedev/react-router";
-import { SupabaseClient, dataProvider } from "@refinedev/supabase";
+import { dataProvider, type SupabaseClient } from "@refinedev/supabase";
 import { ConfigProvider } from "antd";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { authProvider } from "./authProvider";
-import { supabaseClient } from "./utility/supabaseClient";
 import { PostList } from "./pages/posts/list";
+import { supabaseClient } from "./utility/supabaseClient";
 
-const supabaseDataProvider = dataProvider(
-  supabaseClient as SupabaseClient,
-);
-
+const supabaseDataProvider = dataProvider(supabaseClient as SupabaseClient);
 export default function App() {
   return (
     <BrowserRouter>
@@ -42,7 +43,10 @@ export default function App() {
                   <ThemedLayoutV2>
                     <Routes>
                       <Route path="/posts" element={<PostList />} />
-                      <Route path="/" element={<NavigateToResource resource="posts" />} />
+                      <Route
+                        path="/"
+                        element={<NavigateToResource resource="posts" />}
+                      />
                     </Routes>
                   </ThemedLayoutV2>
                 </Authenticated>

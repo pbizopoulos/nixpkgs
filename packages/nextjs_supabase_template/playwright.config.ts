@@ -5,7 +5,6 @@ import { defineConfig, devices } from "@playwright/test";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
 try {
   const envLocalPath = path.resolve(__dirname, ".env.local");
   if (fs.existsSync(envLocalPath)) {
@@ -25,7 +24,6 @@ try {
 } catch (e) {
   console.warn("Failed to load .env.local:", e);
 }
-
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -39,11 +37,9 @@ export default defineConfig({
   },
   use: {
     baseURL: "http://localhost:3000",
-
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
-
   projects: [
     {
       name: "chromium",
@@ -56,7 +52,6 @@ export default defineConfig({
       testMatch: /Audit\.spec\.ts/,
     },
   ],
-
   webServer: {
     command: (() => {
       const base = "PORT=3000 NEXT_PUBLIC_BASE_URL=http://localhost:3000";

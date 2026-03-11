@@ -1,7 +1,5 @@
 "use client";
-
 import { useEffect } from "react";
-
 export default function ErrorPage({
   error,
   reset,
@@ -12,7 +10,6 @@ export default function ErrorPage({
   useEffect(() => {
     console.error(error);
   }, [error]);
-
   return (
     <div
       style={{
