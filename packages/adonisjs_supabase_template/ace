@@ -1,5 +1,0 @@
-#!/usr/bin/env node
-import { Ignitor } from '@adonisjs/core/ignitor'
-new Ignitor(new URL('./', import.meta.url))
-  .ace()
-  .handle(process.argv.slice(2))

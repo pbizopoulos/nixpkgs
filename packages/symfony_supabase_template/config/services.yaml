@@ -1,8 +1,0 @@
-services:
-  _defaults:
-    autowire: true
-    autoconfigure: true
-  App\Controller\DefaultController:
-    class: App\Controller\DefaultController
-    public: true
-    tags: ["controller.service_arguments"]

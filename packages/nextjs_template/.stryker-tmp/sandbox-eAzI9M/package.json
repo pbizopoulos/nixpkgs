@@ -1,0 +1,58 @@
+{
+  "name": "nextjs-supabase",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "bin": {
+    "nextjs-supabase": "scripts/start.js"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "format": "nix fmt && npm run test:types",
+    "build": "next build",
+    "start": "next start",
+    "test": "npm run test:types && npm run lint:db && npm run test:unit && npm run test:e2e && npm run test:db && npm run test:cpd && npm run test:deps && npm run test:mutation && npm run test:mutation:metrics && npm run test:audit",
+    "lint:db": "supabase db lint --fail-on warning",
+    "test:db": "supabase test db",
+    "test:types": "tsc",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "test:e2e": "E2E_MODE=prod playwright test",
+    "test:e2e:dev": "playwright test",
+    "test:audit": "npm run build && E2E_MODE=prod playwright test --project=audit",
+    "test:visual": "E2E_MODE=prod playwright test --update-snapshots",
+    "test:unit": "vitest run",
+    "test:cpd": "jscpd .",
+    "test:deps": "depcruise app components lib",
+    "test:coverage": "vitest run --coverage",
+    "test:mutation": "stryker run",
+    "test:mutation:metrics": "node scripts/mutation-metrics.js"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "next": "^16.1.6",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.57.0",
+    "@stryker-mutator/core": "^9.5.1",
+    "@stryker-mutator/typescript-checker": "^9.5.1",
+    "@stryker-mutator/vitest-runner": "^9.5.1",
+    "@supabase/supabase-js": "^2.97.0",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/node": "^25.3.1",
+    "@types/react": "19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^5.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "dependency-cruiser": "^16.10.0",
+    "jsdom": "^28.1.0",
+    "jscpd": "^4.0.5",
+    "mutation-testing-metrics": "^3.7.2",
+    "typescript": "~5.9.3",
+    "vitest": "^4.0.18"
+  }
+}

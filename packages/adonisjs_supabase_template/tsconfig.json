@@ -1,7 +1,0 @@
-{
-  "extends": "@adonisjs/tsconfig/tsconfig.json",
-  "compilerOptions": {
-    "rootDir": "./",
-    "outDir": "./build"
-  }
-}

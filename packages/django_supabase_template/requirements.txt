@@ -1,7 +1,0 @@
-django>=5.1
-django-cors-headers
-supabase
-pytest
-pytest-django
-playwright
-pytest-playwright

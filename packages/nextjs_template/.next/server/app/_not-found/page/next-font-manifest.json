@@ -1,0 +1,11 @@
+{
+  "pages": {},
+  "app": {
+    "[project]/app/_not-found/page": [
+      "static/media/Inter-s.p.1612119b.ttf",
+      "static/media/RobotoMono-s.p.7e85bb7b.ttf"
+    ]
+  },
+  "appUsingSizeAdjust": true,
+  "pagesUsingSizeAdjust": false
+}
