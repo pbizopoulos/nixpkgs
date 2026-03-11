@@ -1,9 +1,0 @@
-[dependencies]
-axum = "0.7"
-tokio = {version = "1.0", features = ["full"]}
-serde = {version = "1.0", features = ["derive"]}
-
-[package]
-name = "axum-supabase-template"
-version = "0.1.0"
-edition = "2021"
