@@ -58,7 +58,6 @@ let
       odinfmt.enable = false;
       ormolu.enable = true;
       oxipng.enable = true;
-      perltidy.enable = true;
       php-cs-fixer.enable = true;
       prettier.enable = true;
       ruff-format.enable = true;
@@ -141,19 +140,6 @@ let
         };
         php-cs-fixer.options = [ "--allow-risky=yes" ];
         prettier.options = [ "--max-diagnostics=none" ];
-        protoc = {
-          command = "${pkgs.protobuf}/bin/protoc";
-          includes = [ "*.proto" ];
-          options = [
-            "--descriptor_set_out=/dev/null"
-            "--include_imports"
-          ];
-        };
-        raku = {
-          command = "${pkgs.rakudo}/bin/raku";
-          includes = [ "*.raku" ];
-          options = [ "-c" ];
-        };
         ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
         rustfmt.priority = 1;
         shfmt.options = [ "--posix" ];
@@ -166,23 +152,10 @@ let
           command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
           includes = [ "*" ];
         };
-        wat2wasm = {
-          command = "${pkgs.wabt}/bin/wat2wasm";
-          includes = [ "*.wat" ];
-          options = [
-            "-o"
-            "/dev/null"
-          ];
-        };
         ruff-check.options = [
           "--cache-dir=/tmp/.ruff_cache"
           "--unsafe-fixes"
         ];
-        xmllint = {
-          command = "${pkgs.libxml2}/bin/xmllint";
-          includes = [ "*.xml" ];
-          options = [ "--noout" ];
-        };
       };
       global.excludes = [
         "*/prm/**"

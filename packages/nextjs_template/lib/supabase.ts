@@ -7,8 +7,9 @@ export async function createClient(useCookies = true) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl) throw new Error("Missing env NEXT_PUBLIC_SUPABASE_URL");
-  if (!supabaseAnonKey)
+  if (!supabaseAnonKey) {
     throw new Error("Missing env NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  }
 
   if (!useCookies) {
     return createServerClient(supabaseUrl, supabaseAnonKey, {

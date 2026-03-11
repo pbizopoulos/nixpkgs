@@ -1,3 +1,6 @@
+**/vendor/
+.next
+.stryker-tmp
 CSharpier
 build
 node_modules
@@ -5,4 +8,3 @@ result
 target/
 tmp/
 vendor/
-**/vendor/

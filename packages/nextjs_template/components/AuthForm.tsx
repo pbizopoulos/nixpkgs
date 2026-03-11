@@ -99,7 +99,9 @@ function AuthFormContent({ onSuccess }: AuthFormProps) {
             fontSize: "0.875rem",
             backgroundColor: message.type === "error" ? "#fef2f2" : "#f0fdf4",
             color: message.type === "error" ? "#dc2626" : "#16a34a",
-            border: `1px solid ${message.type === "error" ? "#fee2e2" : "#dcfce7"}`,
+            border: `1px solid ${
+              message.type === "error" ? "#fee2e2" : "#dcfce7"
+            }`,
           }}
         >
           {message.text}

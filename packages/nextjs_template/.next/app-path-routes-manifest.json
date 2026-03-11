@@ -1,8 +1,0 @@
-{
-  "/[username]/page": "/[username]",
-  "/_global-error/page": "/_global-error",
-  "/_not-found/page": "/_not-found",
-  "/auth/callback/route": "/auth/callback",
-  "/page": "/",
-  "/sitemap.xml/route": "/sitemap.xml"
-}
