@@ -5,8 +5,10 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextBin = join(__dirname, "../node_modules/.bin/next");
+const projectRoot = join(__dirname, "..");
 
 const next = spawn(nextBin, ["start"], {
+  cwd: projectRoot,
   stdio: "inherit",
 });
 
