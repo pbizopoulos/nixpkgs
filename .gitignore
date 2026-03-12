@@ -1,11 +1,1 @@
-**/vendor/
-.next
-.stryker-tmp
-CSharpier
-build
-node_modules/
-reports/
 result
-target/
-tmp/
-vendor/

@@ -1,0 +1,6 @@
+.next/
+.stryker-tmp/
+node_modules/
+reports/
+tmp/
+tsconfig.tsbuildinfo
