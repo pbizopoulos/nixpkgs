@@ -73,28 +73,32 @@ fn main() -> Result<()> {
             .status()
             .ok();
     }
+    let checks_src_root = root_dir.join("checks");
     for template_path in templates_to_copy {
         let template_name = template_path.file_name().and_then(|s| s.to_str()).unwrap();
         let dest_path = target_dir.join("packages").join(template_name);
-        fs::create_dir_all(&dest_path)
-            .context("Failed to create template destination directory")?;
         println!("Copying template {} to {:?}", template_name, dest_path);
-        let mut options = fs_extra::dir::CopyOptions::new();
-        options.content_only = true;
-        options.overwrite = true;
-        if dest_path.exists() {
-            fs::remove_dir_all(&dest_path).ok();
-            fs::create_dir_all(&dest_path).ok();
-        }
-        fs_extra::dir::copy(&template_path, &dest_path, &options)
+        copy_dir_contents(&template_path, &dest_path)
             .context(format!("Failed to copy template {}", template_name))?;
-        set_permissions_recursive(&dest_path).ok();
         std_command::new("git")
             .arg("add")
             .arg(format!("packages/{}", template_name))
             .current_dir(target_dir)
             .status()
             .ok();
+        let checks_src = checks_src_root.join(template_name);
+        if checks_src.exists() {
+            let checks_dest = target_dir.join("checks").join(template_name);
+            println!("Copying checks {} to {:?}", template_name, checks_dest);
+            copy_dir_contents(&checks_src, &checks_dest)
+                .context(format!("Failed to copy checks {}", template_name))?;
+            std_command::new("git")
+                .arg("add")
+                .arg(format!("checks/{}", template_name))
+                .current_dir(target_dir)
+                .status()
+                .ok();
+        }
     }
     if target_dir.join("flake.nix").exists() {
         println!("Running nix fmt in target directory...");
@@ -116,6 +120,18 @@ fn set_permissions_recursive(path: &Path) -> Result<()> {
     } else {
         fs::set_permissions(path, fs::Permissions::from_mode(0o644))?;
     }
+    Ok(())
+}
+fn copy_dir_contents(src: &Path, dest: &Path) -> Result<()> {
+    if dest.exists() {
+        fs::remove_dir_all(dest).ok();
+    }
+    fs::create_dir_all(dest).context("Failed to create destination directory")?;
+    let mut options = fs_extra::dir::CopyOptions::new();
+    options.content_only = true;
+    options.overwrite = true;
+    fs_extra::dir::copy(src, dest, &options).context("Failed to copy directory contents")?;
+    set_permissions_recursive(dest).ok();
     Ok(())
 }
 fn get_available_templates() -> Result<Vec<(String, PathBuf)>> {

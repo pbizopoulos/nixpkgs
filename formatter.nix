@@ -113,11 +113,6 @@ let
             "format"
           ];
         };
-        csharpier = {
-          command = "${pkgs.csharpier}/bin/csharpier";
-          includes = [ "*.cs" ];
-          options = [ "format" ];
-        };
         kdlfmt = {
           command = "${pkgs.kdlfmt}/bin/kdlfmt";
           includes = [ "*.kdl" ];
