@@ -1,19 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.stdenv.mkDerivation rec {
-  buildInputs = [
-    pkgs.deno
-  ];
-  installPhase = ''
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "exec ${pkgs.deno}/bin/deno run --allow-net $out/share/deno/main.ts" >> $out/bin/${pname}
-    mkdir -p $out/share/deno
-    cp main.ts $out/share/deno/main.ts
-    chmod +x $out/bin/${pname}
-  '';
-  pname = baseNameOf ./.;
-  src = ./.;
-  version = "0.0.0";
-}
+pkgs.writeShellScriptBin (baseNameOf ./.) ''
+  exec ${pkgs.deno}/bin/deno run --allow-net ${./.}/main.ts "$@"
+''

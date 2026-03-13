@@ -2,13 +2,16 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  dontBuild = true;
+  buildPhase = ''
+    clang -o ${pname} main.m
+  '';
   installPhase = ''
     mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "echo 'Objective-C template (source only)'" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
+    cp ${pname} $out/bin/
   '';
+  nativeBuildInputs = [
+    pkgs.clang
+  ];
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";
