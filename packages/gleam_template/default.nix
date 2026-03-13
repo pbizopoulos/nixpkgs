@@ -9,10 +9,12 @@ pkgs.writeShellScriptBin (baseNameOf ./.) ''
       pkgs.gleam
     ]
   }:$PATH"
+  export NO_COLOR=1
+  export GLEAM_COLOR=never
   export HOME=''${TMPDIR:-/tmp}
   PROJECT_DIR=$(mktemp -d)
   cp -r ${./.}/. $PROJECT_DIR/
   cd $PROJECT_DIR
   chmod -R +w .
-  exec gleam run
+  gleam run >/tmp/gleam_template.log 2>&1 || { cat /tmp/gleam_template.log; exit 1; }
 ''
