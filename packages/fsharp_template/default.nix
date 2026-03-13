@@ -18,10 +18,10 @@ pkgs.stdenv.mkDerivation rec {
     makeWrapper ${pkgs.dotnet-runtime_9}/bin/dotnet $out/bin/${pname} \
       --add-flags "$out/lib/fsharp/fsharp.dll"
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

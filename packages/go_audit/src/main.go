@@ -1,5 +1,4 @@
 package main
-
 import (
 	"fmt"
 	"os"
@@ -7,7 +6,6 @@ import (
 	"path/filepath"
 	"strings"
 )
-
 func runCommand(name string, args ...string) error {
 	fmt.Printf("\n[bold blue]Running %s %s:[/bold blue]\n", name, strings.Join(args, " "))
 	cmd := exec.Command(name, args...)
@@ -23,7 +21,6 @@ func runCommand(name string, args ...string) error {
 	cmd.Stderr = os.Stderr
 	return cmd.Run()
 }
-
 func main() {
 	if os.Getenv("DEBUG") == "1" {
 		fmt.Println("Running tests...")

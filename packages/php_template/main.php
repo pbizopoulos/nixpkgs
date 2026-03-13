@@ -1,5 +1,4 @@
 <?php
-
 function run_tests()
 {
     if (1 + 1 !== 2) {

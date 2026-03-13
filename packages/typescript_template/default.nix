@@ -19,10 +19,10 @@ pkgs.stdenv.mkDerivation rec {
       }
     runHook postInstall
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

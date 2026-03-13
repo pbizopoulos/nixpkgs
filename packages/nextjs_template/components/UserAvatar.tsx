@@ -6,13 +6,11 @@ export function getAvatarColor(str: string): string {
   const hue = Math.abs(hash % 360);
   return `hsl(${hue}, 70%, 50%)`;
 }
-
 interface UserAvatarProps {
   username?: string | null;
   size?: number;
   className?: string;
 }
-
 export default function UserAvatar({
   username,
   size = 32,
@@ -20,7 +18,6 @@ export default function UserAvatar({
 }: UserAvatarProps) {
   const initials = username?.slice(0, 2).toUpperCase();
   const bgColor = username ? getAvatarColor(username) : "#e5e5e5";
-
   return (
     <div
       className={className}

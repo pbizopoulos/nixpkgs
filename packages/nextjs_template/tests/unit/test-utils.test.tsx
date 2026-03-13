@@ -5,7 +5,6 @@ import {
   mockUseAuth,
   suppressNavigationWarnings,
 } from "./test-utils";
-
 describe("test-utils", () => {
   it("should test mockUseAuth", () => {
     const auth = mockUseAuth({ user: { id: "custom" } as any });
@@ -14,7 +13,6 @@ describe("test-utils", () => {
     auth.openAuthModal();
     auth.closeAuthModal();
   });
-
   it("should test mockNextNavigation", () => {
     const nav = mockNextNavigation();
     const router = nav.useRouter();
@@ -24,7 +22,6 @@ describe("test-utils", () => {
     router.forward();
     router.refresh();
     router.prefetch("/");
-
     expect(nav.usePathname()).toBe("/");
     const searchParams = nav.useSearchParams();
     searchParams.get("key");
@@ -36,7 +33,6 @@ describe("test-utils", () => {
     searchParams.values();
     searchParams.toString();
   });
-
   it("should test mockToast", () => {
     const t = mockToast();
     t.toast.success("ok");
@@ -44,7 +40,6 @@ describe("test-utils", () => {
     expect(t.mocks.toastSuccess).toHaveBeenCalledWith("ok");
     expect(t.mocks.toastError).toHaveBeenCalledWith("error");
   });
-
   it("should test suppressNavigationWarnings", () => {
     const passthrough = vi.fn();
     const sw = suppressNavigationWarnings({ logger: passthrough });

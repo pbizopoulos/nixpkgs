@@ -12,10 +12,10 @@ pkgs.stdenv.mkDerivation rec {
     makeWrapper ${pkgs.jre}/bin/java $out/bin/${pname} \
       --add-flags "-cp $out/share/kotlin/${pname}.jar MainKt"
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

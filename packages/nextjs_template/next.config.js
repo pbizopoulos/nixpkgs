@@ -5,5 +5,4 @@ const nextConfig = {
     optimizePackageImports: ["@supabase/ssr"],
   },
 };
-
 export default nextConfig;

@@ -1,13 +1,10 @@
 "use client";
-
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useState } from "react";
-
 type Profile = {
   username: string | null;
 };
-
 type AuthContextType = {
   user: User | null;
   profile: Profile | null;
@@ -19,9 +16,7 @@ type AuthContextType = {
   openAuthModal: (redirectPath?: string) => void;
   closeAuthModal: () => void;
 };
-
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -30,10 +25,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authModalRedirectPath, setAuthModalRedirectPath] = useState<
     string | null
   >(null);
-
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
   const [supabase] = useState(() =>
     createBrowserClient(supabaseUrl, supabaseKey, {
       global: {
@@ -93,10 +86,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       },
     }),
   );
-
   useEffect(() => {
     let isMounted = true;
-
     const fetchProfile = async (userId: string) => {
       const { data: profileData } = await supabase
         .from("users")
@@ -107,7 +98,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(profileData);
       }
     };
-
     const initUser = async () => {
       try {
         const {
@@ -127,9 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     };
-
     initUser();
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
@@ -144,19 +132,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     });
-
     return () => {
       isMounted = false;
       subscription.unsubscribe();
     };
   }, [supabase]);
-
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setProfile(null);
   };
-
   const openAuthModal = (redirectPath?: string) => {
     setAuthModalRedirectPath(redirectPath || null);
     setIsAuthModalOpen(true);
@@ -165,7 +150,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthModalOpen(false);
     setAuthModalRedirectPath(null);
   };
-
   return (
     <AuthContext.Provider
       value={{
@@ -184,7 +168,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   );
 }
-
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

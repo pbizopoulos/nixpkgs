@@ -11,10 +11,10 @@ pkgs.stdenv.mkDerivation rec {
     makeWrapper ${pkgs.erlang}/bin/escript $out/bin/${pname} \
       --add-flags "$out/share/erlang/main.erl"
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

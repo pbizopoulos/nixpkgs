@@ -12,10 +12,10 @@ pkgs.stdenv.mkDerivation rec {
     makeWrapper ${pkgs.jdk}/bin/java $out/bin/${pname} \
       --add-flags "-cp $out/share/java Main"
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

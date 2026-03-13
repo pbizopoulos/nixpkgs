@@ -8,7 +8,9 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.base
     pkgs.haskellPackages.bytestring
   ];
-  executableToolDepends = [ pkgs.makeWrapper ];
+  executableToolDepends = [
+    pkgs.makeWrapper
+  ];
   pname = baseNameOf ./.;
   postInstall = ''
     wrapProgram $out/bin/${pname} --run "rm -f tmp/${pname}.tix" --set-default HPCTIXFILE tmp/${pname}.tix

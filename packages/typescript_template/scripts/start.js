@@ -4,7 +4,6 @@ import { cpSync, existsSync, mkdirSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-
 const __dirname = dirname(fileURLToPath(import.meta.url));
 let packageRoot = join(__dirname, "..");
 if (__dirname.endsWith("/bin")) {

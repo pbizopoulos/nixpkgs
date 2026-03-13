@@ -1,10 +1,8 @@
 import { expect, test } from "@playwright/test";
-
 test.describe("Lighthouse-style Performance Audits", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
   });
-
   test("Page should load within performance budget", async ({ page }) => {
     const performanceTiming = await page.evaluate(async () => {
       const getPaintMetric = (name: string) =>
@@ -27,7 +25,6 @@ test.describe("Lighthouse-style Performance Audits", () => {
             resolve(0);
           }, 5000);
         });
-
       const navigationEntry = performance.getEntriesByType(
         "navigation",
       )[0] as PerformanceNavigationTiming;
@@ -37,16 +34,13 @@ test.describe("Lighthouse-style Performance Audits", () => {
         firstContentfulPaint: await getPaintMetric("first-contentful-paint"),
       };
     });
-
     const MAX_LOAD_TIME = 2000;
     const MAX_FCP = 1500;
-
     expect(performanceTiming.loadEventEnd).toBeLessThan(MAX_LOAD_TIME);
     if (performanceTiming.firstContentfulPaint > 0) {
       expect(performanceTiming.firstContentfulPaint).toBeLessThan(MAX_FCP);
     }
   });
-
   test("Missing routes should return 404 and be readable", async ({ page }) => {
     const response = await page.goto("/api/non-existent-route-that-should-404");
     expect(response?.status()).toBe(404);

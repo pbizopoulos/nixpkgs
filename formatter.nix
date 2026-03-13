@@ -33,7 +33,9 @@ let
       erlfmt.enable = true;
       fantomas = {
         enable = true;
-        excludes = [ "*.ml" ];
+        excludes = [
+          "*.ml"
+        ];
       };
       fnlfmt.enable = true;
       fourmolu.enable = true;
@@ -45,7 +47,9 @@ let
       hlint.enable = true;
       jsonfmt = {
         enable = true;
-        excludes = [ "**/tsconfig.json" ];
+        excludes = [
+          "**/tsconfig.json"
+        ];
       };
       jsonnet-lint.enable = true;
       jsonnetfmt.enable = true;
@@ -60,11 +64,13 @@ let
       oxipng.enable = true;
       php-cs-fixer.enable = true;
       prettier.enable = true;
-      ruff-format.enable = true;
       ruff-check = {
         enable = true;
-        extendSelect = [ "ALL" ];
+        extendSelect = [
+          "ALL"
+        ];
       };
+      ruff-format.enable = true;
       rufo.enable = true;
       rustfmt.enable = true;
       scalafmt.enable = true;
@@ -89,7 +95,9 @@ let
       formatter = {
         bibtex-tidy = {
           command = pkgs.bibtex-tidy;
-          includes = [ "*.bib" ];
+          includes = [
+            "*.bib"
+          ];
           options = [
             "--duplicates"
             "--no-align"
@@ -99,15 +107,21 @@ let
             "--v2"
           ];
         };
-        biome.options = [ "--max-diagnostics=none" ];
+        biome.options = [
+          "--max-diagnostics=none"
+        ];
         check_repository_directory_structure = {
           command = inputs.self.packages.${pkgs.stdenv.system}.check_repository_directory_structure;
-          includes = [ "flake.nix" ];
+          includes = [
+            "flake.nix"
+          ];
           priority = 0;
         };
         crystal = {
           command = "${pkgs.crystal}/bin/crystal";
-          includes = [ "*.cr" ];
+          includes = [
+            "*.cr"
+          ];
           options = [
             "tool"
             "format"
@@ -115,17 +129,27 @@ let
         };
         kdlfmt = {
           command = "${pkgs.kdlfmt}/bin/kdlfmt";
-          includes = [ "*.kdl" ];
-          options = [ "format" ];
+          includes = [
+            "*.kdl"
+          ];
+          options = [
+            "format"
+          ];
         };
         ktlint = {
           command = "${pkgs.ktlint}/bin/ktlint";
-          includes = [ "*.kt" ];
-          options = [ "-F" ];
+          includes = [
+            "*.kt"
+          ];
+          options = [
+            "-F"
+          ];
         };
         mypy = {
           command = pkgs.mypy;
-          includes = [ "*.py" ];
+          includes = [
+            "*.py"
+          ];
           options = [
             "--cache-dir=/tmp/.mypy_cache"
             "--explicit-package-bases"
@@ -133,24 +157,50 @@ let
             "--strict"
           ];
         };
-        php-cs-fixer.options = [ "--allow-risky=yes" ];
-        prettier.options = [ "--max-diagnostics=none" ];
-        ruff-format.options = [ "--cache-dir=/tmp/.ruff_cache" ];
-        rustfmt.priority = 1;
-        shfmt.options = [ "--posix" ];
-        ssort = {
-          command = pkgs.python3Packages.ssort;
-          includes = [ "*.py" ];
-          priority = 1;
+        nix-alphabetize = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.nix-alphabetize;
+          includes = [
+            "*.nix"
+          ];
+          priority = 0;
         };
-        uncomment = {
-          command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
-          includes = [ "*" ];
+        php-cs-fixer.options = [
+          "--allow-risky=yes"
+        ];
+        prettier.options = [
+          "--max-diagnostics=none"
+        ];
+        remove_empty_lines = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.remove_empty_lines;
+          includes = [
+            "*"
+          ];
+          priority = 0;
         };
         ruff-check.options = [
           "--cache-dir=/tmp/.ruff_cache"
           "--unsafe-fixes"
         ];
+        ruff-format.options = [
+          "--cache-dir=/tmp/.ruff_cache"
+        ];
+        rustfmt.priority = 1;
+        shfmt.options = [
+          "--posix"
+        ];
+        ssort = {
+          command = pkgs.python3Packages.ssort;
+          includes = [
+            "*.py"
+          ];
+          priority = 1;
+        };
+        uncomment = {
+          command = inputs.self.packages.${pkgs.stdenv.system}.uncomment;
+          includes = [
+            "*"
+          ];
+        };
       };
       global.excludes = [
         "*/prm/**"

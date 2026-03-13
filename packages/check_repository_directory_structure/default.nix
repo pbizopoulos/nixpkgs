@@ -7,12 +7,12 @@ pkgs.rustPlatform.buildRustPackage rec {
     pkgs.zlib
   ];
   cargoHash = "sha256-R3cJZIt3pbFznqQzl4dIlehqwPdeYyqN1yy8M6WftMc=";
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.git
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

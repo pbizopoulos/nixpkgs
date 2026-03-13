@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 void run_tests(void) {
     if (1 + 1 == 2) {
         printf("test ... ok\n");
@@ -9,7 +8,6 @@ void run_tests(void) {
         printf("test math failed\n");
     }
 }
-
 int main(int argc, char *argv[]) {
     (void)argc;
     (void)argv;

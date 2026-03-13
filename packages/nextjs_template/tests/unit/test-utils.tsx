@@ -1,6 +1,5 @@
 import type { User } from "@supabase/supabase-js";
 import { vi } from "vitest";
-
 // --- Auth Mocks ---
 export const mockUseAuth = (overrides: Partial<any> = {}) => {
   const defaultAuth = {
@@ -16,7 +15,6 @@ export const mockUseAuth = (overrides: Partial<any> = {}) => {
   };
   return { ...defaultAuth, ...overrides };
 };
-
 export const mockNextNavigation = () => {
   const push = vi.fn();
   const replace = vi.fn();
@@ -24,7 +22,6 @@ export const mockNextNavigation = () => {
   const forward = vi.fn();
   const refresh = vi.fn();
   const prefetch = vi.fn();
-
   return {
     useRouter: vi.fn(() => ({
       push,
@@ -48,7 +45,6 @@ export const mockNextNavigation = () => {
     mocks: { push, replace, back, forward, refresh, prefetch },
   };
 };
-
 export const mockToast = () => {
   const toastSuccess = vi.fn();
   const toastError = vi.fn();
@@ -58,12 +54,10 @@ export const mockToast = () => {
   };
   return { toast, mocks: { toastSuccess, toastError } };
 };
-
 export const suppressNavigationWarnings = (
   options: { logger?: (...args: unknown[]) => void } = {},
 ) => {
   const originalConsoleError = options.logger ?? console.error;
-
   const setup = () => {
     vi.spyOn(console, "error").mockImplementation((msg, ...args) => {
       if (
@@ -78,10 +72,8 @@ export const suppressNavigationWarnings = (
       originalConsoleError(msg, ...args);
     });
   };
-
   const cleanup = () => {
     vi.restoreAllMocks();
   };
-
   return { setup, cleanup };
 };

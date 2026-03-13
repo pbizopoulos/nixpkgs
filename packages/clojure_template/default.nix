@@ -11,11 +11,9 @@ let
 in
 pkgs.stdenv.mkDerivation rec {
   inherit pname;
-  version = "0.0.0";
-  src = ./.;
-
-  buildInputs = [ pkgs.clojure ];
-
+  buildInputs = [
+    pkgs.clojure
+  ];
   installPhase = ''
     mkdir -p $out/bin $out/lib/${pname}
     cp -r . $out/lib/${pname}
@@ -23,4 +21,6 @@ pkgs.stdenv.mkDerivation rec {
     cp -r ${script}/bin/* $out/bin/
   '';
   meta.mainProgram = pname;
+  src = ./.;
+  version = "0.0.0";
 }

@@ -9,10 +9,10 @@ pkgs.stdenv.mkDerivation rec {
   installPhase = ''
     install -Dm755 ${pname} $out/bin/${pname}
   '';
+  meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.vlang
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

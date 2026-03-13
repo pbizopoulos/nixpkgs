@@ -1,17 +1,14 @@
 "use client";
-
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "./AuthProvider";
 import UserAvatar from "./UserAvatar";
-
 export default function Header() {
   const router = useRouter();
   const { user, profile, signOut, openAuthModal } = useAuth();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (
@@ -24,19 +21,15 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
   const handleSignOut = async () => {
     setDropdownOpen(false);
     await signOut();
     router.push("/");
   };
-
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
   if (!mounted) {
     return (
       <header>
@@ -51,7 +44,6 @@ export default function Header() {
       </header>
     );
   }
-
   return (
     <header>
       <div>
@@ -59,7 +51,6 @@ export default function Header() {
           <span>Minimal App</span>
         </Link>
       </div>
-
       <div>
         {user ? (
           <div ref={dropdownRef}>
@@ -72,7 +63,6 @@ export default function Header() {
             >
               <UserAvatar username={profile?.username ?? null} size={28} />
             </button>
-
             {dropdownOpen && (
               <div role="menu">
                 <div>
