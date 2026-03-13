@@ -1,17 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  pname = baseNameOf ./.;
-  src = ./.;
-  version = "0.0.0";
-in
 pkgs.stdenv.mkDerivation rec {
-  inherit
-    pname
-    version
-    src
-    ;
   buildInputs = [
     pkgs.clojure
   ];
@@ -32,4 +22,7 @@ pkgs.stdenv.mkDerivation rec {
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
+  pname = baseNameOf ./.;
+  src = ./.;
+  version = "0.0.0";
 }

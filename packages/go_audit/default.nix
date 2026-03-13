@@ -1,14 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  auditing-tools = [
-    pkgs.go
-    pkgs.gosec
-    pkgs.govulncheck
-    pkgs.nix
-  ];
-in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.go
@@ -22,7 +14,12 @@ pkgs.stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cp ${pname} $out/bin/
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath auditing-tools}
+      --prefix PATH : ${pkgs.lib.makeBinPath [
+        pkgs.go
+        pkgs.gosec
+        pkgs.govulncheck
+        pkgs.nix
+      ]}
   '';
   meta = {
     mainProgram = pname;

@@ -1,13 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  python = pkgs.python313.withPackages (ps: [
-    ps.coverage
-    ps.scalene
-    ps.typer
-  ]);
-in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     python
@@ -34,6 +27,11 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.makeWrapper
   ];
   pname = baseNameOf ./.;
+  python = pkgs.python313.withPackages (ps: [
+    ps.coverage
+    ps.scalene
+    ps.typer
+  ]);
   src = ./.;
   version = "0.0.0";
 }

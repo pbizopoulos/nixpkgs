@@ -1,10 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  inherit (pkgs) rustPlatform;
-in
-rustPlatform.buildRustPackage rec {
+pkgs.rustPlatform.buildRustPackage rec {
   buildInputs = [
     pkgs.openssl
     pkgs.zlib
@@ -15,7 +12,7 @@ rustPlatform.buildRustPackage rec {
     pkgs.git
     pkgs.makeWrapper
     pkgs.pkg-config
-    rustPlatform.bindgenHook
+    pkgs.rustPlatform.bindgenHook
   ];
   pname = baseNameOf ./.;
   postInstall = ''

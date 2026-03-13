@@ -1,12 +1,6 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  auditing-tools = [
-    pkgs.nix
-    pkgs.nodejs
-  ];
-in
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.nodejs
@@ -14,10 +8,13 @@ pkgs.stdenv.mkDerivation rec {
   dontUnpack = true;
   installPhase = ''
     mkdir -p $out/bin
-    cp ${./main.js} $out/bin/${pname}
+    cp ${src}/main.js $out/bin/${pname}
     chmod +x $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath auditing-tools}
+      --prefix PATH : ${pkgs.lib.makeBinPath [
+        pkgs.nix
+        pkgs.nodejs
+      ]}
   '';
   meta = {
     mainProgram = pname;

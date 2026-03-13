@@ -1,22 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  inherit (pkgs) rustPlatform;
-  auditing-tools = [
-    pkgs.cargo
-    pkgs.cargo-audit
-    pkgs.cargo-bloat
-    pkgs.cargo-deny
-    pkgs.cargo-flamegraph
-    pkgs.cargo-geiger
-    pkgs.cargo-llvm-cov
-    pkgs.nix
-    pkgs.rustc
-    pkgs.stdenv.cc
-  ];
-in
-rustPlatform.buildRustPackage rec {
+pkgs.rustPlatform.buildRustPackage rec {
   buildInputs = [
     pkgs.openssl
     pkgs.zlib
@@ -30,7 +15,20 @@ rustPlatform.buildRustPackage rec {
   pname = baseNameOf ./.;
   postInstall = ''
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath auditing-tools} \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.cargo
+          pkgs.cargo-audit
+          pkgs.cargo-bloat
+          pkgs.cargo-deny
+          pkgs.cargo-flamegraph
+          pkgs.cargo-geiger
+          pkgs.cargo-llvm-cov
+          pkgs.nix
+          pkgs.rustc
+          pkgs.stdenv.cc
+        ]
+      } \
       --set RUST_SRC_PATH ${pkgs.rustPlatform.rustLibSrc}
   '';
   src = ./.;

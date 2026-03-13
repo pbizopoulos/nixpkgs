@@ -1,13 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-let
-  pname = baseNameOf ./.;
-in
-pkgs.stdenv.mkDerivation {
-  inherit pname;
-  src = ./.;
-  version = "0.0.0";
+pkgs.stdenv.mkDerivation rec {
   dontBuild = true;
   installPhase = ''
     mkdir -p $out/lib/${pname}
@@ -19,4 +13,7 @@ exec ${pkgs.godot_4}/bin/godot4 --headless --path $out/lib/${pname}
 EOF
     chmod +x $out/bin/${pname}
   '';
+  pname = baseNameOf ./.;
+  src = ./.;
+  version = "0.0.0";
 }
