@@ -2,15 +2,20 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
-  buildInputs = [ pkgs.micropython ];
+  buildInputs = [
+    pkgs.micropython
+  ];
   installPhase = ''
     mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "exec ${pkgs.micropython}/bin/micropython $out/share/micropython/main.py" >> $out/bin/${pname}
-    mkdir -p $out/share/micropython
-    cp main.py $out/share/micropython/main.py
+    mkdir -p $out/lib/${pname}
+    cp main.py $out/lib/${pname}/main.py
+    cat <<EOF > $out/bin/${pname}
+#!/bin/sh
+exec ${pkgs.micropython}/bin/micropython $out/lib/${pname}/main.py
+EOF
     chmod +x $out/bin/${pname}
   '';
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

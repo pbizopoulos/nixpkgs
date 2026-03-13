@@ -1,25 +1,22 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.stdenv.mkDerivation rec {
-  buildInputs = [
-    pkgs.godot_4
-  ];
-  dontBuild = true;
-  installPhase = ''
-    runHook preInstall
-    mkdir -p $out/lib/${pname}
-    cp -rL . $out/lib/${pname}
-    mkdir -p $out/bin
-    echo "#!/bin/sh" > $out/bin/${pname}
-    echo "exec ${pkgs.godot_4}/bin/godot4 --path $out/lib/${pname}" >> $out/bin/${pname}
-    chmod +x $out/bin/${pname}
-    runHook postInstall
-  '';
-  nativeBuildInputs = [
-    pkgs.makeWrapper
-  ];
+let
   pname = baseNameOf ./.;
+in
+pkgs.stdenv.mkDerivation {
+  inherit pname;
   src = ./.;
   version = "0.0.0";
+  dontBuild = true;
+  installPhase = ''
+    mkdir -p $out/lib/${pname}
+    cp -r . $out/lib/${pname}
+    mkdir -p $out/bin
+    cat <<EOF > $out/bin/${pname}
+#!/bin/sh
+exec ${pkgs.godot_4}/bin/godot4 --headless --path $out/lib/${pname}
+EOF
+    chmod +x $out/bin/${pname}
+  '';
 }
