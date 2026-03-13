@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void run_tests() {
+void run_tests(void) {
     if (1 + 1 == 2) {
         printf("test ... ok\n");
     } else {
@@ -11,6 +11,8 @@ void run_tests() {
 }
 
 int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     const char *debug = getenv("DEBUG");
     if (debug && strcmp(debug, "1") == 0) {
         run_tests();

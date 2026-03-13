@@ -2,5 +2,5 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.writeShellScriptBin (baseNameOf ./.) ''
-  exec ${pkgs.lua}/bin/lua -W ${./.}/main.lua "$@"
+  exec ${pkgs.lua5_4}/bin/lua -W ${./.}/main.lua "$@"
 ''
