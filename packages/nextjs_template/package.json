@@ -12,6 +12,7 @@
     "build": "next build",
     "start": "next start",
     "test": "npm run test:types && npm run lint:db && npm run test:unit && npm run test:e2e && npm run test:db && npm run test:cpd && npm run test:deps && npm run test:mutation && npm run test:mutation:metrics && npm run test:audit",
+    "test:ci": "npm run test:types && npm run test:unit",
     "lint:db": "supabase db lint --fail-on warning",
     "test:db": "supabase test db",
     "test:types": "tsc",

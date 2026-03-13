@@ -1,14 +1,19 @@
-{ inputs
-  , pkgs
-  , ... }:
-  let
-    name = "elixir_template";
-    package = inputs.self.packages.${pkgs.stdenv.system}.${name};
-  in pkgs.runCommand "check-${name}" {
+{
+  inputs,
+  pkgs,
+  ...
+}:
+let
+  pname = baseNameOf ./.;
+  package = inputs.self.packages.${pkgs.stdenv.system}.${pname};
+in
+pkgs.runCommand "check-${pname}"
+  {
     buildInputs = [
       package
     ];
-  } ''
-    DEBUG=1 SKIP_SUPABASE=1 SKIP_DB=1 ${name}
+  }
+  ''
+    DEBUG=1 ${pname}
     touch $out
-    ''
+  ''

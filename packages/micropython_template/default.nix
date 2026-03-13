@@ -12,7 +12,7 @@ pkgs.stdenv.mkDerivation rec {
     cp main.py $out/share/micropython/main.py
     chmod +x $out/bin/${pname}
   '';
-  pname = "micropython_template";
+  pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";
 }

@@ -1,7 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.buildNpmPackage {
+pkgs.buildNpmPackage rec {
   nativeBuildInputs = [
     pkgs.supabase-cli
     pkgs.openssl

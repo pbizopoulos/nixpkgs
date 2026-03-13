@@ -1,11 +1,13 @@
-{ pkgs ? import <nixpkgs> {} }:
-  pkgs.stdenv.mkDerivation rec {
-    buildInputs = [
-      pkgs.ocaml
-    ];
-    buildPhase = "ocamlc -o ${pname} main.ml";
-    installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
-    pname = "ocaml_template";
-    src = ./.;
-    version = "0.0.0";
-  }
+{
+  pkgs ? import <nixpkgs> { },
+}:
+pkgs.stdenv.mkDerivation rec {
+  buildInputs = [
+    pkgs.ocaml
+  ];
+  buildPhase = "ocamlc -o ${pname} main.ml";
+  installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
+  pname = baseNameOf ./.;
+  src = ./.;
+  version = "0.0.0";
+}

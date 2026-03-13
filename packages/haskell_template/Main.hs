@@ -1,11 +1,21 @@
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE LambdaCase  #-}
+{-# LANGUAGE Trustworthy #-}
+{-# OPTIONS_GHC -Wno-prepositive-qualified-module -Wno-unsafe -Wno-safe #-}
 
 module Main (main) where
 
-import           System.Environment (lookupEnv)
+import qualified Data.Aeson           as A
+import qualified Data.ByteString.Lazy as BL
+import           Prelude              (IO, Maybe (Just), pure, putStrLn, (>>=))
+import           System.Environment   (lookupEnv)
+import qualified Test.HUnit           as H
 
 main :: IO ()
 main =
   lookupEnv "DEBUG" >>= \case
-    Just "1" -> putStrLn "test ... ok"
+    Just "1" -> do
+      let _ = A.encode (A.object [])
+      let _ = BL.empty
+      let _ = H.TestCase (pure ())
+      putStrLn "test ... ok"
     _ -> putStrLn "Hello World"

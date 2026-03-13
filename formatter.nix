@@ -53,9 +53,9 @@ let
       mdsh.enable = true;
       mix-format.enable = true;
       nimpretty.enable = true;
-      nixfmt.enable = false;
+      nixfmt.enable = true;
       ocamlformat.enable = true;
-      odinfmt.enable = false;
+      odinfmt.enable = true;
       ormolu.enable = true;
       oxipng.enable = true;
       php-cs-fixer.enable = true;
