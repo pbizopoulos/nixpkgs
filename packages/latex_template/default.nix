@@ -1,25 +1,28 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.writeShellScriptBin (baseNameOf ./.) ''
-  if [ "$DEBUG" = "1" ]; then
-    echo "test ... ok"
-    exit 0
-  fi
+pkgs.stdenv.mkDerivation rec {
+  pname = baseNameOf ./.;
+  version = "0.0.0";
+  src = ./.;
 
-  export HOME=''${TMPDIR:-/tmp}
-  BUILD_DIR=$(mktemp -d)
-  cp -r ${./.}/. "$BUILD_DIR/"
-  cd "$BUILD_DIR"
+  nativeBuildInputs = [
+    pkgs.texliveFull
+  ];
 
-  echo "Building LaTeX PDF..."
-  ${pkgs.texliveFull}/bin/latexmk -pdf -interaction=nonstopmode ms.tex > /dev/null 2>&1
+  buildPhase = ''
+    export HOME=$TMPDIR
+    latexmk -pdf -interaction=nonstopmode ms.tex > /dev/null 2>&1
+  '';
 
-  if [ -f ms.pdf ]; then
+  installPhase = ''
+    install -Dm644 ms.pdf $out/share/ms.pdf
+    install -Dm755 /dev/stdin $out/bin/${pname} <<EOF
+    #!/usr/bin/env bash
     echo "Hello World"
-    echo "PDF built successfully: $BUILD_DIR/ms.pdf"
-  else
-    echo "Failed to build PDF"
-    exit 1
-  fi
-''
+    echo "PDF: $out/share/ms.pdf"
+    EOF
+  '';
+
+  meta.mainProgram = pname;
+}
