@@ -28,7 +28,15 @@ pkgs.buildNpmPackage rec {
     cp -r . $out/lib/node_modules/${pname}/
     makeWrapper ${pkgs.nodejs}/bin/node $out/bin/${pname} \
       --add-flags "$out/lib/node_modules/${pname}/scripts/start.js" \
-      --prefix PATH : ${pkgs.lib.makeBinPath [ pkgs.nodejs pkgs.nodePackages.npm pkgs.supabase-cli pkgs.git pkgs.openssl ]} \
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.nodejs
+          pkgs.nodePackages.npm
+          pkgs.supabase-cli
+          pkgs.git
+          pkgs.openssl
+        ]
+      } \
       --set PLAYWRIGHT_BROWSERS_PATH ${pkgs.playwright-driver.browsers} \
       --set NEXT_PUBLIC_SUPABASE_URL "http://localhost:54321" \
       --set NEXT_PUBLIC_SUPABASE_ANON_KEY "build-placeholder"

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { spawn, execSync } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { mkdtempSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const nextBin = join(__dirname, "../node_modules/.bin/next");
@@ -26,15 +26,12 @@ const startNext = async () => {
     const tmpProjectDir = mkdtempSync(join(tmpdir(), "nextjs-test-"));
     try {
       console.log(`Copying project to ${tmpProjectDir}...`);
-      // Use cp -a to preserve symlinks
       execSync(`cp -a ${projectRoot}/. ${tmpProjectDir}/`);
-      // Ensure everything is writable (since source was read-only)
       execSync(`chmod -R +w ${tmpProjectDir}`);
-      
+
       const npmCode = await runCommand("npm", ["test"], tmpProjectDir);
       process.exit(npmCode);
     } finally {
-      // rmSync(tmpProjectDir, { recursive: true, force: true });
     }
   }
 

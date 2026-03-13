@@ -1,10 +1,15 @@
-{ pkgs ? import <nixpkgs> { } }:
+{
+  pkgs ? import <nixpkgs> { },
+}:
 pkgs.stdenv.mkDerivation rec {
   pname = baseNameOf ./.;
   version = "0.0.0";
   src = ./.;
 
-  nativeBuildInputs = [ pkgs.coffeescript pkgs.makeWrapper ];
+  nativeBuildInputs = [
+    pkgs.coffeescript
+    pkgs.makeWrapper
+  ];
   buildInputs = [ pkgs.nodejs ];
 
   buildPhase = "coffee -c main.coffee";
