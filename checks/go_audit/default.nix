@@ -14,6 +14,6 @@ pkgs.runCommand "check-${pname}"
     ];
   }
   ''
-    DEBUG=1 ${pname}
+    ${pname}
     touch $out
   ''

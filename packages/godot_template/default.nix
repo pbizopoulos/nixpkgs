@@ -12,7 +12,6 @@ pkgs.stdenv.mkDerivation rec {
     cp -rL . $out/lib/${pname}
     mkdir -p $out/bin
     echo "#!/bin/sh" > $out/bin/${pname}
-    echo 'if [ "$DEBUG" = "1" ]; then echo "Smoke testing ${pname}"; exit 0; fi' >> $out/bin/${pname}
     echo "exec ${pkgs.godot_4}/bin/godot4 --path $out/lib/${pname}" >> $out/bin/${pname}
     chmod +x $out/bin/${pname}
     runHook postInstall

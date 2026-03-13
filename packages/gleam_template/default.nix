@@ -1,23 +1,17 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.stdenv.mkDerivation rec {
-  buildInputs = [
-    pkgs.bash
-  ];
-  installPhase = ''
-        mkdir -p $out/bin
-        cat <<EOF > $out/bin/${pname}
-    #!/usr/bin/env bash
-    if [ "\$DEBUG" == "1" ]; then
-      echo "test ... ok"
-    else
-      echo "Hello World"
-    fi
-    EOF
-        chmod +x $out/bin/${pname}
-  '';
+let
   pname = baseNameOf ./.;
   src = ./.;
-  version = "0.0.0";
-}
+  script = pkgs.writeShellScriptBin pname ''
+    export PATH="${pkgs.lib.makeBinPath [ pkgs.gleam pkgs.erlang pkgs.coreutils ]}:$PATH"
+    export HOME=''${TMPDIR:-/tmp}
+    PROJECT_DIR=$(mktemp -d)
+    cp -r ${src}/. $PROJECT_DIR/
+    cd $PROJECT_DIR
+    chmod -R +w .
+    exec gleam run
+  '';
+in
+script

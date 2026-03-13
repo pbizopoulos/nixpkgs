@@ -11,11 +11,7 @@ pkgs.stdenv.mkDerivation rec {
         cp main.swift $out/share/${pname}/main.swift
         cat <<EOF > $out/bin/${pname}
     #!/bin/sh
-    if [ "\$DEBUG" == "1" ]; then
-      echo "test ... ok"
-    else
-      exec ${pkgs.swift}/bin/swift $out/share/${pname}/main.swift
-    fi
+    exec ${pkgs.swift}/bin/swift $out/share/${pname}/main.swift
     EOF
         chmod +x $out/bin/${pname}
   '';
