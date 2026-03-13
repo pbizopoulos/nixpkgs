@@ -1,0 +1,18 @@
+name:          nix-alphabetize
+version:       0.0.0
+synopsis:
+  Sorts attributes alphabetically, using dotted notation for attributes with sets or lists, and nested notation otherwise.
+cabal-version: >=1.2
+build-type:    Simple
+executable nix-alphabetize
+  main-is:       Main.hs
+  build-depends:
+      base
+    , data-fix
+    , hnix
+    , HUnit
+    , megaparsec
+    , prettyprinter
+    , temporary
+    , text
+  ghc-options:   -O2 -Weverything -Werror
