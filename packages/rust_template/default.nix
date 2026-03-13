@@ -11,12 +11,12 @@ pkgs.rustPlatform.buildRustPackage rec {
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
+  pname = baseNameOf ./.;
   postInstall = ''
     cargo clippy -- -D warnings
     cargo test
     DEBUG=1 $out/bin/${pname}
   '';
-  pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";
 }

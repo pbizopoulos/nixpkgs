@@ -6,17 +6,17 @@ pkgs.stdenv.mkDerivation rec {
     export HOME=$TMPDIR
     ${pkgs.vlang}/bin/v -W -o ${pname} main.v
   '';
-  installPhase = ''
-    install -Dm755 ${pname} $out/bin/${pname}
-  '';
   checkPhase = ''
     DEBUG=1 valgrind --leak-check=full --error-exitcode=1 ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
+  installPhase = ''
+    install -Dm755 ${pname} $out/bin/${pname}
+  '';
   meta.mainProgram = pname;
   nativeCheckInputs = [
-    pkgs.vlang
     pkgs.valgrind
+    pkgs.vlang
   ];
   pname = baseNameOf ./.;
   src = ./.;

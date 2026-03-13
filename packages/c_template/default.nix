@@ -107,16 +107,20 @@ pkgs.stdenv.mkDerivation rec {
     -Wl,-z,relro,-z,now \
     -Wl,-z,noexecstack
   '';
-  installPhase = ''
-    install -Dm755 ${pname} $out/bin/${pname}
-  '';
   checkPhase = ''
+    clang-tidy main.c -- -std=c89 -I${pkgs.stdenv.cc.libc.dev}/include -I${pkgs.lib.getDev pkgs.stdenv.cc.cc}/include
     cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem .
     ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
-  nativeCheckInputs = [ pkgs.cppcheck ];
+  installPhase = ''
+    install -Dm755 ${pname} $out/bin/${pname}
+  '';
   meta.mainProgram = pname;
+  nativeCheckInputs = [
+    pkgs.clang-tools
+    pkgs.cppcheck
+  ];
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";
