@@ -3,8 +3,8 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [ ];
-  buildPhase = "HOME=$TMPDIR zig build -Doptimize=ReleaseSafe --prefix $out";
-  installPhase = ":";
+  buildPhase = "HOME=$TMPDIR zig build -Doptimize=ReleaseSafe";
+  installPhase = "HOME=$TMPDIR zig build install --prefix $out";
   nativeBuildInputs = [
     pkgs.zig
   ];
