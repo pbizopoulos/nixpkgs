@@ -15,5 +15,5 @@ pkgs.rustPlatform.buildRustPackage rec {
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
-  version = "0.1.0";
+  version = "0.0.0";
 }

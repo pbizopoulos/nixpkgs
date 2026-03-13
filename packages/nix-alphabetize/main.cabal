@@ -13,7 +13,6 @@ executable nix-alphabetize
     , data-fix
     , hnix
     , HUnit
-    , megaparsec
     , prettyprinter
     , temporary
     , text
