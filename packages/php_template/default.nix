@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cp main.php $out/bin/${pname}.php
     makeWrapper ${pkgs.php}/bin/php $out/bin/${pname} \
-      --add-flags "$out/bin/${pname}.php"
+      --add-flags "-d display_errors=1 -d error_reporting=E_ALL $out/bin/${pname}.php"
   '';
   nativeBuildInputs = [
     pkgs.makeWrapper

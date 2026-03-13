@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.nim
   ];
-  buildPhase = "HOME=$TMPDIR nim c -o:nim main.nim";
+  buildPhase = "HOME=\$TMPDIR nim c --warningAsError:on -o:nim main.nim";
   installPhase = "mkdir -p $out/bin && cp nim $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;

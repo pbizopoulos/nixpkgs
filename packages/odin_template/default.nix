@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.odin
   ];
-  buildPhase = "HOME=$TMPDIR odin build . -out:${pname} -o:speed";
+  buildPhase = "HOME=\$TMPDIR odin build . -out:\${pname} -o:speed -vet";
   installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;

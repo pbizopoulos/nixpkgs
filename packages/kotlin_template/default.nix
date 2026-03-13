@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.kotlin
   ];
-  buildPhase = "kotlinc Main.kt -include-runtime -d ${pname}.jar";
+  buildPhase = "kotlinc Main.kt -include-runtime -d ${pname}.jar -Werror";
   installPhase = ''
     mkdir -p $out/share/kotlin
     cp ${pname}.jar $out/share/kotlin/

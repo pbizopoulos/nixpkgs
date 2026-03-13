@@ -3,7 +3,7 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildPhase = ''
-    clang -o ${pname} main.m
+    clang -o ${pname} main.m -O3 -Wall -Wextra -Werror
   '';
   installPhase = ''
     mkdir -p $out/bin

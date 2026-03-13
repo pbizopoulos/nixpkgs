@@ -1,3 +1,3 @@
 package main
 
-"Hello CUE!"
+"Hello World"

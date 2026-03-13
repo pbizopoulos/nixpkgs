@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.scala
   ];
-  buildPhase = "scalac Main.scala -d .";
+  buildPhase = "scalac Main.scala -d . -Xfatal-warnings";
   installPhase = ''
     mkdir -p $out/share/scala
     cp *.class $out/share/scala/

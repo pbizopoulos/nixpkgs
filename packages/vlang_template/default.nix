@@ -4,7 +4,7 @@
 pkgs.stdenv.mkDerivation rec {
   buildPhase = ''
     export HOME=$TMPDIR
-    ${pkgs.vlang}/bin/v -o ${pname} main.v
+    ${pkgs.vlang}/bin/v -W -o ${pname} main.v
   '';
   installPhase = ''
     mkdir -p $out/bin

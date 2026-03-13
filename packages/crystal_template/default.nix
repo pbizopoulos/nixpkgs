@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.crystal
   ];
   buildPhase = ''
-    crystal build main.cr -o ${pname}
+    crystal build main.cr -o ${pname} --warnings all --error-on-warnings
   '';
   installPhase = ''
     mkdir -p $out/bin

@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.jdk
   ];
-  buildPhase = "javac src/main/java/Main.java -d .";
+  buildPhase = "javac src/main/java/Main.java -d . -Xlint:all -Werror";
   installPhase = ''
     mkdir -p $out/share/java
     cp Main.class $out/share/java/

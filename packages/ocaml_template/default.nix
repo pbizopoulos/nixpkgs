@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.ocaml
   ];
-  buildPhase = "ocamlc -o ${pname} main.ml";
+  buildPhase = "ocamlc -o ${pname} main.ml -warn-error +a";
   installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;

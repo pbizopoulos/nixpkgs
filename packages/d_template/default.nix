@@ -5,7 +5,7 @@ pkgs.stdenv.mkDerivation rec {
   buildInputs = [
     pkgs.ldc
   ];
-  buildPhase = "ldc2 main.d -of=d";
+  buildPhase = "ldc2 main.d -of=d -w";
   installPhase = "mkdir -p $out/bin && cp d $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;

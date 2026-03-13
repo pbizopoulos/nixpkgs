@@ -9,7 +9,7 @@ pkgs.stdenv.mkDerivation rec {
     export DOTNET_CLI_HOME=$TMPDIR
     export DOTNET_NOLOGO=1
     export DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
-    dotnet build -c Release -o out
+    dotnet build -c Release -o out /p:TreatWarningsAsErrors=true
   '';
   installPhase = ''
     mkdir -p $out/lib/fsharp
