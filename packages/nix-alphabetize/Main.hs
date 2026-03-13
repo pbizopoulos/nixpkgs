@@ -1,7 +1,9 @@
 {-# LANGUAGE StandaloneKindSignatures #-}
 {-# LANGUAGE Trustworthy              #-}
 {-# OPTIONS_GHC -Wno-unsafe -Wno-prepositive-qualified-module #-}
+
 module Main (main) where
+
 import           Control.Monad             (void)
 import           Data.Fix                  (Fix (Fix))
 import           Data.Function             (on)
@@ -47,6 +49,7 @@ import           Test.HUnit                (Test (TestCase, TestList),
                                             assertEqual, assertFailure,
                                             runTestTT)
 import           Text.Megaparsec.Pos       (unPos)
+
 main :: IO ()
 main = do
   args <- getArgs
@@ -61,6 +64,7 @@ main = do
               Right expr -> writeFormattedFile filePath expr
         )
         args
+
 writeFormattedFile :: FilePath -> NExprLoc -> IO ()
 writeFormattedFile filePath expr = do
   fileContent <- readFile filePath
@@ -74,17 +78,21 @@ writeFormattedFile filePath expr = do
               prettyNix $
                 stripAnnotation sortedExpr
   writeFile filePath finalText
+
 renderExpressionText :: NExprLoc -> Text
 renderExpressionText =
   renderStrict . layoutPretty (LayoutOptions (AvailablePerLine 1 1.0)) . prettyNix . stripAnnotation
+
 ignoreMarker :: Text
 ignoreMarker = pack "nix-alphabetize-ignore"
+
 getIgnoreLineNumbers :: Text -> [Int]
 getIgnoreLineNumbers fileContent =
   [ lineNumber
   | (lineNumber, lineText) <- zip [1 ..] (lines fileContent),
     ignoreMarker `isInfixOf` lineText
   ]
+
 getIgnoreBindingKeys :: Text -> [Text]
 getIgnoreBindingKeys fileContent =
   [ key
@@ -93,22 +101,26 @@ getIgnoreBindingKeys fileContent =
     let key = strip (takeWhile (/= '=') lineText),
     key /= empty
   ]
+
 addIgnoreMarkers :: [Text] -> Text -> Text
 addIgnoreMarkers [] content = content
 addIgnoreMarkers ignoreBindings content =
   unlines (map (addIgnoreMarkerLine ignoreBindings) (lines content))
+
 addIgnoreMarkerLine :: [Text] -> Text -> Text
 addIgnoreMarkerLine ignoreBindings lineText
   | ignoreMarker `isInfixOf` lineText = lineText
   | any (`matchesBindingLine` stripStart lineText) ignoreBindings =
       lineText <> pack " # nix-alphabetize-ignore"
   | otherwise = lineText
+
 matchesBindingLine :: Text -> Text -> Bool
 matchesBindingLine key trimmedLine =
   key `isPrefixOf` trimmedLine
     && case uncons (drop (length key) trimmedLine) of
       Just (nextChar, _) -> nextChar == ' ' || nextChar == '='
       Nothing            -> False
+
 bindingLineNumber :: Binding NExprLoc -> Maybe Int
 bindingLineNumber (NamedVar _ _ bindingPos) =
   Just
@@ -116,11 +128,13 @@ bindingLineNumber (NamedVar _ _ bindingPos) =
         NPos pos -> unPos pos
     )
 bindingLineNumber _ = Nothing
+
 isIgnoredBinding :: [Int] -> Binding NExprLoc -> Bool
 isIgnoredBinding ignoreLines binding =
   case bindingLineNumber binding of
     Just lineNumber -> lineNumber `elem` ignoreLines
     Nothing         -> False
+
 sortExpression :: [Int] -> NExprLoc -> NExprLoc
 sortExpression ignoreLines (Fix (Compose (AnnUnit exprSpan exprF))) =
   Fix . Compose . AnnUnit exprSpan $ case exprF of
@@ -140,22 +154,27 @@ sortExpression ignoreLines (Fix (Compose (AnnUnit exprSpan exprF))) =
         (sortAndCollapseBindings ignoreLines bindings)
         (sortExpression ignoreLines body)
     otherExpr -> fmap (sortExpression ignoreLines) otherExpr
+
 getBindingName :: Binding r -> Text
 getBindingName (NamedVar (StaticKey (VarName keyText) :| _) _ _) = keyText
 getBindingName (NamedVar (DynamicKey (Plain (DoubleQuoted [Plain keyText])) :| _) _ _) = keyText
 getBindingName _ = empty
+
 sortAndCollapseBindings :: [Int] -> [Binding NExprLoc] -> [Binding NExprLoc]
 sortAndCollapseBindings ignoreLines bindings =
   concatMap (processSegment ignoreLines) (splitByIgnoredBindings ignoreLines bindings)
+
 sortAndCollapseBindingsUnchecked :: [Int] -> [Binding NExprLoc] -> [Binding NExprLoc]
 sortAndCollapseBindingsUnchecked ignoreLines =
   concatMap (collapseNestedBindings ignoreLines)
     . groupBy ((==) `on` getBindingName)
     . sortBy (comparing getBindingName)
+
 type BindingSegment :: Type
 data BindingSegment
   = IgnoredBinding (Binding NExprLoc)
   | NormalBindings [Binding NExprLoc]
+
 splitByIgnoredBindings :: [Int] -> [Binding NExprLoc] -> [BindingSegment]
 splitByIgnoredBindings _ [] = []
 splitByIgnoredBindings ignoreLines bindings@(firstBinding : restBindings)
@@ -164,11 +183,13 @@ splitByIgnoredBindings ignoreLines bindings@(firstBinding : restBindings)
   | otherwise =
       let (segment, remaining) = break (isIgnoredBinding ignoreLines) bindings
        in NormalBindings segment : splitByIgnoredBindings ignoreLines remaining
+
 processSegment :: [Int] -> BindingSegment -> [Binding NExprLoc]
 processSegment ignoreLines (IgnoredBinding binding) =
   [fmap (sortExpression ignoreLines) binding]
 processSegment ignoreLines (NormalBindings bindings) =
   sortAndCollapseBindingsUnchecked ignoreLines bindings
+
 collapseNestedBindings :: [Int] -> [Binding NExprLoc] -> [Binding NExprLoc]
 collapseNestedBindings _ [] = []
 collapseNestedBindings ignoreLines bindings@(firstBinding : _) =
@@ -187,11 +208,13 @@ collapseNestedBindings ignoreLines bindings@(firstBinding : _) =
                   bindingPos
               ]
     _ -> map (fmap (sortExpression ignoreLines)) bindings
+
 nextLevelBindings :: [Int] -> Binding NExprLoc -> [Binding NExprLoc]
 nextLevelBindings _ (NamedVar (_ :| bindingKey : restKeys) valExpr bindingPos) =
   [NamedVar (bindingKey :| restKeys) valExpr bindingPos]
 nextLevelBindings _ (NamedVar (_ :| []) (Fix (Compose (AnnUnit _ (NSet _ nested)))) _) = nested
 nextLevelBindings _ _ = []
+
 makeFormattingTest :: String -> Text -> Text -> Test
 makeFormattingTest testName input expectedOutput = TestCase $ do
   withSystemTempFile "test.nix" $ \tmpFile tmpHandle -> do
@@ -205,6 +228,7 @@ makeFormattingTest testName input expectedOutput = TestCase $ do
         assertEqual testName expectedOutput formatted
       Left parseError ->
         assertFailure $ "Parse error in test '" ++ testName ++ "': " ++ show parseError
+
 getAllFormattingTests :: Test
 getAllFormattingTests =
   TestList

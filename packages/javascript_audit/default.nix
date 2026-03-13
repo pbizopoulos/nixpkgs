@@ -11,10 +11,12 @@ pkgs.stdenv.mkDerivation rec {
     cp ${src}/main.js $out/bin/${pname}
     chmod +x $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath [
-        pkgs.nix
-        pkgs.nodejs
-      ]}
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.nix
+          pkgs.nodejs
+        ]
+      }
   '';
   meta = {
     mainProgram = pname;

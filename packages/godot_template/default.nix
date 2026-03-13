@@ -4,14 +4,14 @@
 pkgs.stdenv.mkDerivation rec {
   dontBuild = true;
   installPhase = ''
-    mkdir -p $out/lib/${pname}
-    cp -r . $out/lib/${pname}
-    mkdir -p $out/bin
-    cat <<EOF > $out/bin/${pname}
-#!/bin/sh
-exec ${pkgs.godot_4}/bin/godot4 --headless --path $out/lib/${pname}
-EOF
-    chmod +x $out/bin/${pname}
+        mkdir -p $out/lib/${pname}
+        cp -r . $out/lib/${pname}
+        mkdir -p $out/bin
+        cat <<EOF > $out/bin/${pname}
+    #!/bin/sh
+    exec ${pkgs.godot_4}/bin/godot4 --headless --path $out/lib/${pname}
+    EOF
+        chmod +x $out/bin/${pname}
   '';
   pname = baseNameOf ./.;
   src = ./.;

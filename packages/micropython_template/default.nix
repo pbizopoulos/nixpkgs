@@ -6,14 +6,14 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.micropython
   ];
   installPhase = ''
-    mkdir -p $out/bin
-    mkdir -p $out/lib/${pname}
-    cp main.py $out/lib/${pname}/main.py
-    cat <<EOF > $out/bin/${pname}
-#!/bin/sh
-exec ${pkgs.micropython}/bin/micropython $out/lib/${pname}/main.py
-EOF
-    chmod +x $out/bin/${pname}
+        mkdir -p $out/bin
+        mkdir -p $out/lib/${pname}
+        cp main.py $out/lib/${pname}/main.py
+        cat <<EOF > $out/bin/${pname}
+    #!/bin/sh
+    exec ${pkgs.micropython}/bin/micropython $out/lib/${pname}/main.py
+    EOF
+        chmod +x $out/bin/${pname}
   '';
   meta.mainProgram = pname;
   pname = baseNameOf ./.;

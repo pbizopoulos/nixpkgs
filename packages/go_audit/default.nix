@@ -14,12 +14,14 @@ pkgs.stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cp ${pname} $out/bin/
     wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath [
-        pkgs.go
-        pkgs.gosec
-        pkgs.govulncheck
-        pkgs.nix
-      ]}
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.go
+          pkgs.gosec
+          pkgs.govulncheck
+          pkgs.nix
+        ]
+      }
   '';
   meta = {
     mainProgram = pname;
