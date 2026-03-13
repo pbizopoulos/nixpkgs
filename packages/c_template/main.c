@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-void run_tests(void);
-void run_tests(void) {
+static void run_tests(void);
+static void run_tests(void) {
   assert(1 + 1 == 2);
   printf("test ... ok\n");
 }

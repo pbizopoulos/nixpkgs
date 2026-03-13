@@ -23,7 +23,9 @@ const startNext = async () => {
       console.log(`Copying project to ${tmpProjectDir}...`);
       execSync(`cp -a ${projectRoot}/. ${tmpProjectDir}/`);
       execSync(`chmod -R +w ${tmpProjectDir}`);
+      execSync("supabase start", { cwd: tmpProjectDir, stdio: "inherit" });
       const npmCode = await runCommand("npm", ["test"], tmpProjectDir);
+      execSync("supabase stop", { cwd: tmpProjectDir, stdio: "inherit" });
       process.exit(npmCode);
     } finally {
     }

@@ -3,7 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <string>
 using json = nlohmann::json;
-void run_tests() {
+static void run_tests() {
   assert(1 + 1 == 2);
   std::cout << "test ... ok" << std::endl;
 }

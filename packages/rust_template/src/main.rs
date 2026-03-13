@@ -1,6 +1,7 @@
 use std::env;
 fn run_tests() {
-    assert_eq!(1 + 1, 2);
+    let x = 1 + 1;
+    assert_eq!(x, 2);
     println!("test ... ok");
 }
 fn main() {

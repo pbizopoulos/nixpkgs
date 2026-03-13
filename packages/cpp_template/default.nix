@@ -81,11 +81,24 @@ pkgs.stdenv.mkDerivation rec {
     -Wvarargs \
     -Wvector-operation-performance \
     -Wvla \
-    -Wwrite-strings
+    -Wwrite-strings \
+    -Wformat=2 \
+    -fsanitize=address,undefined \
+    -fstack-protector-strong \
+    -fstack-clash-protection \
+    -D_FORTIFY_SOURCE=3 \
+    -Wl,-z,relro,-z,now \
+    -Wl,-z,noexecstack
   '';
   installPhase = ''
     install -Dm755 ${pname} $out/bin/${pname}
   '';
+  checkPhase = ''
+    cppcheck --enable=all --error-exitcode=1 --language=c++ --suppress=missingIncludeSystem .
+    ./${pname}
+  '';
+  doCheck = pkgs.stdenv.isLinux;
+  nativeCheckInputs = [ pkgs.cppcheck ];
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
