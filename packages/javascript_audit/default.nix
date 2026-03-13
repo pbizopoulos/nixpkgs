@@ -7,9 +7,7 @@ pkgs.stdenv.mkDerivation rec {
   ];
   dontUnpack = true;
   installPhase = ''
-    mkdir -p $out/bin
-    cp ${src}/main.js $out/bin/${pname}
-    chmod +x $out/bin/${pname}
+    install -Dm755 ${src}/main.js $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [

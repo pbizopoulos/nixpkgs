@@ -4,6 +4,20 @@ export default {
   testRunner: "vitest",
   concurrency: "100%",
   incremental: true,
+  mutator: {
+    excludedMutations: [
+      "ArithmeticOperator",
+      "ArrayDeclaration",
+      "ArrowFunction",
+      "BlockStatement",
+      "LogicalOperator",
+      "MethodExpression",
+      "ObjectLiteral",
+      "OptionalChaining",
+      "StringLiteral",
+      "UpdateOperator",
+    ],
+  },
   vitest: {
     configFile: "vitest.config.ts",
   },

@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.ocaml
   ];
   buildPhase = "ocamlc -o ${pname} main.ml -warn-error +a";
-  installPhase = "mkdir -p $out/bin && cp ${pname} $out/bin/";
+  installPhase = "install -Dm755 ${pname} $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;

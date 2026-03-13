@@ -7,9 +7,8 @@ pkgs.stdenv.mkDerivation rec {
   ];
   buildPhase = "javac src/main/java/Main.java -d . -Xlint:all -Werror";
   installPhase = ''
-    mkdir -p $out/share/java
-    cp Main.class $out/share/java/
-    mkdir -p $out/bin
+    install -Dm644 Main.class $out/share/java/Main.class
+    install -d $out/bin
     makeWrapper ${pkgs.jdk}/bin/java $out/bin/${pname} \
       --add-flags "-cp $out/share/java Main"
   '';

@@ -6,9 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     python
   ];
   installPhase = ''
-    mkdir -p $out/bin
-    cp main.py $out/bin/${pname}
-    chmod +x $out/bin/${pname}
+    install -Dm755 main.py $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [

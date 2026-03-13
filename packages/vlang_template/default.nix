@@ -7,8 +7,7 @@ pkgs.stdenv.mkDerivation rec {
     ${pkgs.vlang}/bin/v -W -o ${pname} main.v
   '';
   installPhase = ''
-    mkdir -p $out/bin
-    cp ${pname} $out/bin/
+    install -Dm755 ${pname} $out/bin/${pname}
   '';
   nativeBuildInputs = [
     pkgs.vlang

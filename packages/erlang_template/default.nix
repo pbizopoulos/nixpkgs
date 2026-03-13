@@ -6,9 +6,8 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.erlang
   ];
   installPhase = ''
-    mkdir -p $out/share/erlang
-    cp main.erl $out/share/erlang/
-    mkdir -p $out/bin
+    install -Dm644 main.erl $out/share/erlang/main.erl
+    install -d $out/bin
     makeWrapper ${pkgs.erlang}/bin/escript $out/bin/${pname} \
       --add-flags "$out/share/erlang/main.erl"
   '';

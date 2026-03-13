@@ -12,9 +12,9 @@ pkgs.stdenv.mkDerivation rec {
     dotnet build -c Release -o out /p:TreatWarningsAsErrors=true
   '';
   installPhase = ''
-    mkdir -p $out/lib/fsharp
+    install -d $out/lib/fsharp
     cp -r out/* $out/lib/fsharp/
-    mkdir -p $out/bin
+    install -d $out/bin
     makeWrapper ${pkgs.dotnet-runtime_9}/bin/dotnet $out/bin/${pname} \
       --add-flags "$out/lib/fsharp/fsharp.dll"
   '';

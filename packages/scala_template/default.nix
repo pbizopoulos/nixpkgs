@@ -7,9 +7,8 @@ pkgs.stdenv.mkDerivation rec {
   ];
   buildPhase = "scalac Main.scala -d . -Xfatal-warnings";
   installPhase = ''
-    mkdir -p $out/share/scala
-    cp *.class $out/share/scala/
-    mkdir -p $out/bin
+    install -Dm644 -t $out/share/scala *.class
+    install -d $out/bin
     makeWrapper ${pkgs.scala}/bin/scala $out/bin/${pname} \
       --add-flags "-cp $out/share/scala Main"
   '';

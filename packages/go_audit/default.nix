@@ -11,8 +11,7 @@ pkgs.stdenv.mkDerivation rec {
     go build -o ${pname} main.go
   '';
   installPhase = ''
-    mkdir -p $out/bin
-    cp ${pname} $out/bin/
+    install -Dm755 ${pname} $out/bin/${pname}
     wrapProgram $out/bin/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [

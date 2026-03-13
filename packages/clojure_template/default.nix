@@ -1,28 +1,26 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.stdenv.mkDerivation rec {
-  buildInputs = [
-    pkgs.clojure
-  ];
-  installPhase = ''
-        mkdir -p $out/bin
-        cat <<EOF > $out/bin/${pname}
-    #!/usr/bin/env bash
+let
+  pname = baseNameOf ./.;
+  script = pkgs.writeShellScriptBin pname ''
     export CLJ_CONFIG=/tmp
     export CLJ_CACHE=/tmp
-    cd $out/lib/${pname}
-    exec ${pkgs.clojure}/bin/clojure -M -m main "\$@"
-    EOF
-        chmod +x $out/bin/${pname}
-        mkdir -p $out/lib/${pname}
-        cp -r . $out/lib/${pname}
+    exec ${pkgs.clojure}/bin/clojure -M -m main "$@"
+  '';
+in
+pkgs.stdenv.mkDerivation rec {
+  inherit pname;
+  version = "0.0.0";
+  src = ./.;
+
+  buildInputs = [ pkgs.clojure ];
+
+  installPhase = ''
+    mkdir -p $out/bin $out/lib/${pname}
+    cp -r . $out/lib/${pname}
+    rm -f $out/lib/${pname}/result
+    cp -r ${script}/bin/* $out/bin/
   '';
   meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.makeWrapper
-  ];
-  pname = baseNameOf ./.;
-  src = ./.;
-  version = "0.0.0";
 }

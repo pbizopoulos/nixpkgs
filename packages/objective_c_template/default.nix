@@ -6,8 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     clang -o ${pname} main.m -O3 -Wall -Wextra -Werror
   '';
   installPhase = ''
-    mkdir -p $out/bin
-    cp ${pname} $out/bin/
+    install -Dm755 ${pname} $out/bin/${pname}
   '';
   nativeBuildInputs = [
     pkgs.clang

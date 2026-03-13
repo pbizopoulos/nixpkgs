@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.nim
   ];
   buildPhase = "HOME=\$TMPDIR nim c --warningAsError:on -o:nim main.nim";
-  installPhase = "mkdir -p $out/bin && cp nim $out/bin/${pname}";
+  installPhase = "install -Dm755 nim $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;

@@ -6,7 +6,7 @@ pkgs.stdenv.mkDerivation rec {
     pkgs.ldc
   ];
   buildPhase = "ldc2 main.d -of=d -w";
-  installPhase = "mkdir -p $out/bin && cp d $out/bin/${pname}";
+  installPhase = "install -Dm755 d $out/bin/${pname}";
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;

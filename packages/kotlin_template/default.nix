@@ -7,9 +7,8 @@ pkgs.stdenv.mkDerivation rec {
   ];
   buildPhase = "kotlinc Main.kt -include-runtime -d ${pname}.jar -Werror";
   installPhase = ''
-    mkdir -p $out/share/kotlin
-    cp ${pname}.jar $out/share/kotlin/
-    mkdir -p $out/bin
+    install -Dm644 ${pname}.jar $out/share/kotlin/${pname}.jar
+    install -d $out/bin
     makeWrapper ${pkgs.jre}/bin/java $out/bin/${pname} \
       --add-flags "-cp $out/share/kotlin/${pname}.jar MainKt"
   '';
