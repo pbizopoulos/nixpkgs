@@ -26,7 +26,6 @@ pkgs.stdenv.mkDerivation rec {
   nativeBuildInputs = [
     pkgs.makeWrapper
   ];
-  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   python = pkgs.python313.withPackages (ps: [
     ps.coverage

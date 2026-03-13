@@ -1,6 +1,6 @@
 { inputs, pkgs, ... }:
 let
-  pname = builtins.baseNameOf ./.;
+  pname = baseNameOf ./.;
 in
 pkgs.testers.runNixOSTest rec {
   name = pname;

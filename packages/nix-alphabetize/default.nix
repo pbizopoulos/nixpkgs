@@ -14,9 +14,7 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.text
   ];
   license = pkgs.lib.licenses.mit;
-  mainProgram = pname;
-  meta.mainProgram = pname;
-  pname = "nix-alphabetize";
+  pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";
 }

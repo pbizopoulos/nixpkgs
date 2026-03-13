@@ -1,7 +1,7 @@
 {
   pkgs ? import <nixpkgs> { },
 }:
-pkgs.stdenv.mkDerivation {
+pkgs.stdenv.mkDerivation rec {
   buildInputs = [ ];
   buildPhase = "HOME=$TMPDIR zig build -Doptimize=ReleaseSafe --prefix $out";
   installPhase = ":";
