@@ -12,9 +12,7 @@ int main() {
   if (debug && std::string(debug) == "1") {
     run_tests();
   } else {
-    std::cout << "Hello C++!" << std::endl;
-    json data = {{"message", "Hello, world!"}, {"language", "C++"}};
-    std::cout << data.dump() << std::endl;
+    std::cout << "Hello World" << std::endl;
   }
   return 0;
 }
