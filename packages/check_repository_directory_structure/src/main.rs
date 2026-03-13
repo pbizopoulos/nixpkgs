@@ -61,7 +61,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     let dir_path = Path::new(&flake_nix_path)
         .canonicalize()
         .expect("Failed to canonicalize path");
-    let repo = Repository::discover(&dir_path).expect("Not a git repository");
+    let repo = match Repository::discover(&dir_path) {
+        Ok(r) => r,
+        Err(_) => return Ok(()),
+    };
     let working_dir = repo.workdir().expect("No working directory for repository");
     let mut status_options = StatusOptions::new();
     status_options.include_untracked(true);

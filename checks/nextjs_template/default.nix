@@ -1,13 +1,10 @@
 { inputs, pkgs, ... }:
-let
-  pname = baseNameOf ./.;
-in
 pkgs.testers.runNixOSTest rec {
-  name = pname;
+  name = builtins.baseNameOf ./.;
   nodes.machine = {
-    environment.systemPackages = [ inputs.self.packages.${pkgs.stdenv.system}.${pname} ];
+    environment.systemPackages = [ inputs.self.packages.${pkgs.stdenv.system}.${name} ];
   };
   testScript = ''
-    machine.succeed("set +e; ${pname} > /tmp/${pname}.log 2>&1; status=$?; cat /tmp/${pname}.log; exit $status")
+    machine.succeed("DEBUG=1 ${name}")
   '';
 }

@@ -21,6 +21,13 @@ pkgs.buildNpmPackage rec {
       pkgs.google-fonts.override { fonts = [ "RobotoMono" ]; }
     }/share/fonts/truetype/RobotoMono[wght].ttf" app/RobotoMono.ttf
   '';
+  installPhase = ''
+    runHook preInstall
+    mkdir -p $out/bin $out/lib/node_modules/${pname}
+    cp -r . $out/lib/node_modules/${pname}/
+    ln -s $out/lib/node_modules/${pname}/scripts/start.js $out/bin/${pname}
+    runHook postInstall
+  '';
   shellHook = ''
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
