@@ -1,10 +1,10 @@
-name:          haskell_template
+name:          haskell-template
 version:       0.0.0
 synopsis:      Hello World Haskell
 cabal-version: >=1.10
 build-type:    Simple
 
-executable haskell_template
+executable haskell-template
   main-is:       Main.hs
   build-depends:
       aeson
