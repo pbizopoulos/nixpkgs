@@ -8,6 +8,7 @@ pkgs.rustPlatform.buildRustPackage {
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

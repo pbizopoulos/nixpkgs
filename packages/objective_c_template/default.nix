@@ -12,6 +12,7 @@ pkgs.stdenv.mkDerivation rec {
   nativeBuildInputs = [
     pkgs.clang
   ];
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

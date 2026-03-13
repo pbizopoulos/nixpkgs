@@ -8,6 +8,7 @@ pkgs.stdenv.mkDerivation {
   nativeBuildInputs = [
     pkgs.zig
   ];
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

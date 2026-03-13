@@ -7,6 +7,7 @@ pkgs.stdenv.mkDerivation rec {
   ];
   buildPhase = "HOME=$TMPDIR nim c -o:nim main.nim";
   installPhase = "mkdir -p $out/bin && cp nim $out/bin/${pname}";
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;
   version = "0.0.0";

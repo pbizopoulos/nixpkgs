@@ -7,6 +7,7 @@ pkgs.buildNpmPackage rec {
     pkgs.openssl
   ];
   npmDepsHash = "sha256-icIIG7nHct4SYZubYOwc37RtwcTgW/0CYCU4LTO9iv4=";
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   env = {
     NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";

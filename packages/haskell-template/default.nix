@@ -9,6 +9,7 @@ pkgs.haskellPackages.mkDerivation rec {
     pkgs.haskellPackages.bytestring
   ];
   executableToolDepends = [ pkgs.makeWrapper ];
+  meta.mainProgram = pname;
   pname = baseNameOf ./.;
   postInstall = ''
     wrapProgram $out/bin/haskell-template --run "rm -f tmp/${pname}.tix" --set-default HPCTIXFILE tmp/${pname}.tix
