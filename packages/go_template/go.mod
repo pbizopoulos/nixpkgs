@@ -1,2 +1,2 @@
-module example.com/go-hello
+module go_template
 go 1.16
