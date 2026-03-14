@@ -12,8 +12,10 @@ pkgs.testers.runNixOSTest rec {
       pkgs.git
     ];
     virtualisation = {
+      cores = 4;
       diskSize = 32768;
       docker.enable = true;
+      memorySize = 16384;
     };
   };
   testScript =
@@ -102,6 +104,13 @@ pkgs.testers.runNixOSTest rec {
           hash = "sha256-Q1p+xC5j2rHxXHILtTXAKyxfo3UCMhxVJkhL00JXxmQ=";
           imageDigest = "sha256:06c541e63395ff1a06150189edd598ed393fd81ae09059ae7558d3220311c49f";
           imageName = "public.ecr.aws/supabase/studio";
+        })
+        (pkgs.dockerTools.pullImage {
+          finalImageName = "public.ecr.aws/supabase/supavisor";
+          finalImageTag = "2.7.4";
+          hash = "sha256-iJIhKsLBEVwp7Fa0PgZLMuVLkAENfWOswlfnXvCO2rs=";
+          imageDigest = "sha256:466297ba00956e2d1cbd56a4362fbd5dbc9c2a47ad83e8ca9bdb877f743315ee";
+          imageName = "public.ecr.aws/supabase/supavisor";
         })
         (pkgs.dockerTools.pullImage {
           finalImageName = "public.ecr.aws/supabase/vector";

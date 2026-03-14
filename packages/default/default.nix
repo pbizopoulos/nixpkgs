@@ -2,36 +2,24 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.rustPlatform.buildRustPackage rec {
-  buildAndTestSubdir = "packages/${pname}";
-  buildInputs = [
-    pkgs.openssl
-    pkgs.zlib
-  ];
+  buildInputs = [ ];
   cargoHash = "sha256-ZOIqujg9SLQMSWQffa0W78QOgmgOnhh+hWhHK8IC1Qs=";
-  cargoRoot = "packages/${pname}";
+  env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;
   nativeBuildInputs = [
-    pkgs.git
-    pkgs.makeWrapper
+    pkgs.clippy
     pkgs.pkg-config
     pkgs.rustPlatform.bindgenHook
   ];
   pname = baseNameOf ./.;
   postInstall = ''
-    wrapProgram $out/bin/${pname} \
-      --set CANONICALIZATION_ROOT ${../../.} \
-      --prefix PATH : ${
-        pkgs.lib.makeBinPath [
-          pkgs.git
-          pkgs.nix
-          pkgs.openssl
-          pkgs.zlib
-        ]
-      }
+    cargo clippy -- -D warnings
+    CANONICALIZATION_ROOT=${../../.} cargo test
+    CANONICALIZATION_ROOT=${../../.} DEBUG=1 $out/bin/${pname}
   '';
   preCheck = ''
     export CANONICALIZATION_ROOT=${../../.}
   '';
-  src = ../..;
-  version = "0.1.0";
+  src = ./.;
+  version = "0.0.0";
 }

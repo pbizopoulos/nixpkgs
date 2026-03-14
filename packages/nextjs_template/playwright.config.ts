@@ -28,7 +28,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 2,
-  workers: 2,
+  workers: 1,
   reporter: "list",
   expect: {
     toHaveScreenshot: { maxDiffPixelRatio: 0.1 },
@@ -67,5 +67,5 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120 * 1000,
   },
-  timeout: 60000,
+  timeout: 120000,
 });

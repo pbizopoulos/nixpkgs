@@ -24,7 +24,7 @@ const startNext = async () => {
       execSync(`cp -a ${projectRoot}/. ${tmpProjectDir}/`);
       execSync(`chmod -R +w ${tmpProjectDir}`);
       execSync("supabase start", { cwd: tmpProjectDir, stdio: "inherit" });
-      const npmCode = await runCommand("npm", ["test"], tmpProjectDir);
+      const npmCode = await runCommand("npm", ["run", "test:ci"], tmpProjectDir);
       execSync("supabase stop", { cwd: tmpProjectDir, stdio: "inherit" });
       process.exit(npmCode);
     } finally {

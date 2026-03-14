@@ -127,10 +127,7 @@ enabled = true
 sql_paths = ["./seed.sql"]
 
 [edge_runtime]
-enabled = true
-policy = "per_worker"
-inspector_port = 8083
-deno_version = 2
+enabled = false
 
 [experimental]
 orioledb_version = ""
