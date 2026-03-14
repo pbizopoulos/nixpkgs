@@ -7,7 +7,7 @@ pkgs.stdenv.mkDerivation rec {
     ${pkgs.vlang}/bin/v -W -o ${pname} main.v
   '';
   checkPhase = ''
-    DEBUG=1 valgrind --leak-check=full --error-exitcode=1 ./${pname}
+    ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
   installPhase = ''

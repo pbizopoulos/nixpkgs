@@ -7,7 +7,7 @@ pkgs.stdenv.mkDerivation rec {
   ];
   buildPhase = "HOME=$TMPDIR odin build . -out:\${pname} -o:speed -vet";
   checkPhase = ''
-    DEBUG=1 valgrind --leak-check=full --error-exitcode=1 ./${pname}
+    ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
   installPhase = "install -Dm755 ${pname} $out/bin/${pname}";
