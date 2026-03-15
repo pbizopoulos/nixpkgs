@@ -1,10 +1,13 @@
 {
+  inputs,
   pkgs,
   ...
 }:
 {
   boot.loader.grub.enable = false;
   environment.systemPackages = [
+    inputs.self.packages.${pkgs.stdenv.system}.nextjs_template
+    inputs.self.packages.${pkgs.stdenv.system}.supabase
     pkgs.docker-compose
     pkgs.supabase-cli
   ];
