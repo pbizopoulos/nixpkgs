@@ -171,6 +171,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         (
             r"hosts/[^/]+/configuration\.nix",
             vec![
+                r"hosts/[^/]+/\.gitignore",
                 r"hosts/[^/]+/\.opentofu(/.*)?",
                 r"hosts/[^/]+/\.opentofu\.lock\.hcl",
                 r"hosts/[^/]+/\.terraform(/.*)?",
