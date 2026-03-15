@@ -11,7 +11,6 @@ variable "hcloud_token" {
   sensitive = true
 }
 variable "nixos_config_name" {
-  default = "nextjs_template"
 }
 provider "hcloud" {
   token = var.hcloud_token

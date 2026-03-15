@@ -1,10 +1,12 @@
 {
   config,
-  hostName,
   inputs,
   pkgs,
   ...
 }:
+let
+  hostName = baseNameOf ./.;
+in
 {
   age.secrets.secrets-env = {
     file = ../../secrets/secrets.age;

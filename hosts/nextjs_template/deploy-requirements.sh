@@ -7,6 +7,7 @@ touch "${repository_dir}/prm/${nixos_config_name}.pub"
 cd "${repository_dir}"/secrets && eval "$(nix run github:ryantm/agenix -- --decrypt secrets.age)" && cd -
 nix-shell -p pkgs.jq 'pkgs.opentofu.withPlugins (p: [ p.hashicorp_external p.hashicorp_local p.hashicorp_null p.hetznercloud_hcloud ])' --command "
   export TF_VAR_hcloud_token=${HCLOUD_TOKEN}
+  export TF_VAR_nixos_config_name=${nixos_config_name}
   tofu -chdir=${current_dir} init
   tofu -chdir=${current_dir} apply
 "
