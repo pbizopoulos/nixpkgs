@@ -263,10 +263,15 @@ mod tests {
     }
     #[test]
     fn test_get_root_dir_from_env() -> Result<()> {
+        let original_val = std::env::var("CANONICALIZATION_ROOT").ok();
         std::env::set_var("CANONICALIZATION_ROOT", "/tmp");
         let root = get_root_dir()?;
         assert_eq!(root, PathBuf::from("/tmp"));
-        std::env::remove_var("CANONICALIZATION_ROOT");
+        if let Some(val) = original_val {
+            std::env::set_var("CANONICALIZATION_ROOT", val);
+        } else {
+            std::env::remove_var("CANONICALIZATION_ROOT");
+        }
         Ok(())
     }
 }

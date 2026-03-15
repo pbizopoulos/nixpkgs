@@ -7,3 +7,9 @@ tokio = {version = "1.0", features = ["full"]}
 name = "rust_audit"
 version = "0.1.0"
 edition = "2021"
+description = "A CLI tool to audit Rust projects."
+license = "MIT"
+repository = "https://github.com/pbizopoulos/canonicalization"
+readme = "../../README"
+keywords = ["audit", "rust"]
+categories = ["development-tools"]

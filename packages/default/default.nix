@@ -14,7 +14,6 @@ pkgs.rustPlatform.buildRustPackage rec {
   pname = baseNameOf ./.;
   postInstall = ''
     cargo clippy -- -D warnings
-    CANONICALIZATION_ROOT=${../../.} cargo test
     CANONICALIZATION_ROOT=${../../.} DEBUG=1 $out/bin/${pname}
   '';
   preCheck = ''

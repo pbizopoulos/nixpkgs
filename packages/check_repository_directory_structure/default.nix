@@ -18,7 +18,6 @@ pkgs.rustPlatform.buildRustPackage rec {
   pname = baseNameOf ./.;
   postInstall = ''
     cargo clippy -- -D warnings
-    cargo test
     DEBUG=1 $out/bin/${pname}
   '';
   src = ./.;
