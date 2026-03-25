@@ -5,7 +5,7 @@ use clap::Parser;
 use git2::{Repository, StatusOptions};
 use regex::Regex;
 use std::collections::HashSet;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use walkdir::WalkDir;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -20,6 +20,19 @@ fn is_valid_fqdn(name: &str) -> bool {
 fn is_dash_case(name: &str) -> bool {
     let re = Regex::new(r"^[a-z0-9]+([-.][a-z0-9]+)*$").unwrap();
     re.is_match(name)
+}
+fn package_root(rel_path: &Path) -> Option<PathBuf> {
+    let components: Vec<_> = rel_path
+        .components()
+        .map(|component| component.as_os_str().to_str().unwrap())
+        .collect();
+    match components.as_slice() {
+        ["packages", package_name, ..] => Some(PathBuf::from(format!("packages/{package_name}"))),
+        ["templates", template_name, "packages", package_name, ..] => Some(PathBuf::from(format!(
+            "templates/{template_name}/packages/{package_name}"
+        ))),
+        _ => None,
+    }
 }
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
@@ -139,6 +152,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         }
     }
     paths.sort();
+    let all_rel_paths: HashSet<_> = paths
+        .iter()
+        .map(|path| path.strip_prefix(working_dir).unwrap().to_path_buf())
+        .collect();
     let mut dir_and_file_names = HashSet::new();
     for path in &paths {
         let rel_path = path.strip_prefix(working_dir).unwrap();
@@ -158,29 +175,71 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"flake\.lock",
         r"flake\.nix",
         r"formatter\.nix",
+        r"hosts/[^/]+/configuration\.nix",
         r"modules/nixos/.*",
+        r"packages/[^/]+/\.gitignore",
+        r"packages/[^/]+/Main\.hs",
+        r"packages/[^/]+/Cargo\.toml",
+        r"packages/[^/]+/default\.nix",
+        r"packages/[^/]+/index\.html",
+        r"packages/[^/]+/main\.(c|py|sh|tf)",
+        r"packages/[^/]+/ms\.tex",
+        r"packages/[^/]+/package\.json",
+        r"packages/[^/]+/spec\.json",
+        r"packages/[^/]+/style\.css",
+        r"packages/[^/]+/script\.js",
+        r"packages/[^/]+/[^/]+\.cabal",
         r"prm(/.*)?",
         r"result",
         r"secrets(/.*)?",
         r"spec\.json",
-        r"packages/[^/]+/spec\.json",
     ];
     let file_dependencies = [
         (
-            r"hosts/[^/]+/configuration\.nix",
+            r"packages/[^/]+/Cargo\.toml",
+            vec![r"packages/[^/]+/Cargo\.lock", r"packages/[^/]+/src/.*"],
+        ),
+        (
+            r"packages/[^/]+/Main\.hs",
+            vec![r"packages/[^/]+/[^/]+\.cabal"],
+        ),
+        (
+            r"packages/[^/]+/index\.html",
+            vec![r"packages/[^/]+/script\.js", r"packages/[^/]+/style\.css"],
+        ),
+        (r"packages/[^/]+/main\.tf", vec![r"packages/[^/]+/prm/.*"]),
+        (r"packages/[^/]+/ms\.tex", vec![r"packages/[^/]+/ms\.bib"]),
+        (
+            r"packages/[^/]+/package\.json",
             vec![
-                r"hosts/[^/]+/\.gitignore",
-                r"hosts/[^/]+/\.terraform(/.*)?",
-                r"hosts/[^/]+/\.terraform\.lock\.hcl",
-                r"hosts/[^/]+/deploy-requirements\.sh",
-                r"hosts/[^/]+/deploy\.sh",
-                r"hosts/[^/]+/hardware-configuration\.nix",
-                r"hosts/[^/]+/main\.tf",
-                r"hosts/[^/]+/prm(/.*)?",
-                r"hosts/[^/]+/tmp(/.*)?",
+                r"packages/[^/]+/\.adonisjs/.*",
+                r"packages/[^/]+/\.dependency-cruiser\.cjs",
+                r"packages/[^/]+/\.env",
+                r"packages/[^/]+/\.env\.example",
+                r"packages/[^/]+/\.jscpd\.json",
+                r"packages/[^/]+/ace\.js",
+                r"packages/[^/]+/adonisrc\.ts",
+                r"packages/[^/]+/app/.*",
+                r"packages/[^/]+/bin/.*",
+                r"packages/[^/]+/components(/.*)?",
+                r"packages/[^/]+/config/.*",
+                r"packages/[^/]+/coverage(/.*)?",
+                r"packages/[^/]+/database/.*",
+                r"packages/[^/]+/lib/.*",
+                r"packages/[^/]+/package-lock\.json",
+                r"packages/[^/]+/playwright\.config\.ts",
+                r"packages/[^/]+/public/.*",
+                r"packages/[^/]+/resources/.*",
+                r"packages/[^/]+/scripts/.*",
+                r"packages/[^/]+/start/.*",
+                r"packages/[^/]+/stryker\.config\.mjs",
+                r"packages/[^/]+/test-results(/.*)?",
+                r"packages/[^/]+/tests/.*",
+                r"packages/[^/]+/tsconfig\.json",
+                r"packages/[^/]+/tsconfig\.tsbuildinfo",
+                r"packages/[^/]+/vitest\.config\.ts",
             ],
         ),
-        (r"packages/[^/]+/default\.nix", vec![r"packages/[^/]+/.*"]),
     ];
     let prefix = r"(templates/[^/]+/)?";
     let compiled_names_allowed: Vec<Regex> = names_allowed
@@ -214,6 +273,19 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         }
     }
     let mut final_warnings = warnings;
+    let package_roots: HashSet<_> = all_rel_paths
+        .iter()
+        .filter_map(|path| package_root(path))
+        .collect();
+    for package_root in package_roots {
+        let default_nix = package_root.join("default.nix");
+        if !all_rel_paths.contains(&default_nix) {
+            final_warnings.push(format!(
+                "{}: is missing required default.nix",
+                working_dir.join(package_root).display()
+            ));
+        }
+    }
     let mut sorted_names: Vec<_> = dir_and_file_names.into_iter().collect();
     sorted_names.sort();
     for name in sorted_names {
@@ -304,6 +376,11 @@ fn test_check_repository_directory_structure_standalone() {
     )
     .unwrap();
     fs::write(
+        temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
+        "test",
+    )
+    .unwrap();
+    fs::write(
         temp_dir.join("templates/my-template/packages/my-pkg/.env.example"),
         "test",
     )
@@ -359,11 +436,14 @@ fn test_check_repository_directory_structure_standalone() {
         "Expected Ok for package.json tests, but got Err: {:?}",
         result.err()
     );
+    fs::create_dir_all(temp_dir.join("packages/no-default")).unwrap();
+    fs::write(temp_dir.join("packages/no-default/main.py"), "test").unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(result.is_err());
+    fs::remove_dir_all(temp_dir.join("packages/no-default")).unwrap();
+    fs::remove_dir(temp_dir.join("packages")).unwrap();
     fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
     fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
-    fs::create_dir_all(temp_dir.join("hosts/my-host/.terraform")).unwrap();
-    fs::write(temp_dir.join("hosts/my-host/.terraform/test"), "test").unwrap();
-    fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
     Command::new("git")
         .args(["add", "hosts"])
         .current_dir(&temp_dir)
@@ -372,9 +452,12 @@ fn test_check_repository_directory_structure_standalone() {
     let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(
         result.is_ok(),
-        "Expected Ok for hosts/configuration.nix and .terraform.lock.hcl, but got Err: {:?}",
+        "Expected Ok for hosts/configuration.nix, but got Err: {:?}",
         result.err()
     );
+    fs::write(temp_dir.join("hosts/my-host/.gitignore"), "test").unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(result.is_err());
     fs::remove_dir_all(&temp_dir).unwrap();
     println!("test check_repository_directory_structure ... ok");
 }
@@ -474,6 +557,11 @@ mod tests {
         )
         .unwrap();
         fs::write(
+            temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
+            "test",
+        )
+        .unwrap();
+        fs::write(
             temp_dir.join("templates/my-template/packages/my-pkg/.gitignore"),
             "test",
         )
@@ -495,11 +583,15 @@ mod tests {
             "Expected Ok for templates, but got Err: {:?}",
             result.err()
         );
+        fs::create_dir_all(temp_dir.join("packages/no-default")).unwrap();
+        fs::write(temp_dir.join("packages/no-default/main.py"), "test").unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(result.is_err());
+        fs::remove_dir_all(temp_dir.join("packages/no-default")).unwrap();
+        fs::remove_dir(temp_dir.join("packages")).unwrap();
         fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
         fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
-        fs::create_dir_all(temp_dir.join("hosts/my-host/.terraform")).unwrap();
-        fs::write(temp_dir.join("hosts/my-host/.terraform/test"), "test").unwrap();
-        fs::write(temp_dir.join("hosts/my-host/.terraform.lock.hcl"), "test").unwrap();
         Command::new("git")
             .args(["add", "hosts"])
             .current_dir(&temp_dir)
@@ -509,9 +601,13 @@ mod tests {
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(
             result.is_ok(),
-            "Expected Ok for hosts/configuration.nix and .terraform.lock.hcl, but got Err: {:?}",
+            "Expected Ok for hosts/configuration.nix, but got Err: {:?}",
             result.err()
         );
+        fs::write(temp_dir.join("hosts/my-host/.gitignore"), "test").unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(result.is_err());
         fs::remove_dir_all(&temp_dir).unwrap();
     }
 }
