@@ -145,19 +145,12 @@ in
       ];
       environment = {
         APP_KEY = "01234567890123456789012345678901";
-        APP_NAME = "AdonisJS Starter";
         APP_URL = "http://127.0.0.1:3333";
         DB_DATABASE = packageName;
         DB_HOST = "/run/postgresql";
         DB_PASSWORD = "unused";
-        DB_PORT = "5432";
-        DB_SSL = "false";
         DB_USER = packageName;
         HOST = "127.0.0.1";
-        LOG_LEVEL = "info";
-        NODE_ENV = "production";
-        PORT = "3333";
-        TZ = "UTC";
       };
       serviceConfig = {
         ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${packageName}}/bin/${packageName}";
