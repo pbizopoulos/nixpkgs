@@ -207,7 +207,14 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             r"packages/[^/]+/index\.html",
             vec![r"packages/[^/]+/script\.js", r"packages/[^/]+/style\.css"],
         ),
-        (r"packages/[^/]+/main\.tf", vec![r"packages/[^/]+/prm/.*"]),
+        (
+            r"packages/[^/]+/main\.tf",
+            vec![
+                r"packages/[^/]+/\.gitignore",
+                r"packages/[^/]+/\.terraform(/.*)?",
+                r"packages/[^/]+/prm/.*",
+            ],
+        ),
         (r"packages/[^/]+/ms\.tex", vec![r"packages/[^/]+/ms\.bib"]),
         (
             r"packages/[^/]+/package\.json",
