@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   modulesPath,
   pkgs,
@@ -9,6 +10,11 @@ let
   packageName = "adonisjs_template";
 in
 {
+  age.secrets.secrets-env = {
+    file = ../../secrets/secrets.age;
+    group = packageName;
+    owner = packageName;
+  };
   boot = {
     initrd.systemd.enable = true;
     loader.systemd-boot.enable = true;
@@ -64,6 +70,7 @@ in
   ];
   fileSystems."/persistent".neededForBoot = true;
   imports = [
+    inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
     (modulesPath + "/installer/scan/not-detected.nix")
@@ -144,15 +151,13 @@ in
         "postgresql.service"
       ];
       environment = {
-        APP_KEY = "01234567890123456789012345678901";
-        APP_URL = "http://127.0.0.1:3333";
         DB_DATABASE = packageName;
         DB_HOST = "/run/postgresql";
-        DB_PASSWORD = "unused";
         DB_USER = packageName;
         HOST = "127.0.0.1";
       };
       serviceConfig = {
+        EnvironmentFile = config.age.secrets.secrets-env.path;
         ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${packageName}}/bin/${packageName}";
         Group = packageName;
         Restart = "always";

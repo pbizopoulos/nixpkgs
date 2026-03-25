@@ -1,6 +1,12 @@
 {
+  inputs,
   pkgs ? import <nixpkgs> { },
 }:
+let
+  installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
+    secrets.secrets.file = ../../secrets/secrets.age;
+  };
+in
 pkgs.buildNpmPackage rec {
   buildInputs = [ ];
   installPhase = ''
@@ -34,20 +40,28 @@ pkgs.buildNpmPackage rec {
   ];
   pname = baseNameOf ./.;
   shellHook = ''
+    # shellcheck disable=SC1091
+    source ${pkgs.lib.getExe installationScript}
+    if [ -n "''${secrets_PATH:-}" ] && [ -f "$secrets_PATH" ]; then
+      set -a
+      # shellcheck disable=SC1090,SC2154
+      source "$secrets_PATH"
+      set +a
+    fi
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
-    export PGDATA="$PWD/tmp/.postgres"
-    export PGHOST="/tmp/adonisjs-template-pg"
-    export PGPORT="5432"
-    export PGUSER="postgres"
-    export PGPASSWORD="postgres"
-    export PGDATABASE="adonisjs_template"
-    export DB_HOST="$PGHOST"
-    export DB_PORT="$PGPORT"
-    export DB_USER="$PGUSER"
-    export DB_PASSWORD="$PGPASSWORD"
-    export DB_DATABASE="$PGDATABASE"
-    export DB_SSL="false"
+    export PGDATA="''${PGDATA:-$PWD/tmp/.postgres}"
+    export PGHOST="''${PGHOST:-/tmp/adonisjs-template-pg}"
+    export PGPORT="''${PGPORT:-5432}"
+    export PGUSER="''${PGUSER:-postgres}"
+    export PGPASSWORD="''${PGPASSWORD:-postgres}"
+    export PGDATABASE="''${PGDATABASE:-adonisjs_template}"
+    export DB_HOST="''${DB_HOST:-$PGHOST}"
+    export DB_PORT="''${DB_PORT:-$PGPORT}"
+    export DB_USER="''${DB_USER:-$PGUSER}"
+    export DB_PASSWORD="''${DB_PASSWORD:-$PGPASSWORD}"
+    export DB_DATABASE="''${DB_DATABASE:-$PGDATABASE}"
+    export DB_SSL="''${DB_SSL:-false}"
     export DATABASE_URL="postgres://''${PGUSER}:''${PGPASSWORD}@/''${PGDATABASE}?host=''${PGHOST}&port=''${PGPORT}"
   '';
   src = ./.;
