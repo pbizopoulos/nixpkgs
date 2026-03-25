@@ -212,6 +212,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             vec![
                 r"packages/[^/]+/\.gitignore",
                 r"packages/[^/]+/\.terraform(/.*)?",
+                r"packages/[^/]+/\.terraform\.lock\.hcl",
                 r"packages/[^/]+/prm/.*",
             ],
         ),
