@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ title ? `${title} | AdonisJS Starter` : 'AdonisJS Starter' }}</title>
+    <meta
+      name="description"
+      content="A minimal AdonisJS starter template with a clean default layout."
+    />
+    <meta property="og:title" content="AdonisJS Starter" />
+    <meta
+      property="og:description"
+      content="A minimal AdonisJS starter template with a clean default layout."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://localhost:3000" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AdonisJS Starter" />
+    <meta
+      name="twitter:description"
+      content="A minimal AdonisJS starter template with a clean default layout."
+    />
+    <link rel="stylesheet" href="/styles/app.css" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+  </head>
+  <body>
+    @include('partials/header')
+    <main>
+      {{{ await $slots.main() }}}
+    </main>
+  </body>
+</html>

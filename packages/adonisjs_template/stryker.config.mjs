@@ -1,0 +1,43 @@
+export default {
+  packageManager: "npm",
+  reporters: ["html", "clear-text", "progress", "json"],
+  testRunner: "vitest",
+  concurrency: "100%",
+  incremental: true,
+  mutator: {
+    excludedMutations: [
+      "ArithmeticOperator",
+      "ArrayDeclaration",
+      "ArrowFunction",
+      "BlockStatement",
+      "LogicalOperator",
+      "MethodExpression",
+      "ObjectLiteral",
+      "OptionalChaining",
+      "StringLiteral",
+      "UpdateOperator",
+    ],
+  },
+  vitest: {
+    configFile: "vitest.config.ts",
+  },
+  checkers: [],
+  tsconfigFile: "tsconfig.json",
+  ignoreStatic: true,
+  mutate: [
+    "lib/**/*.ts",
+    "start/**/*.ts",
+    "app/**/*.ts",
+    "!**/*.test.{ts,tsx}",
+    "!**/*.spec.{ts,tsx}",
+  ],
+  ignorePatterns: [
+    "result",
+    "node_modules",
+    "build",
+    "coverage",
+    "reports",
+    ".stryker-tmp",
+  ],
+  thresholds: { high: 80, low: 60, break: null },
+};

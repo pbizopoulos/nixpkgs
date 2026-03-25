@@ -1,0 +1,124 @@
+{
+  "notes": [
+    "Do not encode framework APIs, route names, schema details, or selectors."
+  ],
+  "testCommand": "nix develop .#adonisjs_template -c npm test",
+  "selfEditingRules": [
+    "Keep this file intent-focused and describe user-visible behavior and constraints rather than implementation details.",
+    "Update features and scenarios whenever the implemented behavior changes and the new behavior is intended.",
+    "Add, merge, split, or remove features and scenarios to keep the spec aligned with the current intended product behavior.",
+    "Prefer adjusting existing scenarios over adding redundant ones when intent can be expressed more clearly by rewriting.",
+    "If code and tests conflict with this file, first determine whether the implementation is intentionally different; if so, update this file to match the intended behavior.",
+    "Do not change testCommand unless explicitly instructed."
+  ],
+  "features": [
+    {
+      "feature": "Landing experience",
+      "scenarios": [
+        {
+          "scenario": "Visitor sees the starting point",
+          "given": ["the visitor opens the application for the first time"],
+          "when": ["the visitor opens the application"],
+          "then": [
+            "the application communicates its purpose",
+            "the application presents a minimal starting experience",
+            "the application offers clear next actions for learning or deploying"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Starter guidance",
+      "scenarios": [
+        {
+          "scenario": "Visitor can continue from the starter",
+          "given": ["the visitor is evaluating the default template"],
+          "when": ["the landing page renders"],
+          "then": [
+            "the application highlights what the starter already includes",
+            "the application links to useful next steps for continuing with AdonisJS",
+            "the application remains usable on both desktop and mobile viewports"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Username lifecycle",
+      "scenarios": [
+        {
+          "scenario": "Visitor registers a username",
+          "given": ["the application is running with its database available"],
+          "when": ["the visitor submits a valid lowercase slug as a username"],
+          "then": [
+            "the application creates the user record",
+            "the application returns the created user",
+            "the application rejects duplicate usernames"
+          ]
+        },
+        {
+          "scenario": "Visitor submits an invalid username",
+          "given": ["the application is running"],
+          "when": [
+            "the visitor submits a username that is empty, too short, too long, or contains invalid characters"
+          ],
+          "then": [
+            "the application rejects the request",
+            "the application explains that usernames must be valid lowercase slugs"
+          ]
+        },
+        {
+          "scenario": "Visitor deletes a username",
+          "given": ["a user with that username already exists"],
+          "when": ["the visitor requests deletion for that username"],
+          "then": [
+            "the application deletes the user",
+            "the application confirms which username was deleted",
+            "the application returns not found when the username no longer exists"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Operational health",
+      "scenarios": [
+        {
+          "scenario": "Operators verify runtime dependencies",
+          "given": ["the application is running with its required services"],
+          "when": ["an operator checks application health"],
+          "then": [
+            "the application reports whether it is healthy",
+            "the application includes the status of its database dependency",
+            "the application includes memory health information"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Error handling",
+      "scenarios": [
+        {
+          "scenario": "Visitor requests an unknown route outside production",
+          "given": [
+            "the application is running in a non-production environment"
+          ],
+          "when": ["the visitor requests a route that does not exist"],
+          "then": [
+            "the application returns a not-found response",
+            "the application shows the framework debug exception page",
+            "the application makes the missing route obvious to the developer"
+          ]
+        },
+        {
+          "scenario": "Visitor requests an unknown route in production",
+          "given": ["the application is running in production"],
+          "when": ["the visitor requests a route that does not exist"],
+          "then": [
+            "the application returns a not-found response",
+            "the application renders a user-friendly error page",
+            "the application does not expose debug details"
+          ]
+        }
+      ]
+    }
+  ]
+}

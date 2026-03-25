@@ -1,0 +1,13 @@
+.adonisjs/
+.env
+.env.*
+.next/
+.postgres/
+build/
+.stryker-tmp/
+coverage/
+node_modules/
+reports/
+test-results/
+tmp/
+tsconfig.tsbuildinfo

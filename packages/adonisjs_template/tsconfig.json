@@ -1,0 +1,19 @@
+{
+  "extends": "@adonisjs/tsconfig/tsconfig.app.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./build"
+  },
+  "include": [
+    "adonisrc.ts",
+    "app/**/*.ts",
+    "bin/**/*.ts",
+    "config/**/*.ts",
+    "database/**/*.ts",
+    "lib/**/*.ts",
+    "scripts/**/*.js",
+    "start/**/*.ts",
+    "stryker.config.mjs",
+    "vitest.config.ts"
+  ]
+}
