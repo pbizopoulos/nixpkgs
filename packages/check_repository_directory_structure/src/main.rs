@@ -34,6 +34,16 @@ fn package_root(rel_path: &Path) -> Option<PathBuf> {
         _ => None,
     }
 }
+fn host_root(rel_path: &Path) -> Option<PathBuf> {
+    let components: Vec<_> = rel_path
+        .components()
+        .map(|component| component.as_os_str().to_str().unwrap())
+        .collect();
+    match components.as_slice() {
+        ["hosts", host_name, ..] => Some(PathBuf::from(format!("hosts/{host_name}"))),
+        _ => None,
+    }
+}
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     let args = Args::parse();
@@ -176,6 +186,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"flake\.nix",
         r"formatter\.nix",
         r"hosts/[^/]+/configuration\.nix",
+        r"hosts/[^/]+/hardware-configuration\.nix",
         r"modules/nixos/.*",
         r"packages/[^/]+/\.gitignore",
         r"packages/[^/]+/Main\.hs",
@@ -291,6 +302,19 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             final_warnings.push(format!(
                 "{}: is missing required default.nix",
                 working_dir.join(package_root).display()
+            ));
+        }
+    }
+    let host_roots: HashSet<_> = all_rel_paths
+        .iter()
+        .filter_map(|path| host_root(path))
+        .collect();
+    for host_root in host_roots {
+        let configuration_nix = host_root.join("configuration.nix");
+        if !all_rel_paths.contains(&configuration_nix) {
+            final_warnings.push(format!(
+                "{}: is missing required configuration.nix",
+                working_dir.join(host_root).display()
             ));
         }
     }
@@ -452,6 +476,11 @@ fn test_check_repository_directory_structure_standalone() {
     fs::remove_dir(temp_dir.join("packages")).unwrap();
     fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
     fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+    fs::write(
+        temp_dir.join("hosts/my-host/hardware-configuration.nix"),
+        "test",
+    )
+    .unwrap();
     Command::new("git")
         .args(["add", "hosts"])
         .current_dir(&temp_dir)
@@ -464,6 +493,15 @@ fn test_check_repository_directory_structure_standalone() {
         result.err()
     );
     fs::write(temp_dir.join("hosts/my-host/.gitignore"), "test").unwrap();
+    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+    assert!(result.is_err());
+    fs::remove_file(temp_dir.join("hosts/my-host/.gitignore")).unwrap();
+    fs::create_dir_all(temp_dir.join("hosts/only-hardware")).unwrap();
+    fs::write(
+        temp_dir.join("hosts/only-hardware/hardware-configuration.nix"),
+        "test",
+    )
+    .unwrap();
     let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(result.is_err());
     fs::remove_dir_all(&temp_dir).unwrap();
@@ -600,6 +638,11 @@ mod tests {
         fs::remove_dir(temp_dir.join("packages")).unwrap();
         fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
         fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
+        fs::write(
+            temp_dir.join("hosts/my-host/hardware-configuration.nix"),
+            "test",
+        )
+        .unwrap();
         Command::new("git")
             .args(["add", "hosts"])
             .current_dir(&temp_dir)
@@ -613,6 +656,16 @@ mod tests {
             result.err()
         );
         fs::write(temp_dir.join("hosts/my-host/.gitignore"), "test").unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(result.is_err());
+        fs::remove_file(temp_dir.join("hosts/my-host/.gitignore")).unwrap();
+        fs::create_dir_all(temp_dir.join("hosts/only-hardware")).unwrap();
+        fs::write(
+            temp_dir.join("hosts/only-hardware/hardware-configuration.nix"),
+            "test",
+        )
+        .unwrap();
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
