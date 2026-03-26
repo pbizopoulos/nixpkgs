@@ -33,12 +33,7 @@ let
       dos2unix.enable = true;
       fourmolu.enable = true;
       hlint.enable = true;
-      jsonfmt = {
-        enable = true;
-        excludes = [
-          "**/tsconfig.json"
-        ];
-      };
+      jsonfmt.enable = true;
       mdformat.enable = true;
       mdsh.enable = true;
       nixfmt.enable = true;
