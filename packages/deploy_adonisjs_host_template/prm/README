@@ -1,32 +1,6 @@
-# real deployment procedure
-# 1. Initialize `secrets/secrets.age` with the example template.
 EDITOR="cp secrets/secrets.env.example" nix run github:ryantm/agenix -- -e secrets/secrets.age
-
-# 2. Generate a secure `APP_KEY` for AdonisJS.
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-
-# 3. Set your real `APP_KEY` and `TF_VAR_hcloud_token` in the secrets file.
 nix run github:ryantm/agenix -- -e secrets/secrets.age
-
-# 4. Upload the public key you want Hetzner to inject for the first login as SSH key `default`.
-# For the current setup, that should be one of:
-# - `prm/developer.pub`
-# 5. If you need a different server size, edit:
-# packages/deploy_adonisjs_host_template/main.tf
-
-# 6. Rekey or re-encrypt `secrets/secrets.age` so your local user key can decrypt it.
+# Upload the developer.pub key you want Hetzner to inject for the first login as SSH key `default`.
 bash prm/agenix-rekey.sh
-
-# 7. Perform the first remote deployment.
 nix run .#deploy_adonisjs_host_template
-
-# 8. Fetch the new host SSH public key into `prm/adonisjs_template.pub` and re-encrypt secrets for the host.
-bash prm/post-deploy.sh adonisjs_template
-
-# 9. Deploy again so the host can decrypt its secrets.
-nix run .#deploy_adonisjs_host_template
-
-# Runtime conventions on the host:
-# - nginx listens on port 80 and proxies to `127.0.0.1:3333`
-# - the app runs with `HOST=127.0.0.1`, `PORT=3333`, `APP_URL=http://adonisjs_template`
-# - PostgreSQL uses the local socket with database/user `adonisjs_template`

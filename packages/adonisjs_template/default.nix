@@ -34,7 +34,7 @@ pkgs.buildNpmPackage rec {
     pkgs.postgresql
   ];
   npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-i00FXU6+TUDR1kFPubv8hD0vR9OqwFGfxOnp1gcpvIw=";
+  npmDepsHash = "sha256-mH39hezfMd8CFjE6WxAd1qvy/0ngmXSlXGiaAjgEIyg=";
   npmFlags = [
     "--legacy-peer-deps"
   ];
@@ -42,12 +42,7 @@ pkgs.buildNpmPackage rec {
   shellHook = ''
     # shellcheck disable=SC1091
     source ${pkgs.lib.getExe installationScript}
-    if [ -n "''${secrets_PATH:-}" ] && [ -f "$secrets_PATH" ]; then
-      set -a
-      # shellcheck disable=SC1090,SC2154
-      source "$secrets_PATH"
-      set +a
-    fi
+    export $(grep -v '^#' "$secrets_PATH" | xargs)
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
     export PGDATA="''${PGDATA:-$PWD/tmp/.postgres}"
