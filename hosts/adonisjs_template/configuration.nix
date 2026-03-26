@@ -7,6 +7,9 @@
 }:
 let
   hostName = baseNameOf ./.;
+  opensshAuthorizedKeyFiles = [
+    ./../../prm/developer.pub
+  ];
   packageName = "adonisjs_template";
 in
 {
@@ -136,6 +139,15 @@ in
         local all all trust
       '';
       enable = true;
+      ensureDatabases = [
+        packageName
+      ];
+      ensureUsers = [
+        {
+          ensureDBOwnership = true;
+          name = packageName;
+        }
+      ];
     };
   };
   system.stateVersion = "25.11";
@@ -145,6 +157,21 @@ in
         "network.target"
         "postgresql.service"
       ];
+      environment = {
+        APP_NAME = "AdonisJS Starter";
+        APP_URL = "http://${hostName}";
+        DB_DATABASE = packageName;
+        DB_HOST = "/run/postgresql";
+        DB_PASSWORD = "unused";
+        DB_PORT = "5432";
+        DB_SSL = "false";
+        DB_USER = packageName;
+        HOST = "127.0.0.1";
+        LOG_LEVEL = "info";
+        NODE_ENV = "production";
+        PORT = "3333";
+        TZ = "UTC";
+      };
       serviceConfig = {
         EnvironmentFile = config.age.secrets.secrets-env.path;
         ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${packageName}}/bin/${packageName}";
@@ -177,13 +204,9 @@ in
           "wheel"
         ];
         isNormalUser = true;
-        openssh.authorizedKeys.keys = [
-          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKN1+fP1Xy+m/V7/L9uC7N+o8Z2T8Y8+M1C1kS8mGz6f"
-        ];
+        openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
       };
-      root.openssh.authorizedKeys.keys = [
-        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKN1+fP1Xy+m/V7/L9uC7N+o8Z2T8Y8+M1C1kS8mGz6f"
-      ];
+      root.openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
     };
   };
   virtualisation.vmVariantWithDisko = {

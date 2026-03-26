@@ -11,7 +11,7 @@ variable "hcloud_token" {
   sensitive = true
 }
 variable "nixos_config_name" {
-  default = "adonisjs_host_template"
+  default = "adonisjs_template"
 }
 variable "hcloud_ssh_key_name" {
   default = "default"
