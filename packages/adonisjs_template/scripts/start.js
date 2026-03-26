@@ -24,11 +24,11 @@ const defaultEnv = {
   LOG_LEVEL: "info",
   APP_NAME: "AdonisJS Starter",
   APP_KEY: "development-app-key-development-app-key",
-  DB_HOST: "127.0.0.1",
+  DB_HOST: existsSync("/run/postgresql") ? "/run/postgresql" : "127.0.0.1",
   DB_PORT: "5432",
   DB_USER: "postgres",
   DB_PASSWORD: "postgres",
-  DB_DATABASE: "adonisjs_template",
+  DB_DATABASE: "postgres",
   DB_SSL: "false",
 };
 for (const [key, value] of Object.entries(defaultEnv)) {
@@ -86,12 +86,12 @@ const runTests = () => {
   process.env.PGUSER ??= "postgres";
   process.env.PGPASSWORD ??= "postgres";
   process.env.PGDATABASE ??= "adonisjs_template";
-  process.env.DB_HOST ??= process.env.PGHOST;
-  process.env.DB_PORT ??= process.env.PGPORT;
-  process.env.DB_USER ??= process.env.PGUSER;
-  process.env.DB_PASSWORD ??= process.env.PGPASSWORD;
-  process.env.DB_DATABASE ??= process.env.PGDATABASE;
-  process.env.DATABASE_URL ??=
+  process.env.DB_HOST = process.env.PGHOST;
+  process.env.DB_PORT = process.env.PGPORT;
+  process.env.DB_USER = process.env.PGUSER;
+  process.env.DB_PASSWORD = process.env.PGPASSWORD;
+  process.env.DB_DATABASE = process.env.PGDATABASE;
+  process.env.DATABASE_URL =
     `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}` +
     `@/${process.env.PGDATABASE}?host=${process.env.PGHOST}&port=${process.env.PGPORT}`;
   const tests = spawn("bash", ["scripts/test.sh"], {

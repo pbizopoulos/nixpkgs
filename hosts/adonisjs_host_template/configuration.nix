@@ -131,16 +131,11 @@ in
       settings.PasswordAuthentication = false;
     };
     postgresql = {
+      authentication = pkgs.lib.mkOverride 10 ''
+        # type database user address method
+        local all all trust
+      '';
       enable = true;
-      ensureDatabases = [
-        packageName
-      ];
-      ensureUsers = [
-        {
-          ensureDBOwnership = true;
-          name = packageName;
-        }
-      ];
     };
   };
   system.stateVersion = "25.11";
@@ -150,12 +145,6 @@ in
         "network.target"
         "postgresql.service"
       ];
-      environment = {
-        DB_DATABASE = packageName;
-        DB_HOST = "/run/postgresql";
-        DB_USER = packageName;
-        HOST = "127.0.0.1";
-      };
       serviceConfig = {
         EnvironmentFile = config.age.secrets.secrets-env.path;
         ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${packageName}}/bin/${packageName}";
@@ -188,7 +177,13 @@ in
           "wheel"
         ];
         isNormalUser = true;
+        openssh.authorizedKeys.keys = [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKN1+fP1Xy+m/V7/L9uC7N+o8Z2T8Y8+M1C1kS8mGz6f"
+        ];
       };
+      root.openssh.authorizedKeys.keys = [
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKN1+fP1Xy+m/V7/L9uC7N+o8Z2T8Y8+M1C1kS8mGz6f"
+      ];
     };
   };
   virtualisation.vmVariantWithDisko = {
