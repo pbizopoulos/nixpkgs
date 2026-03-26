@@ -16,6 +16,16 @@ import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, "..");
 const packageName = "adonisjs_template";
+const packagedRuntimePath = "@packagedRuntimePath@";
+const packagedPlaywrightBrowsersPath = "@packagedPlaywrightBrowsersPath@";
+if (!packagedRuntimePath.startsWith("@")) {
+  process.env.PATH = process.env.PATH
+    ? `${packagedRuntimePath}:${process.env.PATH}`
+    : packagedRuntimePath;
+}
+if (!packagedPlaywrightBrowsersPath.startsWith("@")) {
+  process.env.PLAYWRIGHT_BROWSERS_PATH ??= packagedPlaywrightBrowsersPath;
+}
 const defaultEnv = {
   TZ: "UTC",
   NODE_ENV: "production",

@@ -33,7 +33,7 @@
     "pretest": "sh scripts/prepare.sh",
     "test": "bash scripts/test.sh",
     "test:e2e": "E2E_MODE=prod playwright test",
-    "test:lint": "npm run clean && jscpd --ignore build,bin,.next . && depcruise app bin config lib resources start",
+    "test:lint": "npm run clean && jscpd --ignore build,bin,.next,node_modules . && depcruise app bin config lib resources start",
     "test:mutation": "stryker run && node scripts/mutation-metrics.js",
     "test:visual": "npm run build && npm run test:e2e -- --update-snapshots"
   },
