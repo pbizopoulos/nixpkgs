@@ -4,6 +4,6 @@
 3. If needed, adjust `TF_VAR_nixos_config_name` and `TF_VAR_hcloud_ssh_key_name`.
 4. Ensure the Hetzner SSH key named by `TF_VAR_hcloud_ssh_key_name` already exists in your Hetzner account.
 5. Rekey or re-encrypt `secrets/secrets.age` so your local user key can decrypt it.
-6. Run `nix run .#deploy` for the first remote deployment.
+6. Run `nix run .#deploy_adonisjs_host_template` for the first remote deployment.
 7. Run `bash prm/post-deploy.sh` to fetch the new host SSH public key into `prm/<host>.pub` and rekey `secrets.age`.
-8. Run `nix run .#deploy` again so the deployed host can decrypt the rekeyed secret.
+8. Run `nix run .#deploy_adonisjs_host_template` again so the deployed host can decrypt the rekeyed secret.

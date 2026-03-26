@@ -30,8 +30,8 @@ pkgs.writeShellApplication {
     workdir=$(mktemp -d)
     cp -r ${repoSrc}/. "$workdir/"
     chmod -R u+w "$workdir"
-    rm -rf "$workdir/packages/deploy/.terraform" "$workdir/packages/deploy/.terraform.lock.hcl"
-    tofu -chdir="$workdir/packages/deploy" init -reconfigure
-    tofu -chdir="$workdir/packages/deploy" apply
+    rm -rf "$workdir/packages/deploy_adonisjs_host_template/.terraform" "$workdir/packages/deploy_adonisjs_host_template/.terraform.lock.hcl"
+    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" init -reconfigure
+    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" apply
   '';
 }

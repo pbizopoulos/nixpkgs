@@ -35,8 +35,8 @@ resource "hcloud_server" "default" {
 module "deploy" {
   count                  = 1
   source                 = "github.com/nix-community/nixos-anywhere//terraform/all-in-one"
-  nixos_system_attr      = ".#nixosConfigurations.${var.nixos_config_name}.config.system.build.toplevel"
-  nixos_partitioner_attr = ".#nixosConfigurations.${var.nixos_config_name}.config.system.build.diskoScript"
+  nixos_system_attr      = "../../#nixosConfigurations.${var.nixos_config_name}.config.system.build.toplevel"
+  nixos_partitioner_attr = "../../#nixosConfigurations.${var.nixos_config_name}.config.system.build.diskoScript"
   target_host            = hcloud_server.default.ipv4_address
 }
 resource "local_file" "ipv4_address" {
