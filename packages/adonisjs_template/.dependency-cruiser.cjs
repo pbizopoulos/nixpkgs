@@ -11,7 +11,7 @@ module.exports = {
       name: "no-orphans",
       severity: "warn",
       comment: "Orphaned module detected.",
-      from: { orphan: true, pathNot: "app/sitemap.ts" },
+      from: { orphan: true },
       to: {},
     },
   ],
