@@ -3,7 +3,12 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./"),
+      "#controllers": path.resolve(__dirname, "./app/controllers"),
+      "#models": path.resolve(__dirname, "./app/models"),
+      "#validators": path.resolve(__dirname, "./app/validators"),
+      "#start": path.resolve(__dirname, "./start"),
+      "#config": path.resolve(__dirname, "./config"),
+      "#providers": path.resolve(__dirname, "./providers"),
     },
   },
   test: {
