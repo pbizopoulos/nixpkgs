@@ -19,12 +19,13 @@ in
 pkgs.buildNpmPackage {
   inherit pname;
   dontNpmPrune = true;
+  makeCacheWritable = true;
   meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-fwqfyIBUgkxYmK9H3LjAnzE2pJHCY3ZO/8CzPy22xXk=";
+  npmDepsHash = "sha256-+fbtqup05dILPPv3XgFSSiQbXxE/WkY5qIbCLjauqng=";
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
   '';

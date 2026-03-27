@@ -1,5 +1,5 @@
 import type { HttpContext } from "@adonisjs/core/http";
-import db from "@adonisjs/lucid/services/db";
+import User from "#models/user";
 import { isValidUsername } from "../validators/username.js";
 export default class UsersController {
   async store({ request, response }: HttpContext) {
@@ -8,21 +8,12 @@ export default class UsersController {
       response.status(422);
       return { error: "username must be a valid lowercase slug" };
     }
-    const existingUser = await db
-      .from("users")
-      .select("id", "username")
-      .where("username", username)
-      .first();
+    const existingUser = await User.findBy("username", username);
     if (existingUser) {
       response.status(409);
       return { error: "username already exists" };
     }
-    await db.table("users").insert({ username });
-    const user = await db
-      .from("users")
-      .select("id", "username")
-      .where("username", username)
-      .first();
+    const user = await User.create({ username });
     response.status(201);
     return { user };
   }
@@ -32,16 +23,12 @@ export default class UsersController {
       response.status(422);
       return { error: "username must be a valid lowercase slug" };
     }
-    const existingUser = await db
-      .from("users")
-      .select("id")
-      .where("username", username)
-      .first();
-    if (!existingUser) {
+    const user = await User.findBy("username", username);
+    if (!user) {
       response.status(404);
       return { error: "user not found" };
     }
-    await db.from("users").where("username", username).delete();
+    await user.delete();
     return { deleted: true, username };
   }
 }

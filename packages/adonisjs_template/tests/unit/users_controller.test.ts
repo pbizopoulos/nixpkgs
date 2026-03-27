@@ -1,39 +1,34 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-type QueryState = {
+type TestState = {
   deleteCalls: string[];
-  firstResults: unknown[];
-  insertCalls: Array<Record<string, unknown>>;
-  whereCalls: Array<{ column: string; value: unknown }>;
+  findResults: unknown[];
+  createCalls: Array<Record<string, unknown>>;
 };
-function createState(firstResults: unknown[] = []): QueryState {
+function createState(findResults: unknown[] = []): TestState {
   return {
     deleteCalls: [],
-    firstResults,
-    insertCalls: [],
-    whereCalls: [],
+    findResults,
+    createCalls: [],
   };
 }
-function createDbMock(state: QueryState) {
-  const createQueryBuilder = () => ({
-    select: vi.fn().mockReturnThis(),
-    where: vi.fn((column: string, value: unknown) => {
-      state.whereCalls.push({ column, value });
-      return createQueryBuilder();
-    }),
-    first: vi.fn(async () => state.firstResults.shift()),
-    delete: vi.fn(async () => {
-      const lastWhere = state.whereCalls.at(-1);
-      state.deleteCalls.push(String(lastWhere?.value ?? ""));
-      return 1;
-    }),
-  });
+function createUserMock(state: TestState) {
   return {
-    from: vi.fn(() => createQueryBuilder()),
-    table: vi.fn(() => ({
-      insert: vi.fn(async (payload: Record<string, unknown>) => {
-        state.insertCalls.push(payload);
-      }),
-    })),
+    findBy: vi.fn(async (_field: string, value: string) => {
+      const result = state.findResults.shift();
+      if (result) {
+        return {
+          ...result,
+          delete: vi.fn(async () => {
+            state.deleteCalls.push(value);
+          }),
+        };
+      }
+      return null;
+    }),
+    create: vi.fn(async (payload: Record<string, unknown>) => {
+      state.createCalls.push(payload);
+      return { id: 2, ...payload };
+    }),
   };
 }
 function createHttpContext(username: unknown) {
@@ -47,22 +42,22 @@ function createHttpContext(username: unknown) {
     },
   };
 }
-async function loadController(state: QueryState) {
+async function loadController(state: TestState) {
   vi.resetModules();
-  vi.doMock("@adonisjs/lucid/services/db", () => ({
-    default: createDbMock(state),
+  vi.doMock("#models/user", () => ({
+    default: createUserMock(state),
   }));
   return import("../../app/controllers/users_controller.js");
 }
-async function setupStore(username: unknown, firstResults: unknown[] = []) {
-  const state = createState(firstResults);
+async function setupStore(username: unknown, findResults: unknown[] = []) {
+  const state = createState(findResults);
   const { default: UsersController } = await loadController(state);
   const context = createHttpContext(username);
   const result = await new UsersController().store(context as never);
   return { context, result, state };
 }
-async function setupDestroy(username: unknown, firstResults: unknown[] = []) {
-  const state = createState(firstResults);
+async function setupDestroy(username: unknown, findResults: unknown[] = []) {
+  const state = createState(findResults);
   const { default: UsersController } = await loadController(state);
   const context = createHttpContext(username);
   const result = await new UsersController().destroy(context as never);
@@ -71,14 +66,13 @@ async function setupDestroy(username: unknown, firstResults: unknown[] = []) {
 function expectInvalidUsernameResult(
   context: ReturnType<typeof createHttpContext>,
   result: unknown,
-  state: QueryState,
+  state: TestState,
 ) {
   expect(context.response.status).toHaveBeenCalledWith(422);
   expect(result).toEqual({
     error: "username must be a valid lowercase slug",
   });
-  expect(state.whereCalls).toHaveLength(0);
-  expect(state.insertCalls).toHaveLength(0);
+  expect(state.createCalls).toHaveLength(0);
 }
 describe("UsersController", () => {
   beforeEach(() => {
@@ -98,15 +92,12 @@ describe("UsersController", () => {
     ]);
     expect(context.response.status).toHaveBeenCalledWith(409);
     expect(result).toEqual({ error: "username already exists" });
-    expect(state.insertCalls).toHaveLength(0);
+    expect(state.createCalls).toHaveLength(0);
   });
   it("creates and returns a new username", async () => {
-    const { context, result, state } = await setupStore("starter-user", [
-      undefined,
-      { id: 2, username: "starter-user" },
-    ]);
+    const { context, result, state } = await setupStore("starter-user", [null]);
     expect(context.response.status).toHaveBeenCalledWith(201);
-    expect(state.insertCalls).toEqual([{ username: "starter-user" }]);
+    expect(state.createCalls).toEqual([{ username: "starter-user" }]);
     expect(result).toEqual({ user: { id: 2, username: "starter-user" } });
   });
   it("rejects invalid usernames during deletion", async () => {
@@ -119,7 +110,7 @@ describe("UsersController", () => {
   });
   it("returns not found when deleting a missing username", async () => {
     const { context, result, state } = await setupDestroy("starter-user", [
-      undefined,
+      null,
     ]);
     expect(context.response.status).toHaveBeenCalledWith(404);
     expect(result).toEqual({ error: "user not found" });

@@ -15,6 +15,7 @@
     "start/**/*.ts",
     "stryker.config.mjs",
     "tests/**/*.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    ".adonisjs/**/*.ts"
   ]
 }
