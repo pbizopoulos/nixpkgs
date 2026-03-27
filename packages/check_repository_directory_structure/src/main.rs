@@ -144,12 +144,19 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "prm"
                 || s == "target"
                 || s == "CSharpier"
+                || s == ".adonisjs"
                 || s == "build"
+                || s == "coverage"
                 || s == "_build"
                 || s == "deps"
                 || s == "node_modules"
                 || s == ".nuxt"
                 || s == ".svelte-kit"
+                || s == ".stryker-tmp"
+                || s == "reports"
+                || s == "result"
+                || s == "test-results"
+                || s == "tsconfig.tsbuildinfo"
             {
                 return false;
             }
