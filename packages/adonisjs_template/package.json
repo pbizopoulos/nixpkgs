@@ -21,8 +21,6 @@
     "db:reset": "bash scripts/postgres-dev.sh reset",
     "predb:migrate": "sh scripts/prepare.sh",
     "db:migrate": "node ace migration:run --force",
-    "predb:seed": "sh scripts/prepare.sh",
-    "db:seed": "node ace db:seed",
     "predev": "sh scripts/prepare.sh",
     "dev": "node ace serve --hmr",
     "dev:full": "npm run db:start && npm run db:createdb && npm run db:migrate && npm run dev",
