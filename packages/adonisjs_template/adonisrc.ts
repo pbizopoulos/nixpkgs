@@ -29,4 +29,23 @@ export default defineConfig({
       reloadServer: false,
     },
   ],
+  tests: {
+    suites: [
+      {
+        name: "functional",
+        files: ["tests/functional/**/*.test.ts"],
+        timeout: 30000,
+      },
+      {
+        name: "unit",
+        files: ["tests/unit/**/*.test.ts"],
+        timeout: 30000,
+      },
+      {
+        name: "browser",
+        files: ["tests/browser/**/*.spec.ts"],
+        timeout: 30000,
+      },
+    ],
+  },
 });

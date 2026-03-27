@@ -11,22 +11,22 @@
     "#config/*": "./config/*.js"
   },
   "bin": {
-    "adonisjs_template": "scripts/entrypoint.js"
+    "adonisjs_template": "bin/entrypoint.js"
   },
   "scripts": {
     "clean": "rm -rf .adonisjs build coverage reports test-results .stryker-tmp tsconfig.tsbuildinfo",
-    "db:init": "bash scripts/pg.sh init",
-    "db:start": "bash scripts/pg.sh start",
-    "db:stop": "bash scripts/pg.sh stop",
-    "db:status": "bash scripts/pg.sh status",
-    "db:createdb": "bash scripts/pg.sh createdb",
-    "db:reset": "bash scripts/pg.sh reset",
-    "db:migrate": "node ace migration:run --force",
-    "dev": "node ace serve --hmr",
+    "db:init": "bash bin/pg.sh init",
+    "db:start": "bash bin/pg.sh start",
+    "db:stop": "bash bin/pg.sh stop",
+    "db:status": "bash bin/pg.sh status",
+    "db:createdb": "bash bin/pg.sh createdb",
+    "db:reset": "bash bin/pg.sh reset",
+    "db:migrate": "node ace.js migration:run --force",
+    "dev": "node ace.js serve --hmr",
     "dev:full": "npm run db:start && npm run db:createdb && npm run db:migrate && npm run dev",
-    "build": "node ace build",
+    "build": "node ace.js build",
     "start": "node build/bin/server.js",
-    "test": "bash scripts/test.sh",
+    "test": "bash bin/test.sh",
     "test:e2e": "E2E_MODE=prod playwright test",
     "test:lint": "npm run clean && jscpd --ignore build,bin,node_modules . && depcruise app bin config resources start",
     "test:mutation": "stryker run && node -e \"const fs=require('node:fs'),{calculateMetrics}=require('mutation-testing-metrics'),report=JSON.parse(fs.readFileSync('reports/mutation/mutation.json','utf-8')),metrics=calculateMetrics(report.files);console.log(JSON.stringify(metrics.metrics,null,2))\"",

@@ -104,7 +104,7 @@ const runTests = () => {
   process.env.DATABASE_URL =
     `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}` +
     `@/${process.env.PGDATABASE}?host=${process.env.PGHOST}&port=${process.env.PGPORT}`;
-  const tests = spawn("bash", ["scripts/test.sh"], {
+  const tests = spawn("bash", ["bin/test.sh"], {
     cwd: runtimeRoot,
     env: process.env,
     stdio: "inherit",

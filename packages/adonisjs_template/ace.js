@@ -1,25 +1,13 @@
+#!/usr/bin/env node
 /*
 |--------------------------------------------------------------------------
-| JavaScript entrypoint for running ace commands
+| Ace CLI Entry Point
 |--------------------------------------------------------------------------
 |
-| DO NOT MODIFY THIS FILE AS IT WILL BE OVERRIDDEN DURING THE BUILD
-| PROCESS.
-|
-| See docs.adonisjs.com/guides/typescript-build-process#creating-production-build
-|
-| Since, we cannot run TypeScript source code using "node" binary, we need
-| a JavaScript entrypoint to run ace commands.
-|
-| This file registers the "ts-node/esm" hook with the Node.js module system
-| and then imports the "bin/console.ts" file.
+| The "ace.js" file is the entry point for running Ace commands.
+| In AdonisJS v7, this file registers the "@poppinss/ts-exec" hook
+| and then imports the "bin/console.js" file.
 |
 */
-/**
- * Register hook to process TypeScript files using ts-node
- */
 import "@poppinss/ts-exec";
-/**
- * Import ace console entrypoint
- */
 await import("./bin/console.js");

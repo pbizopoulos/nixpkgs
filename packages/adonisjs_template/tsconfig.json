@@ -5,12 +5,13 @@
     "outDir": "./build"
   },
   "include": [
+    "ace.js",
     "adonisrc.ts",
     "app/**/*.ts",
     "bin/**/*.ts",
+    "bin/**/*.js",
     "config/**/*.ts",
     "database/**/*.ts",
-    "scripts/**/*.js",
     "start/**/*.ts",
     "stryker.config.mjs",
     "tests/**/*.ts",
