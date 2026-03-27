@@ -6,6 +6,7 @@ import {
 describe("isValidUsername", () => {
   it("accepts lowercase slugs", () => {
     expect(isValidUsername("starter-app")).toBe(true);
+    expect(isValidUsername("abc")).toBe(true);
   });
   it("rejects empty or short usernames", () => {
     expect(isValidUsername("")).toBe(false);
