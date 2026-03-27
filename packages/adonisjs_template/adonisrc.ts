@@ -17,6 +17,7 @@ export default defineConfig({
     () => import("@adonisjs/core/providers/edge_provider"),
     () => import("@adonisjs/lucid/database_provider"),
     () => import("@adonisjs/static/static_provider"),
+    () => import("#providers/app_provider"),
   ],
   preloads: [() => import("#start/routes"), () => import("#start/kernel")],
   metaFiles: [
