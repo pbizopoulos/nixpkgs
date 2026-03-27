@@ -11,6 +11,7 @@ describe("isValidUsername", () => {
   it("rejects empty or short usernames", () => {
     expect(isValidUsername("")).toBe(false);
     expect(isValidUsername("ab")).toBe(false);
+    expect(isValidUsername(undefined as unknown as string)).toBe(false);
   });
   it("rejects invalid characters", () => {
     expect(isValidUsername("Starter App")).toBe(false);
