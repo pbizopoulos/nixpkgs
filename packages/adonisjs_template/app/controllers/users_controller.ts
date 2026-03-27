@@ -1,6 +1,6 @@
 import type { HttpContext } from "@adonisjs/core/http";
 import db from "@adonisjs/lucid/services/db";
-import { isValidUsername } from "#validators/username";
+import { isValidUsername } from "../validators/username.js";
 export default class UsersController {
   async store({ request, response }: HttpContext) {
     const username = request.input("username");
