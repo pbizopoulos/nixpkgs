@@ -9,30 +9,25 @@
     "#config/*": "./config/*.js"
   },
   "bin": {
-    "adonisjs_template": "scripts/start.js"
+    "adonisjs_template": "scripts/entrypoint.js"
   },
   "scripts": {
-    "clean": "node scripts/clean.js",
-    "db:init": "bash scripts/postgres-dev.sh init",
-    "db:start": "bash scripts/postgres-dev.sh start",
-    "db:stop": "bash scripts/postgres-dev.sh stop",
-    "db:status": "bash scripts/postgres-dev.sh status",
-    "db:createdb": "bash scripts/postgres-dev.sh createdb",
-    "db:reset": "bash scripts/postgres-dev.sh reset",
-    "predb:migrate": "sh scripts/prepare.sh",
+    "clean": "rm -rf build coverage reports .stryker-tmp",
+    "db:init": "bash scripts/pg.sh init",
+    "db:start": "bash scripts/pg.sh start",
+    "db:stop": "bash scripts/pg.sh stop",
+    "db:status": "bash scripts/pg.sh status",
+    "db:createdb": "bash scripts/pg.sh createdb",
+    "db:reset": "bash scripts/pg.sh reset",
     "db:migrate": "node ace migration:run --force",
-    "predev": "sh scripts/prepare.sh",
     "dev": "node ace serve --hmr",
     "dev:full": "npm run db:start && npm run db:createdb && npm run db:migrate && npm run dev",
-    "prebuild": "sh scripts/prepare.sh",
     "build": "node ace build",
-    "prestart": "sh scripts/prepare.sh",
     "start": "node build/bin/server.js",
-    "pretest": "sh scripts/prepare.sh",
     "test": "bash scripts/test.sh",
     "test:e2e": "E2E_MODE=prod playwright test",
     "test:lint": "npm run clean && jscpd --ignore build,bin,node_modules . && depcruise app bin config resources start",
-    "test:mutation": "stryker run && node scripts/mutation-metrics.js",
+    "test:mutation": "stryker run && node -e \"const fs=require('node:fs'),{calculateMetrics}=require('mutation-testing-metrics'),report=JSON.parse(fs.readFileSync('reports/mutation/mutation.json','utf-8')),metrics=calculateMetrics(report.files);console.log(JSON.stringify(metrics.metrics,null,2))\"",
     "test:visual": "npm run build && npm run test:e2e -- --update-snapshots"
   },
   "dependencies": {

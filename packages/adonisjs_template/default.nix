@@ -29,7 +29,7 @@ pkgs.buildNpmPackage {
     cp -r build "$out/lib/node_modules/${pname}/build"
   '';
   postPatch = ''
-    substituteInPlace scripts/start.js \
+    substituteInPlace scripts/entrypoint.js \
       --replace-fail "@packagedRuntimePath@" "${runtimePath}" \
       --replace-fail "@packagedPlaywrightBrowsersPath@" "${pkgs.playwright-driver.browsers}"
   '';
