@@ -25,7 +25,6 @@ export default {
   tsconfigFile: "tsconfig.json",
   ignoreStatic: true,
   mutate: [
-    "lib/**/*.ts",
     "start/**/*.ts",
     "app/**/*.ts",
     "!**/*.test.{ts,tsx}",

@@ -1,7 +1,6 @@
 .adonisjs/
 .env
 .env.*
-.next/
 .postgres/
 build/
 .stryker-tmp/

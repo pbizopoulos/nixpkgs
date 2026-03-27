@@ -10,10 +10,10 @@
     "bin/**/*.ts",
     "config/**/*.ts",
     "database/**/*.ts",
-    "lib/**/*.ts",
     "scripts/**/*.js",
     "start/**/*.ts",
     "stryker.config.mjs",
+    "tests/**/*.ts",
     "vitest.config.ts"
   ]
 }

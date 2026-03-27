@@ -1,4 +1,4 @@
-import { ExceptionHandler, type HttpContext } from "@adonisjs/core/http";
+import { ExceptionHandler } from "@adonisjs/core/http";
 import app from "@adonisjs/core/services/app";
 import type {
   StatusPageRange,
@@ -12,10 +12,4 @@ export default class HttpExceptionHandler extends ExceptionHandler {
     "500..599": (error, { view }) =>
       view.render("errors/server-error", { error }),
   };
-  async handle(error: unknown, ctx: HttpContext) {
-    return super.handle(error, ctx);
-  }
-  async report(error: unknown, ctx: HttpContext) {
-    return super.report(error, ctx);
-  }
 }

@@ -1,6 +1,5 @@
 import { defineConfig } from "@adonisjs/core/app";
 export default defineConfig({
-  experimental: {},
   commands: [
     () => import("@adonisjs/core/commands"),
     () => import("@adonisjs/lucid/commands"),
@@ -16,7 +15,6 @@ export default defineConfig({
     () => import("@adonisjs/static/static_provider"),
   ],
   preloads: [() => import("#start/routes"), () => import("#start/kernel")],
-  tests: { suites: [], forceExit: false },
   metaFiles: [
     {
       pattern: "resources/views/**/*.edge",
@@ -27,5 +25,4 @@ export default defineConfig({
       reloadServer: false,
     },
   ],
-  hooks: {},
 });

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { isValidUsername, SLUG_MAX_LENGTH } from "./validation.js";
+import {
+  isValidUsername,
+  SLUG_MAX_LENGTH,
+} from "../../app/validators/username.js";
 describe("isValidUsername", () => {
   it("accepts lowercase slugs", () => {
     expect(isValidUsername("starter-app")).toBe(true);
