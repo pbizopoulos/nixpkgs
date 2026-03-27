@@ -68,27 +68,29 @@ async function setupDestroy(username: unknown, firstResults: unknown[] = []) {
   const result = await new UsersController().destroy(context as never);
   return { context, result, state };
 }
+function expectInvalidUsernameResult(
+  context: ReturnType<typeof createHttpContext>,
+  result: unknown,
+  state: QueryState,
+) {
+  expect(context.response.status).toHaveBeenCalledWith(422);
+  expect(result).toEqual({
+    error: "username must be a valid lowercase slug",
+  });
+  expect(state.whereCalls).toHaveLength(0);
+  expect(state.insertCalls).toHaveLength(0);
+}
 describe("UsersController", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
   it("rejects invalid usernames before touching the database", async () => {
     const { context, result, state } = await setupStore("AB");
-    expect(context.response.status).toHaveBeenCalledWith(422);
-    expect(result).toEqual({
-      error: "username must be a valid lowercase slug",
-    });
-    expect(state.whereCalls).toHaveLength(0);
-    expect(state.insertCalls).toHaveLength(0);
+    expectInvalidUsernameResult(context, result, state);
   });
   it("rejects non-string usernames before touching the database", async () => {
     const { context, result, state } = await setupStore(42);
-    expect(context.response.status).toHaveBeenCalledWith(422);
-    expect(result).toEqual({
-      error: "username must be a valid lowercase slug",
-    });
-    expect(state.whereCalls).toHaveLength(0);
-    expect(state.insertCalls).toHaveLength(0);
+    expectInvalidUsernameResult(context, result, state);
   });
   it("returns a conflict when the username already exists", async () => {
     const { context, result, state } = await setupStore("starter-user", [
