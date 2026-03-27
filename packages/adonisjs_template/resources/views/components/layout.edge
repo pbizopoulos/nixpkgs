@@ -22,10 +22,17 @@
       content="A minimal AdonisJS starter template with a clean default layout."
     />
     <link rel="stylesheet" href="/styles/app.css" />
-    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
   </head>
   <body>
-    @include('partials/header')
+    <header class="site-header">
+      <div class="site-header__brand">
+        <a href="/" aria-label="Home">AdonisJS Starter</a>
+      </div>
+      <nav class="site-header__nav" aria-label="Primary">
+        <a href="https://docs.adonisjs.com">Docs</a>
+        <a href="https://adocasts.com">Tutorials</a>
+      </nav>
+    </header>
     <main>
       {{{ await $slots.main() }}}
     </main>
