@@ -5,25 +5,18 @@ pgdata="${PGDATA:-$project_root/tmp/.postgres}"
 pgsocket="${PGHOST:-/tmp/adonisjs-template-pg}"
 pgport="${PGPORT:-5432}"
 pguser="${PGUSER:-postgres}"
-pgpassword="${PGPASSWORD:-postgres}"
-pgdatabase="${PGDATABASE:-postgres}"
+pgdatabase="${PGDATABASE:-adonisjs_template}"
 logfile="$pgdata/postgres.log"
-export PGDATA="$pgdata"
-export PGHOST="$pgsocket"
-export PGPORT="$pgport"
-export PGUSER="$pguser"
-export PGPASSWORD="$pgpassword"
-export PGDATABASE="$pgdatabase"
 pgsystem_user=""
 if [ "$(id -u)" -eq 0 ]; then
-  for candidate in "${PGSYSTEM_USER:-postgres}" nobody; do
+  for candidate in postgres nobody; do
     if id "$candidate" >/dev/null 2>&1; then
       pgsystem_user="$candidate"
       break
     fi
   done
   if [ -z "$pgsystem_user" ]; then
-    echo "No unprivileged system user available to run Postgres" >&2
+    echo "No unprivileged system user available" >&2
     exit 1
   fi
 fi
@@ -48,80 +41,53 @@ run_pg() {
   su -s /bin/sh "$pgsystem_user" -c "$path_prefix; export PATH; $cmd"
 }
 prepare_pg_dirs() {
-  mkdir -p "$PGDATA" "$PGHOST"
+  mkdir -p "$pgdata" "$pgsocket"
   if [ -n "$pgsystem_user" ]; then
-    chown -R "$pgsystem_user" "$PGDATA" "$PGHOST"
-    chmod 700 "$PGDATA" "$PGHOST"
+    chown -R "$pgsystem_user" "$pgdata" "$pgsocket"
   fi
+  chmod 700 "$pgdata" "$pgsocket"
 }
 init_db() {
   prepare_pg_dirs
-  if [ ! -f "$PGDATA/PG_VERSION" ]; then
-    run_pg initdb \
-      --username="$PGUSER" \
-      --auth=trust \
-      -D "$PGDATA"
+  if [ ! -f "$pgdata/PG_VERSION" ]; then
+    run_pg initdb --username="$pguser" --auth=trust -D "$pgdata"
   fi
 }
 start_db() {
   init_db
-  if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
+  if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then
     echo "Postgres already running"
     return
   fi
-  run_pg pg_ctl \
-    -D "$PGDATA" \
-    -l "$logfile" \
-    -o "-k '$PGHOST' -p '$PGPORT'" \
-    start
-  run_pg pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null
+  run_pg pg_ctl -D "$pgdata" -l "$logfile" -o "-k '$pgsocket' -p '$pgport'" start
+  run_pg pg_isready -h "$pgsocket" -p "$pgport" -U "$pguser" >/dev/null
 }
 stop_db() {
-  if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
-    run_pg pg_ctl -D "$PGDATA" stop
+  if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then
+    run_pg pg_ctl -D "$pgdata" stop
   else
     echo "Postgres is not running"
   fi
 }
 create_db() {
   start_db
-  if run_pg psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc \
-    "select 1 from pg_database where datname = '$PGDATABASE'" | grep -q 1; then
-    echo "Database '$PGDATABASE' already exists"
+  if run_pg psql -h "$pgsocket" -p "$pgport" -U "$pguser" -d postgres -tAc \
+    "select 1 from pg_database where datname = '$pgdatabase'" | grep -q 1; then
+    echo "Database '$pgdatabase' already exists"
     return
   fi
-  run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
-}
-reset_db() {
-  stop_db || true
-  rm -rf "$PGDATA" "$PGHOST"
-  init_db
-  start_db
-  create_db
-}
-status_db() {
-  run_pg pg_ctl -D "$PGDATA" status
-  printf 'Socket: %s/.s.PGSQL.%s\n' "$PGHOST" "$PGPORT"
-  printf 'Database: %s\n' "$PGDATABASE"
+  run_pg createdb -h "$pgsocket" -p "$pgport" -U "$pguser" "$pgdatabase"
 }
 case "${1:-}" in
-init)
-  init_db
-  ;;
-start)
-  start_db
-  ;;
-stop)
-  stop_db
-  ;;
-status)
-  status_db
-  ;;
-createdb)
-  create_db
-  ;;
+init) init_db ;;
+start) start_db ;;
+stop) stop_db ;;
+status) run_pg pg_ctl -D "$pgdata" status ;;
+createdb) create_db ;;
 reset)
-  reset_db
+  stop_db || true
+  rm -rf "$pgdata" "$pgsocket"
+  create_db
   ;;
 *)
   echo "Usage: $0 {init|start|stop|status|createdb|reset}" >&2
