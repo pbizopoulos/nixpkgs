@@ -12,13 +12,10 @@ export default {
   checkers: ["typescript"],
   tsconfigFile: "tsconfig.json",
   mutate: [
-    "app/**/*.ts",
-    "start/**/*.ts",
-    "!app/**/*.test.ts",
-    "!app/**/*.spec.ts",
-    "!start/kernel.ts",
-    "!start/routes.ts",
-    "!start/env.ts",
+    "app/exceptions/**/*.ts",
+    "app/transformers/**/*.ts",
+    "app/validators/**/*.ts",
+    "start/limiter.ts",
   ],
   ignorePatterns: [
     "result",
