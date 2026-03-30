@@ -5,6 +5,12 @@ import {
   SLUG_MAX_LENGTH,
 } from "../../app/validators/username.js";
 test.group("Username validator", () => {
+  test("trims usernames before validating them", async ({ assert }) => {
+    const validated = await createUserValidator.validate({
+      username: "  starter-app  ",
+    });
+    assert.equal(validated.username, "starter-app");
+  });
   test("accepts lowercase slugs", async ({ assert }) => {
     const data = { username: "starter-app" };
     const validated = await createUserValidator.validate(data);
@@ -33,8 +39,15 @@ test.group("Username validator", () => {
   });
   test("validates route params using the params object", async ({ assert }) => {
     const payload = await deleteUserValidator.validate({
-      params: { username: "starter-app" },
+      params: { username: "  starter-app  " },
     });
     assert.equal(payload.params.username, "starter-app");
+  });
+  test("rejects invalid route params", async ({ assert }) => {
+    await assert.rejects(async () => {
+      await deleteUserValidator.validate({
+        params: { username: "invalid_name" },
+      });
+    });
   });
 });
