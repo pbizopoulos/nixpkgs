@@ -4,9 +4,10 @@ export default {
   reporters: ["html", "clear-text", "progress"],
   testRunner: "command",
   commandRunner: {
-    command: "node build/bin/test.js",
+    command: "node ace.js test",
   },
   concurrency: 1,
+  coverageAnalysis: "off",
   incremental: true,
   checkers: ["typescript"],
   tsconfigFile: "tsconfig.json",

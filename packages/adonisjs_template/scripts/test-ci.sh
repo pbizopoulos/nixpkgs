@@ -29,7 +29,8 @@ npm run db:migrate
 npm run clean
 npm exec tsc -- --noEmit
 npm run build
-npm test
+npm run test:coverage
+npm run test:mutation
 NODE_ENV=production E2E_MODE=prod node node_modules/playwright/cli.js test \
   --config=playwright.config.ts \
   --project=chromium \
