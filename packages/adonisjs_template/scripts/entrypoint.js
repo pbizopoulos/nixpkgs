@@ -33,7 +33,7 @@ const defaultEnv = {
   HOST: "localhost",
   LOG_LEVEL: "info",
   APP_NAME: "AdonisJS Starter",
-  APP_KEY: "development-app-key-development-app-key",
+  APP_KEY: "01234567890123456789012345678901",
   DB_HOST: existsSync("/run/postgresql") ? "/run/postgresql" : "127.0.0.1",
   DB_PORT: "5432",
   DB_USER: "postgres",

@@ -16,14 +16,17 @@ try {
 }
 const shellQuote = (value: string) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 const isProdE2E = (process.env as { E2E_MODE?: string }).E2E_MODE === "prod";
+const defaultPort = process.env.PORT ?? "3333";
+const defaultHost = process.env.HOST ?? "localhost";
+const baseURL = process.env.APP_URL ?? `http://${defaultHost}:${defaultPort}`;
 const webServerEnv = {
   NODE_ENV: process.env.NODE_ENV ?? (isProdE2E ? "production" : "test"),
   LOG_LEVEL: process.env.LOG_LEVEL ?? "info",
-  PORT: process.env.PORT ?? "3333",
-  HOST: process.env.HOST ?? "localhost",
+  PORT: defaultPort,
+  HOST: defaultHost,
   APP_NAME: process.env.APP_NAME ?? "AdonisJS Starter",
   APP_KEY: process.env.APP_KEY ?? "01234567890123456789012345678901",
-  APP_URL: process.env.APP_URL ?? "http://localhost:3000",
+  APP_URL: baseURL,
   DB_HOST: process.env.DB_HOST ?? process.env.PGHOST ?? "127.0.0.1",
   DB_PORT: process.env.DB_PORT ?? process.env.PGPORT ?? "5432",
   DB_USER: process.env.DB_USER ?? process.env.PGUSER ?? "postgres",
@@ -32,7 +35,6 @@ const webServerEnv = {
     process.env.DB_DATABASE ?? process.env.PGDATABASE ?? "adonisjs_template",
   DB_SSL: process.env.DB_SSL ?? "false",
 };
-const baseURL = `http://localhost:${webServerEnv.PORT}`;
 const webServerEnvCommand = Object.entries(webServerEnv)
   .map(([key, value]) => `${key}=${shellQuote(value)}`)
   .join(" ");
