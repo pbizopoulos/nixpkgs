@@ -37,7 +37,7 @@ const webServerEnvCommand = Object.entries(webServerEnv)
   .map(([key, value]) => `${key}=${shellQuote(value)}`)
   .join(" ");
 export default defineConfig({
-  testDir: "./tests/browser",
+  testDir: "./tests/functional/browser",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 2,

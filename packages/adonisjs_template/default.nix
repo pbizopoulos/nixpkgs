@@ -26,7 +26,7 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-J+di7xYEsGn07LFqn4ZwAdyi/lLVYuJ9/VJC+rNgN1w=";
+  npmDepsHash = "sha256-n0dQ3TwVCG8DBzLuHUvalKumdHZdWq6NRZIxLLHl7fc=";
   npmFlags = [
     "--legacy-peer-deps"
   ];
@@ -34,7 +34,7 @@ pkgs.buildNpmPackage {
     cp -r build "$out/lib/node_modules/${pname}/build"
   '';
   postPatch = ''
-    substituteInPlace bin/entrypoint.js \
+    substituteInPlace scripts/entrypoint.js \
       --replace-fail "@packagedRuntimePath@" "${runtimePath}" \
       --replace-fail "@packagedPlaywrightBrowsersPath@" "${pkgs.playwright-driver.browsers}"
   '';
