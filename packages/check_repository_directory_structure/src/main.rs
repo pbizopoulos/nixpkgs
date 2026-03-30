@@ -44,6 +44,75 @@ fn host_root(rel_path: &Path) -> Option<PathBuf> {
         _ => None,
     }
 }
+fn validate_adonis_package_layout(
+    working_dir: &Path,
+    package_root: &Path,
+    dir_and_file_names: &HashSet<PathBuf>,
+) -> Vec<String> {
+    let allowed_patterns = [
+        r"^\.adonisjs/server/(controllers|events|listeners)\.ts$",
+        r"^\.dependency-cruiser\.cjs$",
+        r"^\.env$",
+        r"^\.env\.example$",
+        r"^\.gitignore$",
+        r"^\.jscpd\.json$",
+        r"^ace\.js$",
+        r"^adonisrc\.ts$",
+        r"^app/controllers/.*\.ts$",
+        r"^app/events/.*\.ts$",
+        r"^app/exceptions/.*\.ts$",
+        r"^app/listeners/.*\.ts$",
+        r"^app/middleware/.*\.ts$",
+        r"^app/models/.*\.ts$",
+        r"^app/policies/(\.gitkeep|.*\.ts)$",
+        r"^app/services/(\.gitkeep|.*\.ts)$",
+        r"^app/validators/.*\.ts$",
+        r"^bin/.*\.(js|sh|ts)$",
+        r"^commands/(\.gitkeep|.*\.ts)$",
+        r"^config/.*\.ts$",
+        r"^database/factories/.*\.ts$",
+        r"^database/migrations/.*\.ts$",
+        r"^database/seeders/.*\.ts$",
+        r"^default\.nix$",
+        r"^package-lock\.json$",
+        r"^package\.json$",
+        r"^playwright\.config\.ts$",
+        r"^providers/.*\.ts$",
+        r"^public/.*$",
+        r"^resources/views/components/.*\.edge$",
+        r"^resources/views/errors/.*\.edge$",
+        r"^resources/views/pages/.*\.edge$",
+        r"^spec\.json$",
+        r"^start/.*\.ts$",
+        r"^stryker\.config\.mjs$",
+        r"^tests/bootstrap\.ts$",
+        r"^tests/browser/.*\.ts$",
+        r"^tests/functional/.*\.ts$",
+        r"^tests/unit/.*\.ts$",
+        r"^tmp/\.gitignore$",
+        r"^tsconfig\.json$",
+    ]
+    .iter()
+    .map(|pattern| Regex::new(pattern).unwrap())
+    .collect::<Vec<_>>();
+    let mut warnings = Vec::new();
+    for path in dir_and_file_names {
+        let Ok(package_relative_path) = path.strip_prefix(package_root) else {
+            continue;
+        };
+        let package_relative_path = package_relative_path.to_str().unwrap();
+        if !allowed_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(package_relative_path))
+        {
+            warnings.push(format!(
+                "{}: is not allowed for an AdonisJS template package",
+                working_dir.join(path).display()
+            ));
+        }
+    }
+    warnings
+}
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     let args = Args::parse();
@@ -252,8 +321,10 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/database/.*",
                 r"packages/[^/]+/package-lock\.json",
                 r"packages/[^/]+/playwright\.config\.ts",
+                r"packages/[^/]+/providers/.*",
                 r"packages/[^/]+/public/.*",
                 r"packages/[^/]+/resources/.*",
+                r"packages/[^/]+/commands/.*",
                 r"packages/[^/]+/scripts/.*",
                 r"packages/[^/]+/start/.*",
                 r"packages/[^/]+/stryker\.config\.mjs",
@@ -301,7 +372,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         .iter()
         .filter_map(|path| package_root(path))
         .collect();
-    for package_root in package_roots {
+    for package_root in &package_roots {
         let default_nix = package_root.join("default.nix");
         if !all_rel_paths.contains(&default_nix) {
             final_warnings.push(format!(
@@ -320,6 +391,15 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             final_warnings.push(format!(
                 "{}: is missing required configuration.nix",
                 working_dir.join(host_root).display()
+            ));
+        }
+    }
+    for package_root in &package_roots {
+        if all_rel_paths.contains(&package_root.join("adonisrc.ts")) {
+            final_warnings.extend(validate_adonis_package_layout(
+                working_dir,
+                package_root,
+                &dir_and_file_names,
             ));
         }
     }
