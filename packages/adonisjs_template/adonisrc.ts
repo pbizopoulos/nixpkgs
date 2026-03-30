@@ -6,7 +6,12 @@ export default defineConfig({
     () => import("@adonisjs/lucid/commands"),
   ],
   hooks: {
-    init: [indexEntities()],
+    init: [
+      indexEntities({
+        events: { enabled: false },
+        listeners: { enabled: false },
+      }),
+    ],
   },
   providers: [
     () => import("@adonisjs/core/providers/app_provider"),

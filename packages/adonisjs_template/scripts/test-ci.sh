@@ -6,7 +6,7 @@ export PGHOST="${PGHOST:-/tmp/adonisjs-template-pg}"
 export PGPORT="${PGPORT:-5432}"
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
-export PGDATABASE="${PGDATABASE:-postgres}"
+export PGDATABASE="${PGDATABASE:-adonisjs_template}"
 cleanup() {
   npm run db:stop
 }

@@ -6,12 +6,14 @@
 import { BaseModel, column } from "@adonisjs/lucid/orm";
 import type { DateTime } from "luxon";
 export class UserSchema extends BaseModel {
-  static $columns = ["createdAt", "id", "username"] as const;
+  static $columns = ["createdAt", "id", "updatedAt", "username"] as const;
   $columns = UserSchema.$columns;
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime;
   @column({ isPrimary: true })
   declare id: number;
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime;
   @column()
   declare username: string;
 }

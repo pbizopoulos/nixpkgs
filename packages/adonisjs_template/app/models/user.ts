@@ -7,4 +7,6 @@ export default class User extends BaseModel {
   declare username: string;
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime;
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime;
 }
