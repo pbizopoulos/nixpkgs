@@ -20,8 +20,8 @@
           "given": ["the visitor opens the application for the first time"],
           "when": ["the visitor opens the application"],
           "then": [
-            "the application communicates its purpose",
-            "the application presents a minimal starting experience",
+            "the application communicates that it follows the AdonisJS hypermedia starter shape",
+            "the application presents a clean Edge-rendered starting experience",
             "the application offers clear next actions for learning or deploying"
           ]
         }
@@ -35,7 +35,7 @@
           "given": ["the visitor is evaluating the default template"],
           "when": ["the landing page renders"],
           "then": [
-            "the application highlights what the starter already includes",
+            "the application highlights the main hypermedia starter building blocks",
             "the application links to useful next steps for continuing with AdonisJS",
             "the application remains usable on both desktop and mobile viewports"
           ]
@@ -51,7 +51,7 @@
           "when": ["the visitor submits a valid lowercase slug as a username"],
           "then": [
             "the application creates the user record",
-            "the application returns the created user",
+            "the application returns the created user in a presentation-friendly shape",
             "the application rejects duplicate usernames"
           ]
         },

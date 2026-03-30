@@ -12,10 +12,11 @@
     "bin/**/*.js",
     "config/**/*.ts",
     "database/**/*.ts",
+    "eslint.config.js",
     "start/**/*.ts",
     "stryker.config.mjs",
     "tests/**/*.ts",
-    "vitest.config.ts",
+    "vite.config.ts",
     ".adonisjs/**/*.ts"
   ]
 }

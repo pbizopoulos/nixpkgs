@@ -27,6 +27,10 @@ export default defineConfig({
       reloadServer: false,
     },
     {
+      pattern: "resources/**/*.{css,js}",
+      reloadServer: false,
+    },
+    {
       pattern: "public/**",
       reloadServer: false,
     },

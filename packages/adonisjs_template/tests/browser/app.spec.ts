@@ -7,7 +7,10 @@ test("visitor sees the starter landing page", async ({ page }) => {
     /build the app, not the scaffold/i,
   );
   await expect(page.locator("body")).toContainText(
-    /clean adonisjs starting point/i,
+    /adonisjs hypermedia starter shape/i,
+  );
+  await expect(page.locator("body")).toContainText(
+    /edge-rendered starting experience/i,
   );
   await expect(
     page.getByRole("link", { name: /read the docs/i }),
@@ -76,6 +79,7 @@ test.describe("Mobile Viewport", () => {
     await expect(page.locator("body")).toContainText(
       /build the app, not the scaffold/i,
     );
+    await expect(page.locator("body")).toContainText(/hypermedia starter/i);
     await expect(
       page.getByRole("link", { name: /read the docs/i }),
     ).toHaveAttribute("href", "https://docs.adonisjs.com");
