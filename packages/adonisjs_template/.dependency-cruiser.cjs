@@ -11,7 +11,11 @@ module.exports = {
       name: "no-orphans",
       severity: "warn",
       comment: "Orphaned module detected.",
-      from: { orphan: true },
+      from: {
+        orphan: true,
+        pathNot:
+          "^(app/middleware/force_json_response_middleware\\.ts|config/(auth|hash|limiter|mail|session|shield|vite)\\.ts|resources/js/app\\.js)$",
+      },
       to: {},
     },
   ],

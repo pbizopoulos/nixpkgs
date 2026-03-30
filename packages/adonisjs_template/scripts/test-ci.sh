@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 set -eu
+unset NO_COLOR
 export PGDATA="${PGDATA:-$PWD/tmp/.postgres}"
 export PGHOST="${PGHOST:-/tmp/adonisjs-template-pg}"
 export PGPORT="${PGPORT:-5432}"
