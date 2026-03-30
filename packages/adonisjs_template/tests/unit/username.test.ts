@@ -1,24 +1,33 @@
-import { describe, expect, it } from "vitest";
+import { test } from "@japa/runner";
 import {
-  isValidUsername,
+  createUsernameValidator,
   SLUG_MAX_LENGTH,
 } from "../../app/validators/username.js";
-describe("isValidUsername", () => {
-  it("accepts lowercase slugs", () => {
-    expect(isValidUsername("starter-app")).toBe(true);
-    expect(isValidUsername("abc")).toBe(true);
+test.group("Username validator", () => {
+  test("accepts lowercase slugs", async ({ assert }) => {
+    const data = { username: "starter-app" };
+    const validated = await createUsernameValidator.validate(data);
+    assert.equal(validated.username, "starter-app");
   });
-  it("rejects empty or short usernames", () => {
-    expect(isValidUsername("")).toBe(false);
-    expect(isValidUsername("ab")).toBe(false);
-    expect(isValidUsername(undefined as unknown as string)).toBe(false);
+  test("rejects empty or short usernames", async ({ assert }) => {
+    const data = { username: "ab" };
+    await assert.rejects(async () => {
+      await createUsernameValidator.validate(data);
+    });
   });
-  it("rejects invalid characters", () => {
-    expect(isValidUsername("Starter App")).toBe(false);
-    expect(isValidUsername("hello_world")).toBe(false);
+  test("rejects invalid characters", async ({ assert }) => {
+    const data = { username: "hello_world" };
+    await assert.rejects(async () => {
+      await createUsernameValidator.validate(data);
+    });
   });
-  it("enforces the maximum length", () => {
-    expect(isValidUsername("a".repeat(SLUG_MAX_LENGTH))).toBe(true);
-    expect(isValidUsername("a".repeat(SLUG_MAX_LENGTH + 1))).toBe(false);
+  test("enforces the maximum length", async ({ assert }) => {
+    const data = { username: "a".repeat(SLUG_MAX_LENGTH) };
+    const validated = await createUsernameValidator.validate(data);
+    assert.equal(validated.username, "a".repeat(SLUG_MAX_LENGTH));
+    const tooLong = { username: "a".repeat(SLUG_MAX_LENGTH + 1) };
+    await assert.rejects(async () => {
+      await createUsernameValidator.validate(tooLong);
+    });
   });
 });

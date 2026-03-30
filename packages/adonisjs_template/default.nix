@@ -24,7 +24,10 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-asPoxWbwotRfEkZtt7aNF1X//4JSTL+9MiyN+EF12FY=";
+  npmDepsHash = "sha256-DV2CUUJIAz6ddDzKoDmxBciUTtVQjJiRuyZradhqlY4=";
+  npmFlags = [
+    "--legacy-peer-deps"
+  ];
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
   '';

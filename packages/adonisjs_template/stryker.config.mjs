@@ -1,34 +1,23 @@
+/** @type {import('@stryker-mutator/api/core').PartialStrykerOptions} */
 export default {
   packageManager: "npm",
-  reporters: ["html", "clear-text", "progress", "json"],
-  testRunner: "vitest",
-  concurrency: "100%",
+  reporters: ["html", "clear-text", "progress"],
+  testRunner: "command",
+  commandRunner: {
+    command: "node build/bin/test.js",
+  },
+  concurrency: 1,
   incremental: true,
-  mutator: {
-    excludedMutations: [
-      "ArithmeticOperator",
-      "ArrayDeclaration",
-      "ArrowFunction",
-      "BlockStatement",
-      "LogicalOperator",
-      "MethodExpression",
-      "ObjectLiteral",
-      "OptionalChaining",
-      "StringLiteral",
-      "UpdateOperator",
-    ],
-  },
-  vitest: {
-    configFile: "vitest.config.ts",
-  },
-  checkers: [],
+  checkers: ["typescript"],
   tsconfigFile: "tsconfig.json",
-  ignoreStatic: true,
   mutate: [
-    "start/**/*.ts",
     "app/**/*.ts",
-    "!**/*.test.{ts,tsx}",
-    "!**/*.spec.{ts,tsx}",
+    "start/**/*.ts",
+    "!app/**/*.test.ts",
+    "!app/**/*.spec.ts",
+    "!start/kernel.ts",
+    "!start/routes.ts",
+    "!start/env.ts",
   ],
   ignorePatterns: [
     "result",

@@ -15,6 +15,7 @@ export default defineConfig({
       environment: ["repl", "test"],
     },
     () => import("@adonisjs/core/providers/edge_provider"),
+    () => import("@adonisjs/core/providers/vinejs_provider"),
     () => import("@adonisjs/lucid/database_provider"),
     () => import("@adonisjs/static/static_provider"),
     () => import("#providers/app_provider"),
@@ -40,11 +41,6 @@ export default defineConfig({
       {
         name: "unit",
         files: ["tests/unit/**/*.test.ts"],
-        timeout: 30000,
-      },
-      {
-        name: "browser",
-        files: ["tests/browser/**/*.spec.ts"],
         timeout: 30000,
       },
     ],

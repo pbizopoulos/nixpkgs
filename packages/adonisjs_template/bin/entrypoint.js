@@ -28,7 +28,7 @@ if (!packagedPlaywrightBrowsersPath.startsWith("@")) {
 }
 const defaultEnv = {
   TZ: "UTC",
-  NODE_ENV: "production",
+  NODE_ENV: process.env.DEBUG === "1" ? "test" : "production",
   PORT: "3333",
   HOST: "localhost",
   LOG_LEVEL: "info",
@@ -80,15 +80,18 @@ const resolveDebugSourceRoot = () => {
   }
   return projectRoot;
 };
-const runTests = () => {
+const runTests = async () => {
   const sourceRoot = resolveDebugSourceRoot();
   const runtimeRoot = join(tmpdir(), `adonisjs_template-${process.pid}`);
   const pgRuntimeRoot = join(tmpdir(), `adonisjs_template-pg-${process.pid}`);
   rmSync(runtimeRoot, { force: true, recursive: true });
   rmSync(pgRuntimeRoot, { force: true, recursive: true });
   mkdirSync(runtimeRoot, { recursive: true });
-  cpSync(sourceRoot, runtimeRoot, { recursive: true });
+  cpSync(projectRoot, runtimeRoot, { recursive: true });
   makeWritable(runtimeRoot);
+  if (sourceRoot !== projectRoot) {
+    cpSync(sourceRoot, runtimeRoot, { force: true, recursive: true });
+  }
   rmSync(join(runtimeRoot, ".env"), { force: true });
   process.env.PGDATA ??= join(pgRuntimeRoot, ".postgres");
   process.env.PGHOST ??= join(pgRuntimeRoot, ".pgsocket");
@@ -104,21 +107,33 @@ const runTests = () => {
   process.env.DATABASE_URL =
     `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}` +
     `@/${process.env.PGDATABASE}?host=${process.env.PGHOST}&port=${process.env.PGPORT}`;
-  const tests = spawn("bash", ["bin/test.sh"], {
-    cwd: runtimeRoot,
-    env: process.env,
-    stdio: "inherit",
-  });
-  tests.on("close", (code) => {
+  try {
+    await runCommandIn(runtimeRoot, "npm", ["run", "test:ci"]);
+  } finally {
     rmSync(pgRuntimeRoot, { force: true, recursive: true });
     rmSync(runtimeRoot, { force: true, recursive: true });
-    process.exit(code || 0);
-  });
+  }
 };
 const runCommand = (command, args) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, {
       cwd: projectRoot,
+      env: process.env,
+      stdio: "inherit",
+    });
+    child.on("close", (code) => {
+      if (code === 0) {
+        resolve();
+        return;
+      }
+      reject(new Error(`${command} exited with code ${code ?? 1}`));
+    });
+    child.on("error", reject);
+  });
+const runCommandIn = (cwd, command, args) =>
+  new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd,
       env: process.env,
       stdio: "inherit",
     });
@@ -151,7 +166,10 @@ const startServer = async () => {
   });
 };
 if (process.env.DEBUG === "1") {
-  runTests();
+  runTests().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
 } else {
   startServer().catch((error) => {
     console.error(error);
