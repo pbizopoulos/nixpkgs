@@ -1,5 +1,6 @@
 import vine from "@vinejs/vine";
-export const SLUG_MAX_LENGTH = 39;
+import { usernameSchemaRules } from "../../database/schema_rules.js";
+export const SLUG_MAX_LENGTH = usernameSchemaRules.maxLength;
 /**
  * Validates the username creation action
  */
@@ -8,8 +9,8 @@ export const createUsernameValidator = vine.compile(
     username: vine
       .string()
       .trim()
-      .minLength(3)
-      .maxLength(SLUG_MAX_LENGTH)
-      .regex(/^[a-z0-9-]+$/),
+      .minLength(usernameSchemaRules.minLength)
+      .maxLength(usernameSchemaRules.maxLength)
+      .regex(usernameSchemaRules.pattern),
   }),
 );

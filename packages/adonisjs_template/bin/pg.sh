@@ -59,7 +59,7 @@ start_db() {
     echo "Postgres already running"
     return
   fi
-  run_pg pg_ctl -D "$pgdata" -l "$logfile" -o "-k '$pgsocket' -p '$pgport'" start
+  run_pg pg_ctl -D "$pgdata" -l "$logfile" -o "-c listen_addresses='' -k '$pgsocket' -p '$pgport'" start
   run_pg pg_isready -h "$pgsocket" -p "$pgport" -U "$pguser" >/dev/null
 }
 stop_db() {
