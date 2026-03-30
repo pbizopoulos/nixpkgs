@@ -7,6 +7,8 @@ export default class extends BaseSchema {
       this.tableName,
       (table: Knex.CreateTableBuilder) => {
         table.increments("id").notNullable();
+        table.string("email", 255).notNullable().unique();
+        table.string("password", 255).notNullable();
         table.string("username", 39).notNullable().unique();
         table.timestamp("created_at").notNullable().defaultTo(this.now());
         table.timestamp("updated_at").notNullable().defaultTo(this.now());

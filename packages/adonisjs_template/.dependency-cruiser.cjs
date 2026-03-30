@@ -13,8 +13,7 @@ module.exports = {
       comment: "Orphaned module detected.",
       from: {
         orphan: true,
-        pathNot:
-          "^(app/middleware/force_json_response_middleware\\.ts|config/(auth|hash|limiter|mail|session|shield|vite)\\.ts|resources/js/app\\.js)$",
+        pathNot: "^(app/middleware/.*|config/vite\\.ts|resources/js/app\\.js)$",
       },
       to: {},
     },

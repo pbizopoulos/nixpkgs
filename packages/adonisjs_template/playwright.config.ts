@@ -34,6 +34,11 @@ const webServerEnv = {
   DB_DATABASE:
     process.env.DB_DATABASE ?? process.env.PGDATABASE ?? "adonisjs_template",
   DB_SSL: process.env.DB_SSL ?? "false",
+  SESSION_DRIVER: process.env.SESSION_DRIVER ?? "cookie",
+  LIMITER_STORE: process.env.LIMITER_STORE ?? "memory",
+  MAIL_MAILER: process.env.MAIL_MAILER ?? "smtp",
+  MAIL_FROM_ADDRESS: process.env.MAIL_FROM_ADDRESS ?? "starter@example.com",
+  MAIL_FROM_NAME: process.env.MAIL_FROM_NAME ?? "AdonisJS Starter",
 };
 const webServerEnvCommand = Object.entries(webServerEnv)
   .map(([key, value]) => `${key}=${shellQuote(value)}`)

@@ -89,15 +89,22 @@ pkgs.testers.runNixOSTest rec {
     machine.succeed("timeout 120 bash -lc 'until curl -fsS http://127.0.0.1/health; do sleep 1; done'")
     machine.succeed("curl -fsS http://127.0.0.1/ | grep -F 'Build the app, not the scaffold.'")
     machine.succeed("""
-      curl -fsS -X POST http://127.0.0.1/users/register \
-        -H 'content-type: application/json' \
-        --data '{\"username\":\"integration-user\"}' \
-        | grep -F 'integration-user'
+      tmpdir=$(mktemp -d)
+      trap 'rm -rf "$tmpdir"' EXIT
+      curl -fsS -c "$tmpdir/cookies" http://127.0.0.1/register > "$tmpdir/register.html"
+      csrf=$(grep -o "name='_csrf' value='[^']*'" "$tmpdir/register.html" | head -n1 | cut -d"'" -f4)
+      test -n "$csrf"
+      curl -fsS -L \
+        -b "$tmpdir/cookies" \
+        -c "$tmpdir/cookies" \
+        http://127.0.0.1/register \
+        --data-urlencode "_csrf=$csrf" \
+        --data-urlencode "username=integration-user" \
+        --data-urlencode "email=integration-user@example.com" \
+        --data-urlencode "password=password123" \
+        --data-urlencode "passwordConfirmation=password123" \
+        | grep -F 'Welcome back, integration-user.'
+      curl -fsS -b "$tmpdir/cookies" http://127.0.0.1/app | grep -F 'integration-user@example.com'
     """)
-    machine.succeed("""
-      curl -fsS -X DELETE http://127.0.0.1/users/integration-user \
-        | grep -F '\"deleted\":true'
-    """)
-    machine.fail("curl -fsS -X DELETE http://127.0.0.1/users/integration-user")
   '';
 }

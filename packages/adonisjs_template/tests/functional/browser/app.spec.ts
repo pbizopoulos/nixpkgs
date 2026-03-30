@@ -1,26 +1,47 @@
 import { devices, expect, test } from "@playwright/test";
 const isProductionRuntime =
   process.env.E2E_MODE === "prod" || process.env.NODE_ENV === "production";
-test("visitor sees the starter landing page", async ({ page }) => {
+test("visitor sees the full starter landing page", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("body")).toContainText(
     /build the app, not the scaffold/i,
   );
   await expect(page.locator("body")).toContainText(
-    /adonisjs hypermedia starter shape/i,
+    /sessions, shield, auth, limiter, mail/i,
   );
-  await expect(page.locator("body")).toContainText(
-    /edge-rendered starting experience/i,
-  );
-  await expect(
-    page.getByRole("link", { name: /read the docs/i }),
-  ).toHaveAttribute("href", "https://docs.adonisjs.com");
-  await expect(
-    page.getByRole("link", { name: /deploy the app/i }),
-  ).toHaveAttribute(
+  await expect(page.getByRole("link", { name: /register/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /login/i })).toBeVisible();
+  await expect(page.getByRole("link", { name: /^docs$/i })).toHaveAttribute(
     "href",
-    "https://docs.adonisjs.com/guides/concepts/deployment",
+    "https://docs.adonisjs.com",
   );
+});
+test("registration, login, logout, and account deletion work", async ({
+  page,
+}) => {
+  const unique = Date.now();
+  const username = `starter-user-${unique}`;
+  const email = `starter-${unique}@example.com`;
+  await page.goto("/register");
+  await page.getByLabel("Username").fill(username);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill("password123");
+  await page.getByLabel("Confirm password").fill("password123");
+  await page.getByRole("button", { name: /create account/i }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await expect(page.locator("body")).toContainText(username);
+  await expect(page.locator("body")).toContainText(email);
+  await page.getByRole("button", { name: /sign out/i }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await page.goto("/login");
+  await page.getByLabel("Email or username").fill(email);
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/app$/);
+  await expect(page.locator("body")).toContainText(/welcome back/i);
+  await page.getByRole("button", { name: /delete account/i }).click();
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.locator("body")).toContainText(/account has been deleted/i);
 });
 test("health check reports the postgres dependency as healthy", async ({
   request,
@@ -34,23 +55,9 @@ test("health check reports the postgres dependency as healthy", async ({
   const report = (await response.json()) as { isHealthy: boolean };
   expect(report.isHealthy).toBe(true);
 });
-test("user registration and deletion works", async ({ request }) => {
-  const username = `starter-user-${Date.now()}`;
-  const registerResponse = await request.post("/users/register", {
-    data: { username },
-  });
-  expect(registerResponse.status()).toBe(201);
-  await expect(registerResponse.json()).resolves.toMatchObject({
-    user: { username },
-  });
-  const deleteResponse = await request.delete(`/users/${username}`);
-  expect(deleteResponse.status()).toBe(200);
-  await expect(deleteResponse.json()).resolves.toMatchObject({
-    deleted: true,
-    username,
-  });
-  const secondDeleteResponse = await request.delete(`/users/${username}`);
-  expect(secondDeleteResponse.status()).toBe(404);
+test("guests are redirected to login for the dashboard", async ({ page }) => {
+  await page.goto("/app");
+  await expect(page).toHaveURL(/\/login$/);
 });
 test.describe("Error Handling", () => {
   test("shows the conventional not-found response for the current environment", async ({
@@ -72,7 +79,7 @@ test.describe("Error Handling", () => {
   });
 });
 test.describe("Mobile Viewport", () => {
-  test("should display landing page on mobile", async ({ browser }) => {
+  test("renders the landing page on mobile", async ({ browser }) => {
     const context = await browser.newContext({ ...devices["Pixel 5"] });
     const page = await context.newPage();
     await page.goto("/");
@@ -80,9 +87,6 @@ test.describe("Mobile Viewport", () => {
       /build the app, not the scaffold/i,
     );
     await expect(page.locator("body")).toContainText(/hypermedia starter/i);
-    await expect(
-      page.getByRole("link", { name: /read the docs/i }),
-    ).toHaveAttribute("href", "https://docs.adonisjs.com");
     await context.close();
   });
 });
@@ -129,9 +133,5 @@ test.describe("Performance Audits @audit", () => {
     if (performanceTiming.firstContentfulPaint > 0) {
       expect(performanceTiming.firstContentfulPaint).toBeLessThan(1500);
     }
-  });
-  test("Missing routes should return 404", async ({ page }) => {
-    const response = await page.goto("/api/non-existent-route-that-should-404");
-    expect(response?.status()).toBe(404);
   });
 });

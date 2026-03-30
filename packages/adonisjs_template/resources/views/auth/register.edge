@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Register | {{ appName }}</title>
+    @vite(["resources/js/app.js"])
+  </head>
+  <body>
+    <div class="shell">
+      <header class="site-header">
+        <div class="site-header__brand">
+          <a href="/">AdonisJS Starter</a>
+        </div>
+        <nav class="site-header__nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/login">Login</a>
+        </nav>
+      </header>
+      <main class="auth-shell">
+        <section class="auth-panel">
+          <p class="hero__eyebrow">Register</p>
+          <h1>Create an account.</h1>
+          <p class="hero__body">
+            Registration creates a real Lucid user, logs the user into the session,
+            and sends a welcome mail using the configured AdonisJS mailer.
+          </p>
+          <form class="auth-form" action="/register" method="post">
+            {{ csrfField() }}
+            <label class="field">
+              <span>Username</span>
+              <input name="username" type="text" autocomplete="nickname" required />
+              @inputError("username")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+              @error("username")
+                <small class="field__error">{{ $message }}</small>
+              @end
+            </label>
+            <label class="field">
+              <span>Email</span>
+              <input name="email" type="email" autocomplete="email" required />
+              @inputError("email")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+              @error("email")
+                <small class="field__error">{{ $message }}</small>
+              @end
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input
+                name="password"
+                type="password"
+                autocomplete="new-password"
+                required
+              />
+              @inputError("password")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+            </label>
+            <label class="field">
+              <span>Confirm password</span>
+              <input
+                name="passwordConfirmation"
+                type="password"
+                autocomplete="new-password"
+                required
+              />
+              @inputError("passwordConfirmation")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+              @error("passwordConfirmation")
+                <small class="field__error">{{ $message }}</small>
+              @end
+            </label>
+            <button class="button button--primary" type="submit">
+              Create account
+            </button>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

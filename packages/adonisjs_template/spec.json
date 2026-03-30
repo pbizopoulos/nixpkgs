@@ -1,6 +1,6 @@
 {
   "notes": [
-    "Do not encode framework APIs, route names, schema details, or selectors."
+    "Do not encode framework internals, specific middleware class names, or generated asset file names."
   ],
   "testCommand": "nix develop ../..#adonisjs_template -c npm run test:ci",
   "selfEditingRules": [
@@ -16,64 +16,81 @@
       "feature": "Landing experience",
       "scenarios": [
         {
-          "scenario": "Visitor sees the starting point",
+          "scenario": "Visitor sees the starter's full web stack",
           "given": ["the visitor opens the application for the first time"],
-          "when": ["the visitor opens the application"],
-          "then": [
-            "the application communicates that it follows the AdonisJS hypermedia starter shape",
-            "the application presents a clean Edge-rendered starting experience",
-            "the application offers clear next actions for learning or deploying"
-          ]
-        }
-      ]
-    },
-    {
-      "feature": "Starter guidance",
-      "scenarios": [
-        {
-          "scenario": "Visitor can continue from the starter",
-          "given": ["the visitor is evaluating the default template"],
           "when": ["the landing page renders"],
           "then": [
-            "the application highlights the main hypermedia starter building blocks",
-            "the application links to useful next steps for continuing with AdonisJS",
-            "the application remains usable on both desktop and mobile viewports"
+            "the application communicates that it follows the AdonisJS hypermedia starter shape",
+            "the application highlights sessions, auth, Shield, limiter, mail, and Vite-backed assets",
+            "the application offers clear next steps for registration, login, docs, and health checks"
           ]
         }
       ]
     },
     {
-      "feature": "Username lifecycle",
+      "feature": "Registration and sessions",
       "scenarios": [
         {
-          "scenario": "Visitor registers a username",
+          "scenario": "Visitor registers a new account",
           "given": ["the application is running with its database available"],
-          "when": ["the visitor submits a valid lowercase slug as a username"],
-          "then": [
-            "the application creates the user record",
-            "the application returns the created user in a presentation-friendly shape",
-            "the application rejects duplicate usernames"
-          ]
-        },
-        {
-          "scenario": "Visitor submits an invalid username",
-          "given": ["the application is running"],
           "when": [
-            "the visitor submits a username that is empty, too short, too long, or contains invalid characters"
+            "the visitor submits a valid username, email address, and password through the registration form"
           ],
           "then": [
-            "the application rejects the request",
-            "the application explains that usernames must be valid lowercase slugs"
+            "the application creates a real Lucid user record with hashed credentials",
+            "the application signs the visitor into the session immediately",
+            "the application sends a welcome mail using the configured AdonisJS mailer"
           ]
         },
         {
-          "scenario": "Visitor deletes a username",
-          "given": ["a user with that username already exists"],
-          "when": ["the visitor requests deletion for that username"],
+          "scenario": "Visitor signs in with credentials",
+          "given": ["an account already exists"],
+          "when": [
+            "the visitor submits valid credentials through the login form"
+          ],
           "then": [
-            "the application deletes the user",
-            "the application confirms which username was deleted",
-            "the application returns not found when the username no longer exists"
+            "the application authenticates the visitor with the session guard",
+            "the application redirects the visitor to the protected dashboard",
+            "the application exposes a logout action that ends the session"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Protected dashboard",
+      "scenarios": [
+        {
+          "scenario": "Authenticated visitor opens the dashboard",
+          "given": ["the visitor is signed in"],
+          "when": ["the visitor requests the dashboard route"],
+          "then": [
+            "the application renders account details from the authenticated user",
+            "the application confirms that the route is protected by auth middleware",
+            "the application offers account-level actions such as logout and deletion"
+          ]
+        },
+        {
+          "scenario": "Guest requests the dashboard",
+          "given": ["the visitor is not signed in"],
+          "when": ["the visitor requests the dashboard route"],
+          "then": [
+            "the application redirects the visitor to the login page",
+            "the application does not reveal protected dashboard content"
+          ]
+        }
+      ]
+    },
+    {
+      "feature": "Rate limiting and form protection",
+      "scenarios": [
+        {
+          "scenario": "Visitor submits auth forms",
+          "given": ["the visitor uses the login or registration forms"],
+          "when": ["the visitor submits a state-changing request"],
+          "then": [
+            "the application requires CSRF protection",
+            "the application applies rate limiting to login and signup attempts",
+            "the application returns a throttled response after repeated abuse"
           ]
         }
       ]

@@ -24,4 +24,9 @@ export default await Env.create(new URL("../", import.meta.url), {
   DB_PASSWORD: Env.schema.string(),
   DB_DATABASE: Env.schema.string(),
   DB_SSL: Env.schema.boolean.optional(),
+  SESSION_DRIVER: Env.schema.enum(["cookie"] as const),
+  LIMITER_STORE: Env.schema.enum(["memory"] as const),
+  MAIL_MAILER: Env.schema.enum(["smtp"] as const),
+  MAIL_FROM_ADDRESS: Env.schema.string(),
+  MAIL_FROM_NAME: Env.schema.string(),
 });

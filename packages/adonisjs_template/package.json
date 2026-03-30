@@ -20,7 +20,7 @@
     "adonisjs_template": "scripts/entrypoint.js"
   },
   "scripts": {
-    "clean": "rm -rf .adonisjs build coverage reports test-results .stryker-tmp tsconfig.tsbuildinfo",
+    "clean": "rm -rf build coverage reports test-results .stryker-tmp tsconfig.tsbuildinfo",
     "db:init": "bash scripts/pg.sh init",
     "db:start": "bash scripts/pg.sh start",
     "db:stop": "bash scripts/pg.sh stop",
@@ -28,6 +28,7 @@
     "db:createdb": "bash scripts/pg.sh createdb",
     "db:reset": "bash scripts/pg.sh reset",
     "db:migrate": "node ace.js migration:run --force",
+    "db:seed": "node ace.js db:seed",
     "dev": "node ace.js serve --hmr",
     "dev:full": "npm run db:start && npm run db:createdb && npm run db:migrate && npm run dev",
     "build": "node ace.js build",
@@ -40,11 +41,17 @@
     "test:visual": "npm run build && npm run test:e2e -- --update-snapshots"
   },
   "dependencies": {
+    "@adonisjs/auth": "^10.0.0",
     "@adonisjs/core": "^7.3.0",
+    "@adonisjs/limiter": "^3.0.1",
     "@adonisjs/lucid": "^22.4.0",
+    "@adonisjs/mail": "^10.2.0",
+    "@adonisjs/session": "^8.0.0",
+    "@adonisjs/shield": "^9.0.0",
     "@adonisjs/static": "^2.0.1",
     "@types/luxon": "^3.7.1",
     "@vinejs/vine": "^4.3.0",
+    "alpinejs": "^3.15.9",
     "edge.js": "^6.5.0",
     "luxon": "^3.7.2",
     "pg": "^8.20.0",

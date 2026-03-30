@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login | {{ appName }}</title>
+    @vite(["resources/js/app.js"])
+  </head>
+  <body>
+    <div class="shell">
+      <header class="site-header">
+        <div class="site-header__brand">
+          <a href="/">AdonisJS Starter</a>
+        </div>
+        <nav class="site-header__nav" aria-label="Primary">
+          <a href="/">Home</a>
+          <a href="/register">Register</a>
+        </nav>
+      </header>
+      <main class="auth-shell">
+        <section class="auth-panel">
+          <p class="hero__eyebrow">Login</p>
+          <h1>Sign in to the starter app.</h1>
+          <p class="hero__body">
+            Session-backed authentication, CSRF protection, and request throttling
+            are active on this form.
+          </p>
+          @flashMessage("error")
+            <p class="flash flash--error">{{ $message }}</p>
+          @end
+          <form class="auth-form" action="/login" method="post">
+            {{ csrfField() }}
+            <label class="field">
+              <span>Email or username</span>
+              <input name="login" type="text" autocomplete="username" required />
+              @inputError("login")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+            </label>
+            <label class="field">
+              <span>Password</span>
+              <input
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              />
+              @inputError("password")
+                <small class="field__error">{{ $messages[0] }}</small>
+              @end
+            </label>
+            <button class="button button--primary" type="submit">Sign in</button>
+          </form>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

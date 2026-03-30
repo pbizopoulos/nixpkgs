@@ -26,7 +26,7 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-9bp2M7NlrXPlFIkoRJSagxws960UKGDD6ZZSPEPi3WI=";
+  npmDepsHash = "sha256-obI5jgwxBmXanCytFOyP9VHt3GSpmUKUv0LLuxGwWWk=";
   npmFlags = [
     "--legacy-peer-deps"
   ];

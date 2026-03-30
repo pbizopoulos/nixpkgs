@@ -3,6 +3,9 @@
  * DO NOT EDIT manually
  */
 export const controllers = {
+  Dashboard: () => import("#controllers/dashboard_controller"),
   Health: () => import("#controllers/health_controller"),
+  Home: () => import("#controllers/home_controller"),
+  Session: () => import("#controllers/session_controller"),
   Users: () => import("#controllers/users_controller"),
 };

@@ -6,11 +6,13 @@ test.group("User transformer", () => {
     const timestamp = DateTime.utc(2026, 3, 30, 12, 0, 0);
     const user = {
       id: 7,
+      email: "starter@example.com",
       username: "starter-user",
       createdAt: timestamp,
     };
     assert.deepEqual(serializeUser(user as never), {
       id: 7,
+      email: "starter@example.com",
       username: "starter-user",
       createdAt: timestamp.toISO(),
     });

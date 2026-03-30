@@ -40,6 +40,11 @@ const defaultEnv = {
   DB_PASSWORD: "postgres",
   DB_DATABASE: "postgres",
   DB_SSL: "false",
+  SESSION_DRIVER: "cookie",
+  LIMITER_STORE: "memory",
+  MAIL_MAILER: "smtp",
+  MAIL_FROM_ADDRESS: "starter@example.com",
+  MAIL_FROM_NAME: "AdonisJS Starter",
 };
 for (const [key, value] of Object.entries(defaultEnv)) {
   process.env[key] ??= value;
