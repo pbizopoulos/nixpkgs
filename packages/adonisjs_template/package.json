@@ -36,7 +36,7 @@
     "test": "node ace.js test",
     "test:ci": "bash scripts/test-ci.sh",
     "test:e2e": "E2E_MODE=prod playwright test",
-    "test:lint": "npm run clean && jscpd --ignore build,bin,node_modules,scripts . && depcruise app bin config resources start",
+    "test:lint": "npm run clean && jscpd --ignore build,bin,node_modules,scripts,.adonisjs . && depcruise app bin config resources start",
     "test:mutation": "stryker run",
     "test:visual": "npm run build && npm run test:e2e -- --update-snapshots"
   },

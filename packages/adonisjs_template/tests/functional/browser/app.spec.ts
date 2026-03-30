@@ -1,6 +1,25 @@
-import { devices, expect, test } from "@playwright/test";
+import { devices, expect, type Page, test } from "@playwright/test";
 const isProductionRuntime =
   process.env.E2E_MODE === "prod" || process.env.NODE_ENV === "production";
+async function registerUser(
+  page: Page,
+  {
+    email,
+    password = "password123",
+    username,
+  }: {
+    email: string;
+    password?: string;
+    username: string;
+  },
+) {
+  await page.goto("/register");
+  await page.getByLabel("Username").fill(username);
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password", { exact: true }).fill(password);
+  await page.getByLabel("Confirm password").fill(password);
+  await page.getByRole("button", { name: /create account/i }).click();
+}
 test("visitor sees the full starter landing page", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("body")).toContainText(
@@ -22,12 +41,7 @@ test("registration, login, logout, and account deletion work", async ({
   const unique = Date.now();
   const username = `starter-user-${unique}`;
   const email = `starter-${unique}@example.com`;
-  await page.goto("/register");
-  await page.getByLabel("Username").fill(username);
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password", { exact: true }).fill("password123");
-  await page.getByLabel("Confirm password").fill("password123");
-  await page.getByRole("button", { name: /create account/i }).click();
+  await registerUser(page, { email, username });
   await expect(page).toHaveURL(/\/app$/);
   await expect(page.locator("body")).toContainText(username);
   await expect(page.locator("body")).toContainText(email);
@@ -42,6 +56,40 @@ test("registration, login, logout, and account deletion work", async ({
   await page.getByRole("button", { name: /delete account/i }).click();
   await expect(page).toHaveURL(/\/$/);
   await expect(page.locator("body")).toContainText(/account has been deleted/i);
+});
+test("registration validation errors are shown", async ({ page }) => {
+  const unique = Date.now();
+  await page.goto("/register");
+  await page.getByLabel("Username").fill("bad username");
+  await page.getByLabel("Email").fill(`valid-${unique}@example.com`);
+  await page.getByLabel("Password", { exact: true }).fill("short");
+  await page.getByLabel("Confirm password").fill("short");
+  await page.getByRole("button", { name: /create account/i }).click();
+  await expect(page).toHaveURL(/\/register$/);
+  await expect(page.locator("body")).toContainText(/at least 8 characters/i);
+});
+test("invalid login keeps the visitor on the login form", async ({ page }) => {
+  await page.goto("/login");
+  await page.getByLabel("Email or username").fill("missing@example.com");
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.locator("body")).toContainText(
+    /credentials you entered are invalid/i,
+  );
+});
+test("authenticated visitors see their current session summary on the home page", async ({
+  page,
+}) => {
+  const unique = Date.now();
+  const username = `home-user-${unique}`;
+  const email = `home-${unique}@example.com`;
+  await registerUser(page, { email, username });
+  await expect(page).toHaveURL(/\/app$/);
+  await page.goto("/");
+  await expect(page.locator("body")).toContainText(/current session/i);
+  await expect(page.locator("body")).toContainText(username);
+  await expect(page.locator("body")).toContainText(email);
 });
 test("health check reports the postgres dependency as healthy", async ({
   request,
