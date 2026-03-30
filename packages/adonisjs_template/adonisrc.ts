@@ -12,6 +12,7 @@ export default defineConfig({
         listeners: { enabled: false },
       }),
     ],
+    buildStarting: [() => import("@adonisjs/vite/build_hook")],
   },
   providers: [
     () => import("@adonisjs/core/providers/app_provider"),
@@ -23,16 +24,13 @@ export default defineConfig({
     () => import("@adonisjs/core/providers/vinejs_provider"),
     () => import("@adonisjs/lucid/database_provider"),
     () => import("@adonisjs/static/static_provider"),
+    () => import("@adonisjs/vite/vite_provider"),
     () => import("#providers/app_provider"),
   ],
   preloads: [() => import("#start/routes"), () => import("#start/kernel")],
   metaFiles: [
     {
       pattern: "resources/views/**/*.edge",
-      reloadServer: false,
-    },
-    {
-      pattern: "resources/**/*.{css,js}",
       reloadServer: false,
     },
     {
