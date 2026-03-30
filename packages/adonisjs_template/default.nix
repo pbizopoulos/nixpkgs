@@ -21,10 +21,12 @@ pkgs.buildNpmPackage {
   dontNpmPrune = true;
   meta.mainProgram = pname;
   nativeBuildInputs = [
+    pkgs.nodePackages.npm
+    pkgs.nodejs
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-DV2CUUJIAz6ddDzKoDmxBciUTtVQjJiRuyZradhqlY4=";
+  npmDepsHash = "sha256-J+di7xYEsGn07LFqn4ZwAdyi/lLVYuJ9/VJC+rNgN1w=";
   npmFlags = [
     "--legacy-peer-deps"
   ];
