@@ -24,14 +24,14 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-5HYLJXulF3KSdt5KZDvK7Ih0+jYG+E7y8s08AwS7SPA=";
+  npmDepsHash = "sha256-fWfW58uZaTukSie4S1MtXJgAXi6DsP2bWIXsFq7KeD4=";
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
     mkdir -p "$out/lib/node_modules/${pname}/public"
     cp -r public/assets "$out/lib/node_modules/${pname}/public/assets"
   '';
   postPatch = ''
-    substituteInPlace scripts/entrypoint.js \
+    substituteInPlace bin/entrypoint.js \
       --replace-fail "@packagedRuntimePath@" "${runtimePath}" \
       --replace-fail "@packagedPlaywrightBrowsersPath@" "${pkgs.playwright-driver.browsers}"
   '';
