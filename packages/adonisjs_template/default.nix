@@ -25,9 +25,6 @@ pkgs.buildNpmPackage {
     pkgs.postgresql
   ];
   npmDepsHash = "sha256-5HYLJXulF3KSdt5KZDvK7Ih0+jYG+E7y8s08AwS7SPA=";
-  npmFlags = [
-    "--legacy-peer-deps"
-  ];
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
     mkdir -p "$out/lib/node_modules/${pname}/public"
