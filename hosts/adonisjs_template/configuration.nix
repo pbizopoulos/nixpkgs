@@ -158,19 +158,13 @@ in
         "postgresql.service"
       ];
       environment = {
-        APP_NAME = "AdonisJS Starter";
         APP_URL = "http://${hostName}";
         DB_DATABASE = packageName;
         DB_HOST = "/run/postgresql";
-        DB_PASSWORD = "unused";
         DB_PORT = "5432";
-        DB_SSL = "false";
         DB_USER = packageName;
         HOST = "127.0.0.1";
-        LOG_LEVEL = "info";
-        NODE_ENV = "production";
         PORT = "3333";
-        TZ = "UTC";
       };
       serviceConfig = {
         EnvironmentFile = config.age.secrets.secrets-env.path;
