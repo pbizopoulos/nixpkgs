@@ -10,7 +10,6 @@ let
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.bash
     pkgs.git
-    pkgs.nodePackages.npm
     pkgs.nodejs
     pkgs.openssl
     pkgs.postgresql
@@ -21,7 +20,6 @@ pkgs.buildNpmPackage {
   dontNpmPrune = true;
   meta.mainProgram = pname;
   nativeBuildInputs = [
-    pkgs.nodePackages.npm
     pkgs.nodejs
     pkgs.openssl
     pkgs.postgresql
