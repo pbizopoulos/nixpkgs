@@ -7,7 +7,6 @@ let
     pkgs.cargo
     pkgs.cargo-llvm-cov
     pkgs.coreutils
-    pkgs.git
     pkgs.llvmPackages.clang
     pkgs.llvmPackages.llvm
     pkgs.pkg-config
