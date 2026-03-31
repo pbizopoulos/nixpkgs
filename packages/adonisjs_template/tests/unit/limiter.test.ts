@@ -19,6 +19,37 @@ function createContext(ipAddress: string) {
     headers,
   };
 }
+function installLimiterUseSpy(limit: number) {
+  const originalUse = limiter.use.bind(limiter);
+  const observedKeys: string[] = [];
+  limiter.use = ((...args: unknown[]) => {
+    const store = originalUse(...(args as Parameters<typeof originalUse>));
+    return {
+      ...store,
+      async get(key: string) {
+        observedKeys.push(`get:${key}`);
+        return null;
+      },
+      async consume(key: string) {
+        observedKeys.push(`consume:${key}`);
+        return {
+          availableIn: 60,
+          consumed: 1,
+          limit,
+          remaining: limit - 1,
+          resetsAt: new Date(),
+          response: { apply() {} },
+        };
+      },
+    };
+  }) as unknown as typeof limiter.use;
+  return {
+    observedKeys,
+    restore() {
+      limiter.use = originalUse;
+    },
+  };
+}
 test.group("Rate limiters", (group) => {
   group.each.setup(async () => {
     await limiter.clear();
@@ -83,5 +114,35 @@ test.group("Rate limiters", (group) => {
       async () => "fresh-ip-signup",
     );
     assert.equal(freshIpResult, "fresh-ip-signup");
+  });
+  test("login limiter uses the login-prefixed client IP as its storage key", async ({
+    assert,
+  }) => {
+    const { ctx } = createContext("203.0.113.14");
+    const { observedKeys, restore } = installLimiterUseSpy(5);
+    try {
+      await throttleLogin(ctx as never, async () => "ok");
+    } finally {
+      restore();
+    }
+    assert.deepEqual(observedKeys, [
+      "get:login_login:203.0.113.14",
+      "consume:login_login:203.0.113.14",
+    ]);
+  });
+  test("signup limiter uses the signup-prefixed client IP as its storage key", async ({
+    assert,
+  }) => {
+    const { ctx } = createContext("203.0.113.15");
+    const { observedKeys, restore } = installLimiterUseSpy(3);
+    try {
+      await throttleSignup(ctx as never, async () => "ok");
+    } finally {
+      restore();
+    }
+    assert.deepEqual(observedKeys, [
+      "get:signup_signup:203.0.113.15",
+      "consume:signup_signup:203.0.113.15",
+    ]);
   });
 });

@@ -5,6 +5,7 @@ build/
 .stryker-tmp/
 coverage/
 node_modules/
+public/assets/
 reports/
 test-results/
 tmp/

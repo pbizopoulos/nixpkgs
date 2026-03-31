@@ -25,5 +25,5 @@ export default {
     "reports",
     ".stryker-tmp",
   ],
-  thresholds: { high: 80, low: 60, break: null },
+  thresholds: { high: 80, low: 60, break: 80 },
 };

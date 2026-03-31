@@ -32,6 +32,8 @@ pkgs.buildNpmPackage {
   ];
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
+    mkdir -p "$out/lib/node_modules/${pname}/public"
+    cp -r public/assets "$out/lib/node_modules/${pname}/public/assets"
   '';
   postPatch = ''
     substituteInPlace scripts/entrypoint.js \
