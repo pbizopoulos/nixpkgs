@@ -667,6 +667,60 @@ mod tests {
         assert!(!is_dash_case("my_package"));
     }
     #[test]
+    fn test_package_root() {
+        assert_eq!(
+            package_root(Path::new("packages/adonisjs_template/package.json")),
+            Some(PathBuf::from("packages/adonisjs_template"))
+        );
+        assert_eq!(
+            package_root(Path::new(
+                "templates/example/packages/adonisjs_template/package.json"
+            )),
+            Some(PathBuf::from(
+                "templates/example/packages/adonisjs_template"
+            ))
+        );
+        assert_eq!(
+            package_root(Path::new("hosts/adonisjs_template/configuration.nix")),
+            None
+        );
+    }
+    #[test]
+    fn test_host_root() {
+        assert_eq!(
+            host_root(Path::new("hosts/adonisjs_template/configuration.nix")),
+            Some(PathBuf::from("hosts/adonisjs_template"))
+        );
+        assert_eq!(
+            host_root(Path::new("packages/adonisjs_template/default.nix")),
+            None
+        );
+    }
+    #[test]
+    fn test_validate_adonis_package_layout_rejects_legacy_scripts() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/adonisjs_template");
+        let dir_and_file_names = HashSet::from([
+            PathBuf::from("packages/adonisjs_template/bin/entrypoint.js"),
+            PathBuf::from("packages/adonisjs_template/scripts/test-ci.sh"),
+            PathBuf::from("packages/adonisjs_template/resources/views/errors"),
+            PathBuf::from("packages/adonisjs_template/database/schema.ts"),
+        ]);
+        let warnings =
+            validate_adonis_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("packages/adonisjs_template/scripts/test-ci.sh"));
+    }
+    #[test]
+    fn test_validate_adonis_package_layout_ignores_other_packages() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/adonisjs_template");
+        let dir_and_file_names = HashSet::from([PathBuf::from("packages/python_template/main.py")]);
+        let warnings =
+            validate_adonis_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert!(warnings.is_empty());
+    }
+    #[test]
     fn test_check_repository_directory_structure() {
         std::env::remove_var("NIX_BUILD_TOP");
         let temp_dir = std::env::temp_dir().join("test-repo-structure");
