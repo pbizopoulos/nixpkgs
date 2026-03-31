@@ -610,6 +610,46 @@ fn test_is_dash_case_standalone() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use std::path::Path;
+    use std::process::Command;
+    fn init_temp_repo(path: &Path) {
+        if path.exists() {
+            fs::remove_dir_all(path).unwrap();
+        }
+        fs::create_dir_all(path).unwrap();
+        Command::new("git")
+            .arg("init")
+            .arg("-b")
+            .arg("main")
+            .current_dir(path)
+            .output()
+            .expect("Failed to init git");
+        Command::new("git")
+            .args(["config", "user.email", "test@example.com"])
+            .current_dir(path)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["config", "user.name", "Test User"])
+            .current_dir(path)
+            .output()
+            .unwrap();
+        fs::write(path.join("flake.nix"), "test").unwrap();
+        Command::new("git")
+            .arg("add")
+            .arg("flake.nix")
+            .current_dir(path)
+            .output()
+            .expect("Failed to add flake.nix");
+        Command::new("git")
+            .arg("commit")
+            .arg("-m")
+            .arg("initial commit")
+            .current_dir(path)
+            .output()
+            .expect("Failed to commit");
+    }
     #[test]
     fn test_is_valid_fqdn() {
         assert!(is_valid_fqdn("google.com"));
@@ -629,44 +669,8 @@ mod tests {
     #[test]
     fn test_check_repository_directory_structure() {
         std::env::remove_var("NIX_BUILD_TOP");
-        use std::fs;
-        use std::process::Command;
         let temp_dir = std::env::temp_dir().join("test-repo-structure");
-        if temp_dir.exists() {
-            fs::remove_dir_all(&temp_dir).unwrap();
-        }
-        fs::create_dir_all(&temp_dir).unwrap();
-        Command::new("git")
-            .arg("init")
-            .arg("-b")
-            .arg("main")
-            .current_dir(&temp_dir)
-            .output()
-            .expect("Failed to init git");
-        Command::new("git")
-            .args(["config", "user.email", "test@example.com"])
-            .current_dir(&temp_dir)
-            .output()
-            .unwrap();
-        Command::new("git")
-            .args(["config", "user.name", "Test User"])
-            .current_dir(&temp_dir)
-            .output()
-            .unwrap();
-        fs::write(temp_dir.join("flake.nix"), "test").unwrap();
-        Command::new("git")
-            .arg("add")
-            .arg("flake.nix")
-            .current_dir(&temp_dir)
-            .output()
-            .expect("Failed to add flake.nix");
-        Command::new("git")
-            .arg("commit")
-            .arg("-m")
-            .arg("initial commit")
-            .current_dir(&temp_dir)
-            .output()
-            .expect("Failed to commit");
+        init_temp_repo(&temp_dir);
         let flake_nix_path = temp_dir.join("flake.nix");
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
@@ -753,6 +757,145 @@ mod tests {
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_adonis_package_layout_matches_repository_conventions() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-adonis");
+        init_temp_repo(&temp_dir);
+        let package_root = temp_dir.join("packages/adonisjs_template");
+        for relative_dir in [
+            ".adonisjs/client",
+            ".adonisjs/server",
+            "app/controllers",
+            "app/exceptions",
+            "app/mails",
+            "app/middleware",
+            "app/models",
+            "app/transformers",
+            "app/validators",
+            "bin",
+            "config",
+            "database/factories",
+            "database/migrations",
+            "database/seeders",
+            "providers",
+            "public",
+            "resources/css",
+            "resources/js",
+            "resources/views/auth",
+            "resources/views/emails",
+            "resources/views/errors",
+            "start",
+            "tests/functional/browser",
+            "tests/unit",
+            "tmp",
+        ] {
+            fs::create_dir_all(package_root.join(relative_dir)).unwrap();
+        }
+        for (relative_path, contents) in [
+            (".dependency-cruiser.cjs", "module.exports = {};"),
+            (".env", "PORT=3333\n"),
+            (".env.example", "PORT=3333\n"),
+            (".gitignore", "tmp/\n"),
+            (".jscpd.json", "{}"),
+            ("ace.js", "console.log('ace');"),
+            ("adonisrc.ts", "export default {};"),
+            (".adonisjs/client/types.ts", "export type App = {};"),
+            (".adonisjs/server/routes.d.ts", "export {};"),
+            (
+                "app/controllers/home_controller.ts",
+                "export default class HomeController {}",
+            ),
+            (
+                "app/exceptions/handler.ts",
+                "export default class Handler {}",
+            ),
+            ("app/mails/.gitkeep", ""),
+            (
+                "app/middleware/auth_middleware.ts",
+                "export default class AuthMiddleware {}",
+            ),
+            ("app/models/user.ts", "export default class User {}"),
+            (
+                "app/transformers/user_transformer.ts",
+                "export const userTransformer = {};",
+            ),
+            ("app/validators/auth.ts", "export const authValidator = {};"),
+            ("bin/console.ts", "export {};"),
+            ("bin/entrypoint.js", "console.log('entrypoint');"),
+            ("bin/pg.sh", "#!/usr/bin/env sh\n"),
+            ("bin/server.ts", "export {};"),
+            ("bin/test-ci.sh", "#!/usr/bin/env sh\n"),
+            ("bin/test.ts", "export {};"),
+            ("config/app.ts", "export default {};"),
+            ("database/factories/user_factory.ts", "export default {};"),
+            (
+                "database/migrations/000_create_users_table.ts",
+                "export default {};",
+            ),
+            ("database/schema.ts", "export class UserSchema {}"),
+            (
+                "database/schema_rules.ts",
+                "export const usernameSchemaRules = {};",
+            ),
+            ("database/seeders/user_seeder.ts", "export default {};"),
+            ("default.nix", "{}"),
+            ("eslint.config.js", "export default [];"),
+            ("package-lock.json", "{}"),
+            ("package.json", "{\"name\":\"adonisjs_template\"}"),
+            ("playwright.config.ts", "export default {};"),
+            (
+                "providers/app_provider.ts",
+                "export default class AppProvider {}",
+            ),
+            ("public/robots.txt", "User-agent: *\n"),
+            ("resources/css/app.css", "body {}\n"),
+            ("resources/js/app.js", "console.log('app');"),
+            ("resources/views/auth/login.edge", ""),
+            ("resources/views/emails/welcome.edge", ""),
+            ("resources/views/errors/404.edge", ""),
+            ("resources/views/home.edge", ""),
+            ("spec.json", "{}"),
+            ("start/env.ts", "export {};"),
+            ("start/kernel.ts", "export {};"),
+            ("start/routes.ts", "export {};"),
+            ("stryker.config.mjs", "export default {};"),
+            ("tests/bootstrap.ts", "export {};"),
+            ("tests/functional/browser/app.spec.ts", "export {};"),
+            ("tests/unit/username.test.ts", "export {};"),
+            ("tmp/.gitignore", "*\n"),
+            ("tsconfig.json", "{}"),
+            ("vite.config.ts", "export default {};"),
+        ] {
+            fs::write(package_root.join(relative_path), contents).unwrap();
+        }
+        Command::new("git")
+            .args(["add", "packages"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for the current AdonisJS package layout, but got Err: {:?}",
+            result.err()
+        );
+        fs::create_dir_all(package_root.join("scripts")).unwrap();
+        fs::write(
+            package_root.join("scripts/test-ci.sh"),
+            "#!/usr/bin/env sh\n",
+        )
+        .unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_err(),
+            "Expected Err for legacy scripts/ layout, but got Ok",
+        );
         fs::remove_dir_all(&temp_dir).unwrap();
     }
 }
