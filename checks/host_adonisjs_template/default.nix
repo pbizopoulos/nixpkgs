@@ -7,70 +7,23 @@ pkgs.testers.runNixOSTest rec {
   name = "adonisjs_template";
   nodes.machine = {
     environment.systemPackages = [
-      inputs.self.packages.${pkgs.stdenv.system}.${name}
       pkgs.curl
     ];
-    networking.firewall.allowedTCPPorts = [
-      80
+    imports = [
+      ../../modules/nixos/adonisjs.nix
     ];
-    services = {
+    services.adonisjs-app = {
+      inherit name;
+      appKey = "01234567890123456789012345678901";
+      appUrl = "http://127.0.0.1:3333";
+      enable = true;
+      host = "0.0.0.0";
       nginx = {
-        enable = true;
-        virtualHosts.machine = {
-          default = true;
-          locations."/" = {
-            proxyPass = "http://127.0.0.1:3333";
-            recommendedProxySettings = true;
-          };
-        };
+        defaultVirtualHost = true;
+        serverName = "machine";
       };
-      postgresql = {
-        enable = true;
-        ensureDatabases = [
-          name
-        ];
-        ensureUsers = [
-          {
-            inherit name;
-            ensureDBOwnership = true;
-          }
-        ];
-      };
-    };
-    systemd.services.${name} = {
-      after = [
-        "network.target"
-        "postgresql.service"
-      ];
-      environment = {
-        APP_KEY = "01234567890123456789012345678901";
-        APP_URL = "http://127.0.0.1:3333";
-        DB_DATABASE = name;
-        DB_HOST = "/run/postgresql";
-        DB_PORT = "5432";
-        DB_USER = name;
-        HOST = "0.0.0.0";
-        PORT = "3333";
-      };
-      serviceConfig = {
-        ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${name}}/bin/${name}";
-        Group = name;
-        Restart = "always";
-        RestartSec = 5;
-        StateDirectory = name;
-        User = name;
-      };
-      wantedBy = [
-        "multi-user.target"
-      ];
-    };
-    users = {
-      groups.${name} = { };
-      users.${name} = {
-        group = name;
-        home = "/var/lib/${name}";
-        isSystemUser = true;
-      };
+      package = inputs.self.packages.${pkgs.stdenv.system}.${name};
+      port = 3333;
     };
     virtualisation.memorySize = 8192;
   };

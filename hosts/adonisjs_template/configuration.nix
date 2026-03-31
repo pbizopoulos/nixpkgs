@@ -68,11 +68,10 @@ in
       ];
     };
   };
-  environment.systemPackages = [
-    inputs.self.packages.${pkgs.stdenv.system}.${packageName}
-  ];
+  environment.systemPackages = [ ];
   fileSystems."/persistent".neededForBoot = true;
   imports = [
+    ../../modules/nixos/adonisjs.nix
     inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
@@ -81,9 +80,6 @@ in
   ];
   networking = {
     inherit hostName;
-    firewall.allowedTCPPorts = [
-      80
-    ];
   };
   nix = {
     gc.automatic = true;
@@ -119,15 +115,19 @@ in
   programs.bash.promptInit = "";
   security.sudo.wheelNeedsPassword = false;
   services = {
-    nginx = {
+    adonisjs-app = {
+      appUrl = "http://${hostName}";
       enable = true;
-      virtualHosts.${hostName} = {
-        default = true;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:3333";
-          recommendedProxySettings = true;
-        };
+      environmentFile = config.age.secrets.secrets-env.path;
+      extraEnvironment = { };
+      host = "127.0.0.1";
+      name = packageName;
+      nginx = {
+        defaultVirtualHost = true;
+        serverName = hostName;
       };
+      package = inputs.self.packages.${pkgs.stdenv.system}.${packageName};
+      port = 3333;
     };
     openssh = {
       enable = true;
@@ -151,48 +151,13 @@ in
     };
   };
   system.stateVersion = "25.11";
-  systemd = {
-    services.${packageName} = {
-      after = [
-        "network.target"
-        "postgresql.service"
-      ];
-      environment = {
-        APP_URL = "http://${hostName}";
-        DB_DATABASE = packageName;
-        DB_HOST = "/run/postgresql";
-        DB_PORT = "5432";
-        DB_USER = packageName;
-        HOST = "127.0.0.1";
-        PORT = "3333";
-      };
-      serviceConfig = {
-        EnvironmentFile = config.age.secrets.secrets-env.path;
-        ExecStart = "${inputs.self.packages.${pkgs.stdenv.system}.${packageName}}/bin/${packageName}";
-        Group = packageName;
-        Restart = "always";
-        RestartSec = 5;
-        StateDirectory = packageName;
-        User = packageName;
-      };
-      wantedBy = [
-        "multi-user.target"
-      ];
-    };
-    suppressedSystemUnits = [
-      "systemd-machine-id-commit.service"
-    ];
-  };
+  systemd.suppressedSystemUnits = [
+    "systemd-machine-id-commit.service"
+  ];
   users = {
     allowNoPasswordLogin = true;
-    groups.${packageName} = { };
     mutableUsers = false;
     users = {
-      ${packageName} = {
-        group = packageName;
-        home = "/var/lib/${packageName}";
-        isSystemUser = true;
-      };
       nixos = {
         extraGroups = [
           "wheel"
