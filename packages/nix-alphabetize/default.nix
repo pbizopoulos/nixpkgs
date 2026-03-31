@@ -15,7 +15,6 @@ let
   pname = baseNameOf ./.;
   runtimePath = pkgs.lib.makeBinPath [
     debugGhc
-    pkgs.bash
     pkgs.coreutils
   ];
 in
@@ -23,27 +22,38 @@ pkgs.haskellPackages.mkDerivation rec {
   inherit pname;
   description = "Sorts attributes alphabetically, using dotted notation for attributes with sets or lists, and nested notation otherwise";
   executableHaskellDepends = haskellDeps pkgs.haskellPackages;
-  executableToolDepends = [
-    pkgs.makeWrapper
-  ];
   license = pkgs.lib.licenses.mit;
   mainProgram = pname;
   postInstall = ''
         mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
         cat > "$out/bin/${pname}" <<'EOF'
-    #!/nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-bash/bin/bash
+    #!${pkgs.bash}/bin/bash
     set -euo pipefail
     export PATH='${runtimePath}':"$PATH"
     is_package_root() {
       local candidate="$1"
-      [ -f "$candidate/main.cabal" ] || return 1
-      grep -Eq '^name:[[:space:]]+${pname}$' "$candidate/main.cabal"
+      [ -f "$candidate/main.cabal" ] && [ -f "$candidate/Main.hs" ]
+    }
+    find_workspace_root() {
+      local current_dir="$PWD"
+      while [ "$current_dir" != "/" ]; do
+        if [ -f "$current_dir/flake.nix" ] && [ -d "$current_dir/packages" ]; then
+          printf '%s\n' "$current_dir"
+          return 0
+        fi
+        current_dir="$(dirname "$current_dir")"
+      done
+      return 1
     }
     resolve_source_root() {
-      local workspace_package_root="$PWD/packages/${pname}"
-      if is_package_root "$workspace_package_root"; then
-        printf '%s\n' "$workspace_package_root"
-        return 0
+      local workspace_root
+      local workspace_package_root
+      if workspace_root="$(find_workspace_root)"; then
+        workspace_package_root="$workspace_root/packages/${pname}"
+        if is_package_root "$workspace_package_root"; then
+          printf '%s\n' "$workspace_package_root"
+          return 0
+        fi
       fi
       if is_package_root "$PWD"; then
         printf '%s\n' "$PWD"
@@ -81,7 +91,6 @@ pkgs.haskellPackages.mkDerivation rec {
     exec "@wrappedBin@" "$@"
     EOF
         substituteInPlace "$out/bin/${pname}" \
-          --replace-fail '#!/nix/store/eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee-bash/bin/bash' '#!${pkgs.bash}/bin/bash' \
           --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
         chmod +x "$out/bin/${pname}"
   '';
