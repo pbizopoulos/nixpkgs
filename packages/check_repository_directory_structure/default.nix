@@ -8,12 +8,10 @@ let
   ];
   pname = baseNameOf ./.;
   runtimePath = pkgs.lib.makeBinPath [
-    pkgs.bash
     pkgs.cargo
     pkgs.cargo-llvm-cov
     pkgs.coreutils
     pkgs.git
-    pkgs.gnugrep
     pkgs.llvmPackages.clang
     pkgs.llvmPackages.llvm
     pkgs.pkg-config
@@ -47,8 +45,7 @@ pkgs.rustPlatform.buildRustPackage rec {
     export PKG_CONFIG_PATH='${pkgConfigPath}'
     is_package_root() {
       local candidate="$1"
-      [ -f "$candidate/Cargo.toml" ] || return 1
-      grep -Eq '^name = "${pname}"$' "$candidate/Cargo.toml"
+      [ -f "$candidate/Cargo.toml" ] && [ -f "$candidate/src/main.rs" ]
     }
     resolve_source_root() {
       local workspace_package_root="$PWD/packages/${pname}"
