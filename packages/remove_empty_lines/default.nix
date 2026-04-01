@@ -6,11 +6,13 @@ let
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.cargo
     pkgs.cargo-llvm-cov
+    pkgs.cargo-mutants
     pkgs.coreutils
     pkgs.llvmPackages.clang
     pkgs.llvmPackages.llvm
     pkgs.pkg-config
     pkgs.rustc
+    pkgs.stdenv.cc
   ];
 in
 pkgs.rustPlatform.buildRustPackage rec {
@@ -59,6 +61,15 @@ pkgs.rustPlatform.buildRustPackage rec {
         cargo llvm-cov --locked --no-report
         cargo llvm-cov report --html --output-dir "$coverage_dir/html"
         cargo llvm-cov report --summary-only | tee "$coverage_dir/summary.txt"
+        mkdir -p "$source_root/tmp"
+        rm -rf "$source_root/tmp/mutants.out"
+        set +e
+        cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$source_root/tmp"
+        mutation_status=$?
+        set -e
+        if [ "$mutation_status" -ne 0 ] && [ "$mutation_status" -ne 2 ]; then
+          exit "$mutation_status"
+        fi
         exit 0
       fi
     fi
