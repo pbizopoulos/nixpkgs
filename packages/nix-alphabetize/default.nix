@@ -22,10 +22,7 @@ let
         set -euo pipefail
         export PATH='${runtimePath}':"$PATH"
         run_behavior_tests() {
-          local binary="$1"
-          local case_dir
-          local file_one
-          local file_two
+          local binary="$1" case_dir file_one file_two
           case_dir="$(mktemp -d)"
           file_one="$case_dir/attrs.nix"
           file_two="$case_dir/list.nix"
@@ -158,7 +155,7 @@ let
         exec "@wrappedBin@" "$@"
   '';
 in
-pkgs.haskellPackages.mkDerivation rec {
+pkgs.haskellPackages.mkDerivation {
   inherit pname;
   description = "Sorts attributes alphabetically, using dotted notation for attributes with sets or lists, and nested notation otherwise";
   executableHaskellDepends = haskellDeps pkgs.haskellPackages;

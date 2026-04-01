@@ -142,7 +142,7 @@ let
         exec "@wrappedBin@" "$@"
   '';
 in
-pkgs.haskellPackages.mkDerivation rec {
+pkgs.haskellPackages.mkDerivation {
   inherit pname;
   executableHaskellDepends = haskellDeps pkgs.haskellPackages;
   license = pkgs.lib.licenses.mit;
