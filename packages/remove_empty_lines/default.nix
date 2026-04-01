@@ -66,7 +66,6 @@ pkgs.rustPlatform.buildRustPackage {
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;
-  nativeBuildInputs = [ ];
   postInstall = ''
     mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
     cp ${wrapperScript} "$out/bin/${pname}"
