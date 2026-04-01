@@ -18,26 +18,7 @@ let
     pkgs.rustc
     pkgs.stdenv.cc
   ];
-in
-pkgs.rustPlatform.buildRustPackage rec {
-  inherit pname;
-  buildInputs = [
-    pkgs.openssl
-    pkgs.zlib
-  ];
-  cargoHash = "sha256-rTjBv800ZzIx656m8q1XQaTKpmF/F1JAtLN/HtDdEkM=";
-  doCheck = pkgs.stdenv.isLinux;
-  env.RUSTFLAGS = "-D warnings";
-  meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.git
-    pkgs.pkg-config
-    pkgs.rustPlatform.bindgenHook
-  ];
-  postInstall = ''
-        mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
-        cat > "$out/bin/${pname}" <<'EOF'
-    #!${pkgs.bash}/bin/bash
+  wrapperScript = pkgs.writeShellScript "${pname}-wrapper" ''
     set -euo pipefail
     export PATH='${runtimePath}':"$PATH"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
@@ -83,10 +64,29 @@ pkgs.rustPlatform.buildRustPackage rec {
       fi
     fi
     exec "@wrappedBin@" "$@"
-    EOF
-        substituteInPlace "$out/bin/${pname}" \
-          --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
-        chmod +x "$out/bin/${pname}"
+  '';
+in
+pkgs.rustPlatform.buildRustPackage rec {
+  inherit pname;
+  buildInputs = [
+    pkgs.openssl
+    pkgs.zlib
+  ];
+  cargoHash = "sha256-rTjBv800ZzIx656m8q1XQaTKpmF/F1JAtLN/HtDdEkM=";
+  doCheck = pkgs.stdenv.isLinux;
+  env.RUSTFLAGS = "-D warnings";
+  meta.mainProgram = pname;
+  nativeBuildInputs = [
+    pkgs.git
+    pkgs.pkg-config
+    pkgs.rustPlatform.bindgenHook
+  ];
+  postInstall = ''
+    mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
+    cp ${wrapperScript} "$out/bin/${pname}"
+    substituteInPlace "$out/bin/${pname}" \
+      --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
+    chmod +x "$out/bin/${pname}"
   '';
   src = ./.;
   version = "0.0.0";
