@@ -24,7 +24,7 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-fWfW58uZaTukSie4S1MtXJgAXi6DsP2bWIXsFq7KeD4=";
+  npmDepsHash = "sha256-BaqM4vUcLOlzeU/tJOPQ9uTD7nb8khwYrjWIkE9NpA8=";
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
     mkdir -p "$out/lib/node_modules/${pname}/public"
@@ -33,7 +33,8 @@ pkgs.buildNpmPackage {
   postPatch = ''
     substituteInPlace bin/entrypoint.js \
       --replace-fail "@packagedRuntimePath@" "${runtimePath}" \
-      --replace-fail "@packagedPlaywrightBrowsersPath@" "${pkgs.playwright-driver.browsers}"
+      --replace-fail "@packagedPlaywrightBrowsersPath@" "${pkgs.playwright-driver.browsers}" \
+      --replace-fail "@packagedChromiumExecutablePath@" "${pkgs.lib.getExe pkgs.chromium}"
   '';
   shellHook = ''
     # shellcheck disable=SC1091
@@ -41,6 +42,7 @@ pkgs.buildNpmPackage {
     export $(grep -v '^#' "$secrets_PATH" | xargs)
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
+    export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${pkgs.lib.getExe pkgs.chromium}
     export PGDATA="''${PGDATA:-$PWD/tmp/.postgres}"
     export PGHOST="''${PGHOST:-/tmp/adonisjs-template-pg}"
     export PGPORT="''${PGPORT:-5432}"

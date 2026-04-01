@@ -18,6 +18,7 @@ const projectRoot = join(__dirname, "..");
 const packageName = "adonisjs_template";
 const packagedRuntimePath = "@packagedRuntimePath@";
 const packagedPlaywrightBrowsersPath = "@packagedPlaywrightBrowsersPath@";
+const packagedChromiumExecutablePath = "@packagedChromiumExecutablePath@";
 if (!packagedRuntimePath.startsWith("@")) {
   process.env.PATH = process.env.PATH
     ? `${packagedRuntimePath}:${process.env.PATH}`
@@ -25,6 +26,10 @@ if (!packagedRuntimePath.startsWith("@")) {
 }
 if (!packagedPlaywrightBrowsersPath.startsWith("@")) {
   process.env.PLAYWRIGHT_BROWSERS_PATH ??= packagedPlaywrightBrowsersPath;
+}
+if (!packagedChromiumExecutablePath.startsWith("@")) {
+  process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH ??=
+    packagedChromiumExecutablePath;
 }
 const defaultEnv = {
   TZ: "UTC",

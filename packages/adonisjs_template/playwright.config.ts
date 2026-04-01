@@ -16,6 +16,7 @@ try {
 }
 const shellQuote = (value: string) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 const isProdE2E = (process.env as { E2E_MODE?: string }).E2E_MODE === "prod";
+const chromiumExecutablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH;
 const defaultPort = process.env.PORT ?? "3333";
 const defaultHost = process.env.HOST ?? "localhost";
 const baseURL = process.env.APP_URL ?? `http://${defaultHost}:${defaultPort}`;
@@ -56,6 +57,9 @@ export default defineConfig({
   },
   use: {
     baseURL,
+    launchOptions: chromiumExecutablePath
+      ? { executablePath: chromiumExecutablePath }
+      : undefined,
     trace: "on-first-retry",
     screenshot: "only-on-failure",
   },
