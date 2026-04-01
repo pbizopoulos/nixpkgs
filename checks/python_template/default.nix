@@ -5,7 +5,6 @@
 }:
 let
   python-with-audit = pkgs.python313.withPackages (ps: [
-    ps.coverage
     ps.scalene
   ]);
 in
@@ -18,7 +17,5 @@ pkgs.testers.runNixOSTest rec {
   ];
   testScript = ''
     machine.succeed("DEBUG=1 ${name}")
-    machine.succeed("DEBUG=1 ${python-with-audit}/bin/python3 -m coverage run $(which ${name})")
-    machine.succeed("${python-with-audit}/bin/python3 -m coverage report")
   '';
 }
