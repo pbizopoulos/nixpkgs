@@ -10,7 +10,6 @@ let
     pkgs.coreutils
     pkgs.llvmPackages.clang
     pkgs.llvmPackages.llvm
-    pkgs.pkg-config
     pkgs.rustc
     pkgs.stdenv.cc
   ];
@@ -68,10 +67,7 @@ pkgs.rustPlatform.buildRustPackage {
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.pkg-config
-    pkgs.rustPlatform.bindgenHook
-  ];
+  nativeBuildInputs = [ ];
   postInstall = ''
     mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
     cp ${wrapperScript} "$out/bin/${pname}"

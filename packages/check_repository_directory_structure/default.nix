@@ -79,7 +79,6 @@ pkgs.rustPlatform.buildRustPackage {
   nativeBuildInputs = [
     pkgs.git
     pkgs.pkg-config
-    pkgs.rustPlatform.bindgenHook
   ];
   postInstall = ''
     mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"

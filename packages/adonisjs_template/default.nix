@@ -9,7 +9,6 @@ let
   pname = baseNameOf ./.;
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.bash
-    pkgs.git
     pkgs.nodejs
     pkgs.openssl
     pkgs.postgresql
