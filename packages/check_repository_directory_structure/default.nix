@@ -66,7 +66,7 @@ let
     exec "@wrappedBin@" "$@"
   '';
 in
-pkgs.rustPlatform.buildRustPackage rec {
+pkgs.rustPlatform.buildRustPackage {
   inherit pname;
   buildInputs = [
     pkgs.openssl

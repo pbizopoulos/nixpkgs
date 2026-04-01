@@ -61,9 +61,8 @@ let
     exec "@wrappedBin@" "$@"
   '';
 in
-pkgs.rustPlatform.buildRustPackage rec {
+pkgs.rustPlatform.buildRustPackage {
   inherit pname;
-  buildInputs = [ ];
   cargoHash = "sha256-eYbFGvryzvF0Px0Iyfaws3fwWbSKUn/montDzNymyBc=";
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
