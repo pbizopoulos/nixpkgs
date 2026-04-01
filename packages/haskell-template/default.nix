@@ -84,27 +84,17 @@ let
           local candidate="$1"
           [ -f "$candidate/${pname}.cabal" ] && [ -f "$candidate/Main.hs" ]
         }
-        find_workspace_root() {
-          local current_dir="$PWD"
-          while [ "$current_dir" != "/" ]; do
-            if [ -f "$current_dir/flake.nix" ] && [ -d "$current_dir/packages" ]; then
-              printf '%s\n' "$current_dir"
-              return 0
-            fi
-            current_dir="$(dirname "$current_dir")"
-          done
-          return 1
-        }
         resolve_source_root() {
-          local workspace_root
+          local current_dir="$PWD"
           local workspace_package_root
-          if workspace_root="$(find_workspace_root)"; then
-            workspace_package_root="$workspace_root/packages/${pname}"
+          while [ "$current_dir" != "/" ]; do
+            workspace_package_root="$current_dir/packages/${pname}"
             if is_package_root "$workspace_package_root"; then
               printf '%s\n' "$workspace_package_root"
               return 0
             fi
-          fi
+            current_dir="$(dirname "$current_dir")"
+          done
           if is_package_root "$PWD"; then
             printf '%s\n' "$PWD"
             return 0
