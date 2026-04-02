@@ -5,7 +5,7 @@ pgdata="${PGDATA:-$project_root/tmp/.postgres}"
 pgsocket="${PGHOST:-/tmp/adonisjs-template-pg}"
 pgport="${PGPORT:-5432}"
 pguser="${PGUSER:-postgres}"
-pgdatabase="${PGDATABASE:-adonisjs_template}"
+pgdatabase="${PGDATABASE:-adonisjs-template}"
 logfile="$pgdata/postgres.log"
 pgsystem_user=""
 if [ "$(id -u)" -eq 0 ]; then

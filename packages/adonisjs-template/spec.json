@@ -2,7 +2,7 @@
   "notes": [
     "Do not encode framework internals, specific middleware class names, or generated asset file names."
   ],
-  "testCommand": "nix develop ../..#adonisjs_template -c npm run test:ci",
+  "testCommand": "nix develop ../..#adonisjs-template -c npm run test:ci",
   "selfEditingRules": [
     "Keep this file intent-focused and describe user-visible behavior and constraints rather than implementation details.",
     "Update features and scenarios whenever the implemented behavior changes and the new behavior is intended.",

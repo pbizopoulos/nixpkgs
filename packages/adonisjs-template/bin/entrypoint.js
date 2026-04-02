@@ -15,7 +15,8 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, "..");
-const packageName = "adonisjs_template";
+const packageName = "adonisjs-template";
+const packageDirectoryName = "adonisjs_template";
 const packagedRuntimePath = "@packagedRuntimePath@";
 const packagedPlaywrightBrowsersPath = "@packagedPlaywrightBrowsersPath@";
 const packagedChromiumExecutablePath = "@packagedChromiumExecutablePath@";
@@ -81,7 +82,11 @@ const isPackageRoot = (path) => {
   }
 };
 const resolveDebugSourceRoot = () => {
-  const workspacePackageRoot = join(process.cwd(), "packages", packageName);
+  const workspacePackageRoot = join(
+    process.cwd(),
+    "packages",
+    packageDirectoryName,
+  );
   if (isPackageRoot(workspacePackageRoot)) {
     return workspacePackageRoot;
   }
@@ -92,8 +97,8 @@ const resolveDebugSourceRoot = () => {
 };
 const runTests = async () => {
   const sourceRoot = resolveDebugSourceRoot();
-  const runtimeRoot = join(tmpdir(), `adonisjs_template-${process.pid}`);
-  const pgRuntimeRoot = join(tmpdir(), `adonisjs_template-pg-${process.pid}`);
+  const runtimeRoot = join(tmpdir(), `adonisjs-template-${process.pid}`);
+  const pgRuntimeRoot = join(tmpdir(), `adonisjs-template-pg-${process.pid}`);
   rmSync(runtimeRoot, { force: true, recursive: true });
   rmSync(pgRuntimeRoot, { force: true, recursive: true });
   mkdirSync(runtimeRoot, { recursive: true });
@@ -108,7 +113,7 @@ const runTests = async () => {
   process.env.PGPORT ??= "5432";
   process.env.PGUSER ??= "postgres";
   process.env.PGPASSWORD ??= "postgres";
-  process.env.PGDATABASE ??= "adonisjs_template";
+  process.env.PGDATABASE ??= "adonisjs-template";
   process.env.DB_HOST = process.env.PGHOST;
   process.env.DB_PORT = process.env.PGPORT;
   process.env.DB_USER = process.env.PGUSER;

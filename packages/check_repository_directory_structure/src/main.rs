@@ -681,15 +681,15 @@ mod tests {
             ))
         );
         assert_eq!(
-            package_root(Path::new("hosts/adonisjs_template/configuration.nix")),
+            package_root(Path::new("hosts/adonisjs-template/configuration.nix")),
             None
         );
     }
     #[test]
     fn test_host_root() {
         assert_eq!(
-            host_root(Path::new("hosts/adonisjs_template/configuration.nix")),
-            Some(PathBuf::from("hosts/adonisjs_template"))
+            host_root(Path::new("hosts/adonisjs-template/configuration.nix")),
+            Some(PathBuf::from("hosts/adonisjs-template"))
         );
         assert_eq!(
             host_root(Path::new("packages/adonisjs_template/default.nix")),
@@ -898,7 +898,7 @@ mod tests {
             ("default.nix", "{}"),
             ("eslint.config.js", "export default [];"),
             ("package-lock.json", "{}"),
-            ("package.json", "{\"name\":\"adonisjs_template\"}"),
+            ("package.json", "{\"name\":\"adonisjs-template\"}"),
             ("playwright.config.ts", "export default {};"),
             (
                 "providers/app_provider.ts",

@@ -10,7 +10,8 @@ let
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  packageName = "adonisjs_template";
+  packageAttrName = "adonisjs-template";
+  packageName = "adonisjs-template";
 in
 {
   age.secrets.secrets-env = {
@@ -126,7 +127,7 @@ in
         defaultVirtualHost = true;
         serverName = hostName;
       };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${packageName};
+      package = inputs.self.packages.${pkgs.stdenv.system}.${packageAttrName};
       port = 3333;
     };
     openssh = {

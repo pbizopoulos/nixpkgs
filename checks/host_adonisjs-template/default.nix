@@ -4,7 +4,7 @@
   ...
 }:
 pkgs.testers.runNixOSTest rec {
-  name = "adonisjs_template";
+  name = "adonisjs-template";
   nodes.machine = {
     environment.systemPackages = [
       pkgs.curl
@@ -22,7 +22,7 @@ pkgs.testers.runNixOSTest rec {
         defaultVirtualHost = true;
         serverName = "machine";
       };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${name};
+      package = inputs.self.packages.${pkgs.stdenv.system}.adonisjs-template;
       port = 3333;
     };
     virtualisation.memorySize = 8192;

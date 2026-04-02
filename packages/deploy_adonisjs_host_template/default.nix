@@ -11,8 +11,6 @@ in
 pkgs.writeShellApplication {
   name = builtins.baseNameOf ./.;
   runtimeInputs = [
-    pkgs.jq
-    pkgs.openssh
     (pkgs.opentofu.withPlugins (p: [
       p.hashicorp_external
       p.hashicorp_local

@@ -1,6 +1,0 @@
-EDITOR="cp secrets/secrets.env.example" nix run github:ryantm/agenix -- -e secrets/secrets.age
-node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-nix run github:ryantm/agenix -- -e secrets/secrets.age
-# Upload the developer.pub key you want Hetzner to inject for the first login as SSH key `default`.
-bash prm/agenix-rekey.sh
-nix run .#deploy_adonisjs_host_template

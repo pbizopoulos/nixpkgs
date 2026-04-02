@@ -1,5 +1,5 @@
 {
-  "name": "adonisjs_template",
+  "name": "adonisjs-template",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -17,7 +17,7 @@
     "#providers/*": "./providers/*.js"
   },
   "bin": {
-    "adonisjs_template": "bin/entrypoint.js"
+    "adonisjs-template": "bin/entrypoint.js"
   },
   "scripts": {
     "clean": "rm -rf build coverage public/assets reports test-results .stryker-tmp tsconfig.tsbuildinfo",

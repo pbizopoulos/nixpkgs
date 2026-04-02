@@ -33,7 +33,7 @@ const webServerEnv = {
   DB_USER: process.env.DB_USER ?? process.env.PGUSER ?? "postgres",
   DB_PASSWORD: process.env.DB_PASSWORD ?? process.env.PGPASSWORD ?? "postgres",
   DB_DATABASE:
-    process.env.DB_DATABASE ?? process.env.PGDATABASE ?? "adonisjs_template",
+    process.env.DB_DATABASE ?? process.env.PGDATABASE ?? "adonisjs-template",
   DB_SSL: process.env.DB_SSL ?? "false",
   SESSION_DRIVER: process.env.SESSION_DRIVER ?? "cookie",
   LIMITER_STORE: process.env.LIMITER_STORE ?? "memory",

@@ -6,7 +6,7 @@ let
   installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
     secrets.secrets.file = ../../secrets/secrets.age;
   };
-  pname = baseNameOf ./.;
+  pname = "adonisjs-template";
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.bash
     pkgs.nodejs
@@ -23,7 +23,7 @@ pkgs.buildNpmPackage {
     pkgs.openssl
     pkgs.postgresql
   ];
-  npmDepsHash = "sha256-BaqM4vUcLOlzeU/tJOPQ9uTD7nb8khwYrjWIkE9NpA8=";
+  npmDepsHash = "sha256-3Nl9xg7cjxGfqOYEXU4/AWUT0IyJzNR4+hq724g6ZOg=";
   postInstall = ''
     cp -r build "$out/lib/node_modules/${pname}/build"
     mkdir -p "$out/lib/node_modules/${pname}/public"
