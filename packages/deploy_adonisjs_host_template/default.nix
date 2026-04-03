@@ -6,6 +6,7 @@ let
   installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
     secrets.secrets.file = ../../secrets/secrets.age;
   };
+  packageRelativePath = "packages/deploy_adonisjs_host_template";
   repoSrc = ../..;
 in
 pkgs.writeShellApplication {
@@ -29,17 +30,19 @@ pkgs.writeShellApplication {
     source "$secrets_PATH"
     set +a
     repo_root="$(git rev-parse --show-toplevel)"
-    state_dir="$repo_root/packages/deploy_adonisjs_host_template/tmp"
+    package_dir="$repo_root/${packageRelativePath}"
+    state_dir="$package_dir/tmp"
     state_path="$state_dir/deploy_adonisjs_host_template.tfstate"
     workdir=$(mktemp -d)
     trap 'rm -rf "$workdir"' EXIT
     mkdir -p "$state_dir"
     cp -r ${repoSrc}/. "$workdir/"
     chmod -R u+w "$workdir"
-    rm -rf "$workdir/packages/deploy_adonisjs_host_template/.terraform" "$workdir/packages/deploy_adonisjs_host_template/.terraform.lock.hcl"
-    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" init -reconfigure \
+    work_package_dir="$workdir/${packageRelativePath}"
+    rm -rf "$work_package_dir/.terraform" "$work_package_dir/.terraform.lock.hcl"
+    tofu -chdir="$work_package_dir" init -reconfigure \
       -backend-config="path=$state_path"
-    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" apply \
+    tofu -chdir="$work_package_dir" apply \
       -var="output_dir=$state_dir"
   '';
 }

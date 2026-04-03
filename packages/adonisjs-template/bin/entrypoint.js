@@ -95,6 +95,22 @@ const resolveDebugSourceRoot = () => {
   }
   return projectRoot;
 };
+const setDatabaseEnvironment = (pgdata, pghost, pgdatabase) => {
+  process.env.PGDATA ??= pgdata;
+  process.env.PGHOST ??= pghost;
+  process.env.PGPORT ??= "5432";
+  process.env.PGUSER ??= "postgres";
+  process.env.PGPASSWORD ??= "postgres";
+  process.env.PGDATABASE ??= pgdatabase;
+  process.env.DB_HOST = process.env.PGHOST;
+  process.env.DB_PORT = process.env.PGPORT;
+  process.env.DB_USER = process.env.PGUSER;
+  process.env.DB_PASSWORD = process.env.PGPASSWORD;
+  process.env.DB_DATABASE = process.env.PGDATABASE;
+  process.env.DATABASE_URL =
+    `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}` +
+    `@/${process.env.PGDATABASE}?host=${process.env.PGHOST}&port=${process.env.PGPORT}`;
+};
 const runTests = async () => {
   const sourceRoot = resolveDebugSourceRoot();
   const runtimeRoot = join(tmpdir(), `adonisjs-template-${process.pid}`);
@@ -108,20 +124,11 @@ const runTests = async () => {
     cpSync(sourceRoot, runtimeRoot, { force: true, recursive: true });
   }
   rmSync(join(runtimeRoot, ".env"), { force: true });
-  process.env.PGDATA ??= join(pgRuntimeRoot, ".postgres");
-  process.env.PGHOST ??= join(pgRuntimeRoot, ".pgsocket");
-  process.env.PGPORT ??= "5432";
-  process.env.PGUSER ??= "postgres";
-  process.env.PGPASSWORD ??= "postgres";
-  process.env.PGDATABASE ??= "adonisjs-template";
-  process.env.DB_HOST = process.env.PGHOST;
-  process.env.DB_PORT = process.env.PGPORT;
-  process.env.DB_USER = process.env.PGUSER;
-  process.env.DB_PASSWORD = process.env.PGPASSWORD;
-  process.env.DB_DATABASE = process.env.PGDATABASE;
-  process.env.DATABASE_URL =
-    `postgres://${process.env.PGUSER}:${process.env.PGPASSWORD}` +
-    `@/${process.env.PGDATABASE}?host=${process.env.PGHOST}&port=${process.env.PGPORT}`;
+  setDatabaseEnvironment(
+    join(pgRuntimeRoot, ".postgres"),
+    join(pgRuntimeRoot, ".pgsocket"),
+    "adonisjs-template",
+  );
   try {
     await runCommandIn(runtimeRoot, "npm", ["run", "test:ci"]);
   } finally {

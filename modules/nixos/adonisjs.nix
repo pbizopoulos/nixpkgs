@@ -5,6 +5,7 @@
 }:
 let
   cfg = config.services.adonisjs-app;
+  pgcfg = cfg.postgresql;
 in
 {
   config = lib.mkIf cfg.enable {
@@ -31,15 +32,15 @@ in
           };
         };
       };
-      postgresql = lib.mkIf cfg.postgresql.enable {
+      postgresql = lib.mkIf pgcfg.enable {
         enable = true;
         ensureDatabases = [
-          cfg.postgresql.database
+          pgcfg.database
         ];
         ensureUsers = [
           {
             ensureDBOwnership = true;
-            name = cfg.postgresql.user;
+            name = pgcfg.user;
           }
         ];
       };
@@ -48,15 +49,15 @@ in
       after = [
         "network.target"
       ]
-      ++ lib.optional cfg.postgresql.enable "postgresql.service";
+      ++ lib.optional pgcfg.enable "postgresql.service";
       environment = {
         APP_URL = cfg.appUrl;
-        DB_DATABASE = cfg.postgresql.database;
-        DB_HOST = cfg.postgresql.host;
-        DB_PASSWORD = cfg.postgresql.password;
-        DB_PORT = toString cfg.postgresql.port;
-        DB_SSL = lib.boolToString cfg.postgresql.ssl;
-        DB_USER = cfg.postgresql.user;
+        DB_DATABASE = pgcfg.database;
+        DB_HOST = pgcfg.host;
+        DB_PASSWORD = pgcfg.password;
+        DB_PORT = toString pgcfg.port;
+        DB_SSL = lib.boolToString pgcfg.ssl;
+        DB_USER = pgcfg.user;
         HOST = cfg.host;
         PORT = toString cfg.port;
       }

@@ -23,9 +23,7 @@ let
   };
   launcher = pkgs.writeShellScript pname ''
     set -euo pipefail
-    export PATH="${runtimePath}:$PATH"
-    script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
-    package_root="$(dirname "$script_dir")"
+    ${packageRootRuntimeEnvironment}
     app_entrypoint="$package_root/lib/node_modules/${pname}/bin/entrypoint.js"
     migrate_helper="$package_root/bin/${pname}-migrate"
     pg_helper="$package_root/lib/node_modules/${pname}/bin/pg.sh"
@@ -91,14 +89,20 @@ let
   '';
   migrate = pkgs.writeShellScript "${pname}-migrate" ''
     set -euo pipefail
-    export PATH="${runtimePath}:$PATH"
-    script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
-    package_root="$(dirname "$script_dir")"
+    ${packageRootRuntimeEnvironment}
     ${defaultEnvironment}
     exec ${pkgs.lib.getExe pkgs.nodejs} \
       "$package_root/lib/node_modules/${pname}/build/ace.js" \
       migration:run \
       --force
+  '';
+  packageRootRuntimeEnvironment = ''
+    export PATH="${runtimePath}:$PATH"
+    ${packageRootShellVariables}
+  '';
+  packageRootShellVariables = ''
+    script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+    package_root="$(dirname "$script_dir")"
   '';
   pname = "adonisjs-template";
   runtimePath = pkgs.lib.makeBinPath [
