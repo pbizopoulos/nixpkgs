@@ -6,6 +6,7 @@ terraform {
       version = "~> 1.54"
     }
   }
+  backend "local" {}
 }
 variable "hcloud_token" {
   sensitive = true

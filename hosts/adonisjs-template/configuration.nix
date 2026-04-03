@@ -50,7 +50,7 @@ in
               mountpoint = "/persistent";
               type = "filesystem";
             };
-            size = "20G";
+            size = "40G";
           };
           swap = {
             content.type = "swap";
@@ -81,6 +81,10 @@ in
   ];
   networking = {
     inherit hostName;
+    firewall.allowedTCPPorts = [
+      443
+      80
+    ];
   };
   nix = {
     gc.automatic = true;
