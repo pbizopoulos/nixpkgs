@@ -6,5 +6,5 @@ pkgs.writeShellScriptBin (baseNameOf ./.) ''
     echo "debug mode: skipping http-server"
     exit 0
   fi
-  exec ${pkgs.nodePackages.http-server}/bin/http-server ${./.} "$@"
+  exec ${pkgs.http-server}/bin/http-server ${./.} "$@"
 ''
