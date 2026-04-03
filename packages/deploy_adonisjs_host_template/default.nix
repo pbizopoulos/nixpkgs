@@ -11,6 +11,7 @@ in
 pkgs.writeShellApplication {
   name = builtins.baseNameOf ./.;
   runtimeInputs = [
+    pkgs.git
     pkgs.jq
     pkgs.openssh
     (pkgs.opentofu.withPlugins (p: [
@@ -27,7 +28,8 @@ pkgs.writeShellApplication {
     # shellcheck disable=SC1090,SC2154
     source "$secrets_PATH"
     set +a
-    state_dir="$PWD/tmp"
+    repo_root="$(git rev-parse --show-toplevel)"
+    state_dir="$repo_root/packages/deploy_adonisjs_host_template/tmp"
     state_path="$state_dir/deploy_adonisjs_host_template.tfstate"
     workdir=$(mktemp -d)
     trap 'rm -rf "$workdir"' EXIT
@@ -37,6 +39,7 @@ pkgs.writeShellApplication {
     rm -rf "$workdir/packages/deploy_adonisjs_host_template/.terraform" "$workdir/packages/deploy_adonisjs_host_template/.terraform.lock.hcl"
     tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" init -reconfigure \
       -backend-config="path=$state_path"
-    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" apply
+    tofu -chdir="$workdir/packages/deploy_adonisjs_host_template" apply \
+      -var="output_dir=$state_dir"
   '';
 }

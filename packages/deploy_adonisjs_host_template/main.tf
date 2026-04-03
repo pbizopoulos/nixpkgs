@@ -17,6 +17,9 @@ variable "nixos_config_name" {
 variable "server_name" {
   default = "adonisjs-template"
 }
+variable "output_dir" {
+  type = string
+}
 variable "hcloud_ssh_key_name" {
   default = "default"
 }
@@ -45,5 +48,5 @@ module "deploy" {
 }
 resource "local_file" "ipv4_address" {
   content  = hcloud_server.default.ipv4_address
-  filename = "${path.module}/prm/ipv4_address"
+  filename = "${var.output_dir}/ipv4_address"
 }
