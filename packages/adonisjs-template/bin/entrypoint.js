@@ -129,22 +129,6 @@ const runTests = async () => {
     rmSync(runtimeRoot, { force: true, recursive: true });
   }
 };
-const runCommand = (command, args) =>
-  new Promise((resolve, reject) => {
-    const child = spawn(command, args, {
-      cwd: projectRoot,
-      env: process.env,
-      stdio: "inherit",
-    });
-    child.on("close", (code) => {
-      if (code === 0) {
-        resolve();
-        return;
-      }
-      reject(new Error(`${command} exited with code ${code ?? 1}`));
-    });
-    child.on("error", reject);
-  });
 const runCommandIn = (cwd, command, args) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -162,11 +146,6 @@ const runCommandIn = (cwd, command, args) =>
     child.on("error", reject);
   });
 const startServer = async () => {
-  await runCommand(process.execPath, [
-    join(projectRoot, "build/ace.js"),
-    "migration:run",
-    "--force",
-  ]);
   const server = spawn(
     process.execPath,
     [join(projectRoot, "build/bin/server.js")],

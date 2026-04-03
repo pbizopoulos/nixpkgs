@@ -53,7 +53,9 @@ in
         APP_URL = cfg.appUrl;
         DB_DATABASE = cfg.postgresql.database;
         DB_HOST = cfg.postgresql.host;
+        DB_PASSWORD = cfg.postgresql.password;
         DB_PORT = toString cfg.postgresql.port;
+        DB_SSL = lib.boolToString cfg.postgresql.ssl;
         DB_USER = cfg.postgresql.user;
         HOST = cfg.host;
         PORT = toString cfg.port;
@@ -64,6 +66,9 @@ in
       // cfg.extraEnvironment;
       serviceConfig = {
         ExecStart = "${cfg.package}/bin/${cfg.executable}";
+        ExecStartPre = lib.optionals cfg.runMigrations [
+          "${cfg.package}/bin/${cfg.migrationExecutable}"
+        ];
         Group = cfg.name;
         Restart = "always";
         RestartSec = 5;
@@ -123,6 +128,14 @@ in
       description = "Listen host exposed as HOST.";
       type = lib.types.str;
     };
+    migrationExecutable = lib.mkOption {
+      default = "${cfg.executable}-migrate";
+      defaultText = lib.literalExpression ''
+        "${config.services.adonisjs-app.executable}-migrate"
+      '';
+      description = "The executable name under the package's bin directory used for database migrations.";
+      type = lib.types.str;
+    };
     name = lib.mkOption {
       description = "The systemd service, user, and group name.";
       type = lib.types.str;
@@ -171,10 +184,20 @@ in
         description = "Database host exposed as DB_HOST.";
         type = lib.types.str;
       };
+      password = lib.mkOption {
+        default = "postgres";
+        description = "Database password exposed as DB_PASSWORD.";
+        type = lib.types.str;
+      };
       port = lib.mkOption {
         default = 5432;
         description = "Database port exposed as DB_PORT.";
         type = lib.types.port;
+      };
+      ssl = lib.mkOption {
+        default = false;
+        description = "Whether to expose DB_SSL=true for the application.";
+        type = lib.types.bool;
       };
       user = lib.mkOption {
         default = cfg.name;
@@ -182,6 +205,11 @@ in
         description = "Database user exposed as DB_USER.";
         type = lib.types.str;
       };
+    };
+    runMigrations = lib.mkOption {
+      default = true;
+      description = "Whether to run the packaged migration executable before starting the service.";
+      type = lib.types.bool;
     };
   };
 }

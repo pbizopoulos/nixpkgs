@@ -3,6 +3,21 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
+  defaultEnvironment = ''
+    export TZ="''${TZ:-UTC}"
+    export NODE_ENV="''${NODE_ENV:-production}"
+    export PORT="''${PORT:-3333}"
+    export HOST="''${HOST:-localhost}"
+    export LOG_LEVEL="''${LOG_LEVEL:-info}"
+    export APP_NAME="''${APP_NAME:-AdonisJS Starter}"
+    export APP_KEY="''${APP_KEY:-01234567890123456789012345678901}"
+    export APP_URL="''${APP_URL:-http://$HOST:$PORT}"
+    export SESSION_DRIVER="''${SESSION_DRIVER:-cookie}"
+    export LIMITER_STORE="''${LIMITER_STORE:-memory}"
+    export MAIL_MAILER="''${MAIL_MAILER:-smtp}"
+    export MAIL_FROM_ADDRESS="''${MAIL_FROM_ADDRESS:-starter@example.com}"
+    export MAIL_FROM_NAME="''${MAIL_FROM_NAME:-AdonisJS Starter}"
+  '';
   installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
     secrets.secrets.file = ../../secrets/secrets.age;
   };
@@ -12,7 +27,9 @@ let
     script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
     package_root="$(dirname "$script_dir")"
     app_entrypoint="$package_root/lib/node_modules/${pname}/bin/entrypoint.js"
+    migrate_helper="$package_root/bin/${pname}-migrate"
     pg_helper="$package_root/lib/node_modules/${pname}/bin/pg.sh"
+    ${defaultEnvironment}
     has_database_config=0
     for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DB_SSL PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
       value="$(printenv "$key" || true)"
@@ -22,6 +39,9 @@ let
       fi
     done
     if [ "''${DEBUG:-0}" = "1" ] || [ "$has_database_config" -eq 1 ]; then
+      if [ "''${DEBUG:-0}" != "1" ]; then
+        "$migrate_helper"
+      fi
       exec ${pkgs.lib.getExe pkgs.nodejs} "$app_entrypoint" "$@"
     fi
     tmp_pg_root="$(mktemp -d /tmp/${pname}-pg-XXXXXX)"
@@ -59,6 +79,7 @@ let
     export DATABASE_URL="postgres://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
     ${pkgs.bash}/bin/bash "$pg_helper" start
     ${pkgs.bash}/bin/bash "$pg_helper" createdb
+    "$migrate_helper"
     ${pkgs.lib.getExe pkgs.nodejs} "$app_entrypoint" "$@" &
     child_pid="$!"
     set +e
@@ -67,6 +88,17 @@ let
     set -e
     cleanup
     exit "$status"
+  '';
+  migrate = pkgs.writeShellScript "${pname}-migrate" ''
+    set -euo pipefail
+    export PATH="${runtimePath}:$PATH"
+    script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+    package_root="$(dirname "$script_dir")"
+    ${defaultEnvironment}
+    exec ${pkgs.lib.getExe pkgs.nodejs} \
+      "$package_root/lib/node_modules/${pname}/build/ace.js" \
+      migration:run \
+      --force
   '';
   pname = "adonisjs-template";
   runtimePath = pkgs.lib.makeBinPath [
@@ -91,7 +123,9 @@ pkgs.buildNpmPackage {
     mkdir -p "$out/lib/node_modules/${pname}/public"
     cp -r public/assets "$out/lib/node_modules/${pname}/public/assets"
     rm -f "$out/bin/${pname}"
+    rm -f "$out/bin/${pname}-migrate"
     cp ${launcher} "$out/bin/${pname}"
+    cp ${migrate} "$out/bin/${pname}-migrate"
   '';
   postPatch = ''
     substituteInPlace bin/entrypoint.js \
