@@ -28,7 +28,7 @@ data "hcloud_ssh_key" "default" {
 }
 resource "hcloud_server" "default" {
   name               = var.server_name
-  server_type        = "cx33"
+  server_type        = "cpx22"
   image              = "ubuntu-24.04"
   delete_protection  = true
   rebuild_protection = true
