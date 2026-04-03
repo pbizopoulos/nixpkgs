@@ -6,6 +6,68 @@ let
   installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
     secrets.secrets.file = ../../secrets/secrets.age;
   };
+  launcher = pkgs.writeShellScript pname ''
+    set -euo pipefail
+    export PATH="${runtimePath}:$PATH"
+    script_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+    package_root="$(dirname "$script_dir")"
+    app_entrypoint="$package_root/lib/node_modules/${pname}/bin/entrypoint.js"
+    pg_helper="$package_root/lib/node_modules/${pname}/bin/pg.sh"
+    has_database_config=0
+    for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DB_SSL PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
+      value="$(printenv "$key" || true)"
+      if [ -n "$value" ]; then
+        has_database_config=1
+        break
+      fi
+    done
+    if [ "''${DEBUG:-0}" = "1" ] || [ "$has_database_config" -eq 1 ]; then
+      exec ${pkgs.lib.getExe pkgs.nodejs} "$app_entrypoint" "$@"
+    fi
+    tmp_pg_root="$(mktemp -d /tmp/${pname}-pg-XXXXXX)"
+    child_pid=""
+    cleanup() {
+      if [ -n "''${tmp_pg_root:-}" ] && [ -e "''${tmp_pg_root:-}" ]; then
+        ${pkgs.bash}/bin/bash "$pg_helper" stop >/dev/null 2>&1 || true
+        rm -rf "$tmp_pg_root"
+      fi
+    }
+    forward_and_cleanup() {
+      local signal="$1"
+      trap - INT TERM
+      if [ -n "''${child_pid:-}" ]; then
+        kill -s "$signal" "$child_pid" 2>/dev/null || true
+        wait "$child_pid" 2>/dev/null || true
+      fi
+      cleanup
+      exit 0
+    }
+    trap 'forward_and_cleanup TERM' TERM
+    trap 'forward_and_cleanup INT' INT
+    export PGDATA="$tmp_pg_root/.postgres"
+    export PGHOST="$tmp_pg_root/.pgsocket"
+    export PGPORT="''${PGPORT:-5432}"
+    export PGUSER="''${PGUSER:-postgres}"
+    export PGPASSWORD="''${PGPASSWORD:-postgres}"
+    export PGDATABASE="''${PGDATABASE:-${pname}}"
+    export DB_HOST="$PGHOST"
+    export DB_PORT="$PGPORT"
+    export DB_USER="$PGUSER"
+    export DB_PASSWORD="$PGPASSWORD"
+    export DB_DATABASE="$PGDATABASE"
+    export DB_SSL="''${DB_SSL:-false}"
+    export DATABASE_URL="postgres://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
+    ${pkgs.bash}/bin/bash "$pg_helper" start
+    ${pkgs.bash}/bin/bash "$pg_helper" createdb
+    ${pkgs.lib.getExe pkgs.nodejs} "$app_entrypoint" "$@" &
+    child_pid="$!"
+    set +e
+    wait "$child_pid"
+    status="$?"
+    set -e
+    cleanup
+    exit "$status"
+  '';
   pname = "adonisjs-template";
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.bash
@@ -28,6 +90,8 @@ pkgs.buildNpmPackage {
     cp -r build "$out/lib/node_modules/${pname}/build"
     mkdir -p "$out/lib/node_modules/${pname}/public"
     cp -r public/assets "$out/lib/node_modules/${pname}/public/assets"
+    rm -f "$out/bin/${pname}"
+    cp ${launcher} "$out/bin/${pname}"
   '';
   postPatch = ''
     substituteInPlace bin/entrypoint.js \
