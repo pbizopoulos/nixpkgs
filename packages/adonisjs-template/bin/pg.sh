@@ -2,7 +2,7 @@
 set -eu
 project_root="$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)"
 pgdata="${PGDATA:-$project_root/tmp/.postgres}"
-pgsocket="${PGHOST:-/tmp/adonisjs-template-pg}"
+pgsocket="${PGHOST:-$project_root/tmp/.pgsocket}"
 pgport="${PGPORT:-5432}"
 pguser="${PGUSER:-postgres}"
 pgdatabase="${PGDATABASE:-adonisjs-template}"

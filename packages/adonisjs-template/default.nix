@@ -145,7 +145,7 @@ pkgs.buildNpmPackage {
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
     export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${pkgs.lib.getExe pkgs.chromium}
     export PGDATA="''${PGDATA:-$PWD/tmp/.postgres}"
-    export PGHOST="''${PGHOST:-/tmp/adonisjs-template-pg}"
+    export PGHOST="''${PGHOST:-$PWD/tmp/.pgsocket}"
     export PGPORT="''${PGPORT:-5432}"
     export PGUSER="''${PGUSER:-postgres}"
     export PGPASSWORD="''${PGPASSWORD:-postgres}"

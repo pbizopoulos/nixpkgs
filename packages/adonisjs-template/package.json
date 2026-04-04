@@ -20,7 +20,7 @@
     "adonisjs-template": "bin/entrypoint.js"
   },
   "scripts": {
-    "clean": "rm -rf build public/assets tmp/coverage tmp/reports tmp/test-results tmp/.stryker-tmp tmp/tsconfig.tsbuildinfo",
+    "clean": "rm -rf build public/assets tmp/coverage tmp/reports tmp/test-results tmp/.stryker-tmp tmp/tsconfig.tsbuildinfo tmp/.postgres tmp/.pgsocket",
     "db:init": "bash bin/pg.sh init",
     "db:start": "bash bin/pg.sh start",
     "db:stop": "bash bin/pg.sh stop",
