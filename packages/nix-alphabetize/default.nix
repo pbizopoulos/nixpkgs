@@ -116,7 +116,7 @@ let
         }
         if [ "''${DEBUG:-0}" = "1" ]; then
           if source_root="$(resolve_source_root)"; then
-            coverage_dir="$source_root/coverage"
+            coverage_dir="$source_root/tmp/coverage"
             build_dir="$(mktemp -d)"
             trap 'rm -rf "$build_dir"' EXIT
             rm -rf "$coverage_dir"

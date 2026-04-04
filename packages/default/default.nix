@@ -37,7 +37,7 @@ let
     }
     if [ "''${DEBUG:-0}" = "1" ]; then
       if source_root="$(resolve_source_root)"; then
-        coverage_dir="$source_root/coverage"
+        coverage_dir="$source_root/tmp/coverage"
         export CANONICALIZATION_ROOT="$(realpath "$source_root/../..")"
         rm -rf "$coverage_dir"
         mkdir -p "$coverage_dir"
