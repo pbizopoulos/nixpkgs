@@ -20,7 +20,7 @@
     "adonisjs-template": "bin/entrypoint.js"
   },
   "scripts": {
-    "clean": "rm -rf build coverage public/assets reports test-results .stryker-tmp tsconfig.tsbuildinfo",
+    "clean": "rm -rf build public/assets tsconfig.tsbuildinfo tmp/coverage tmp/reports tmp/test-results tmp/.stryker-tmp",
     "db:init": "bash bin/pg.sh init",
     "db:start": "bash bin/pg.sh start",
     "db:stop": "bash bin/pg.sh stop",
@@ -34,7 +34,7 @@
     "build": "node ace.js build",
     "start": "node build/bin/server.js",
     "test": "node ace.js test",
-    "test:coverage": "c8 --all --check-coverage --branches 70 --functions 70 --lines 75 --statements 75 --src app --src start --exclude start/kernel.ts --exclude start/routes.ts --exclude start/env.ts --reporter=text-summary --reporter=html --report-dir coverage node ace.js test",
+    "test:coverage": "c8 --all --check-coverage --branches 70 --functions 70 --lines 75 --statements 75 --src app --src start --exclude start/kernel.ts --exclude start/routes.ts --exclude start/env.ts --reporter=text-summary --reporter=html --report-dir tmp/coverage node ace.js test",
     "test:ci": "bash bin/test-ci.sh",
     "test:e2e": "E2E_MODE=prod playwright test",
     "test:lint": "npm run clean && jscpd --ignore build,bin,node_modules,.adonisjs . && depcruise app bin config resources start",

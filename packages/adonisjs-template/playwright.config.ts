@@ -46,6 +46,7 @@ const webServerEnvCommand = Object.entries(webServerEnv)
   .join(" ");
 export default defineConfig({
   testDir: "./tests/functional/browser",
+  outputDir: "./tmp/test-results",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: 2,
