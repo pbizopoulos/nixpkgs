@@ -21,12 +21,26 @@ let
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
     resolve_source_root() {
       local candidate
-      for candidate in "$PWD/packages/${pname}" "$PWD"; do
-        if [ -f "$candidate/Cargo.toml" ] && [ -f "$candidate/src/main.rs" ]; then
+      local current_dir="$PWD"
+      if [ -n "''${CANONICALIZATION_ROOT:-}" ]; then
+        candidate="$CANONICALIZATION_ROOT/packages/${pname}"
+        if [ -f "$candidate/Cargo.toml" ]; then
           printf '%s\n' "$candidate"
           return 0
         fi
+      fi
+      while [ "$current_dir" != "/" ]; do
+        candidate="$current_dir/packages/${pname}"
+        if [ -f "$candidate/Cargo.toml" ]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+        current_dir="$(dirname "$current_dir")"
       done
+      if [ -f "$PWD/Cargo.toml" ]; then
+        printf '%s\n' "$PWD"
+        return 0
+      fi
       return 1
     }
     if [ "''${DEBUG:-0}" = "1" ]; then

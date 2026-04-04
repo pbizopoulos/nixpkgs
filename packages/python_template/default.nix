@@ -15,12 +15,26 @@ let
     export PATH='${runtimePath}':"$PATH"
     resolve_source_root() {
       local candidate
-      for candidate in "$PWD/packages/${pname}" "$PWD"; do
+      local current_dir="$PWD"
+      if [ -n "''${CANONICALIZATION_ROOT:-}" ]; then
+        candidate="$CANONICALIZATION_ROOT/packages/${pname}"
         if [ -f "$candidate/main.py" ]; then
           printf '%s\n' "$candidate"
           return 0
         fi
+      fi
+      while [ "$current_dir" != "/" ]; do
+        candidate="$current_dir/packages/${pname}"
+        if [ -f "$candidate/main.py" ]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+        current_dir="$(dirname "$current_dir")"
       done
+      if [ -f "$PWD/main.py" ]; then
+        printf '%s\n' "$PWD"
+        return 0
+      fi
       return 1
     }
     if [ "''${DEBUG:-0}" = "1" ]; then

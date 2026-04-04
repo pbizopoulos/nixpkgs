@@ -94,8 +94,15 @@ let
           return 0
         }
         resolve_source_root() {
-          local current_dir="$PWD"
           local candidate
+          local current_dir="$PWD"
+          if [ -n "''${CANONICALIZATION_ROOT:-}" ]; then
+            candidate="$CANONICALIZATION_ROOT/packages/${pname}"
+            if [ -f "$candidate/main.cabal" ] && [ -f "$candidate/Main.hs" ]; then
+              printf '%s\n' "$candidate"
+              return 0
+            fi
+          fi
           while [ "$current_dir" != "/" ]; do
             candidate="$current_dir/packages/${pname}"
             if [ -f "$candidate/main.cabal" ] && [ -f "$candidate/Main.hs" ]; then
