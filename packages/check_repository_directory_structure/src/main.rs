@@ -213,17 +213,12 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "CSharpier"
                 || s == ".adonisjs"
                 || s == "build"
-                || s == "coverage"
                 || s == "_build"
                 || s == "deps"
                 || s == "node_modules"
                 || s == ".nuxt"
                 || s == ".svelte-kit"
-                || s == ".stryker-tmp"
-                || s == "reports"
                 || s == "result"
-                || s == "test-results"
-                || s == "tsconfig.tsbuildinfo"
             {
                 return false;
             }
@@ -315,7 +310,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/app/.*",
                 r"packages/[^/]+/bin/.*",
                 r"packages/[^/]+/config/.*",
-                r"packages/[^/]+/coverage(/.*)?",
                 r"packages/[^/]+/database/.*",
                 r"packages/[^/]+/eslint\.config\.js",
                 r"packages/[^/]+/package-lock\.json",
@@ -326,10 +320,8 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/commands/.*",
                 r"packages/[^/]+/start/.*",
                 r"packages/[^/]+/stryker\.config\.mjs",
-                r"packages/[^/]+/test-results(/.*)?",
                 r"packages/[^/]+/tests/.*",
                 r"packages/[^/]+/tsconfig\.json",
-                r"packages/[^/]+/tsconfig\.tsbuildinfo",
                 r"packages/[^/]+/vite\.config\.ts",
                 r"packages/[^/]+/vitest\.config\.ts",
             ],
