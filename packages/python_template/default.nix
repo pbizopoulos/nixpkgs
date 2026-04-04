@@ -13,20 +13,14 @@ let
   wrapperScript = pkgs.writeShellScript "${pname}-wrapper" ''
     set -euo pipefail
     export PATH='${runtimePath}':"$PATH"
-    is_package_root() {
-      local candidate="$1"
-      [ -f "$candidate/main.py" ]
-    }
     resolve_source_root() {
-      local workspace_package_root="$PWD/packages/${pname}"
-      if is_package_root "$workspace_package_root"; then
-        printf '%s\n' "$workspace_package_root"
-        return 0
-      fi
-      if is_package_root "$PWD"; then
-        printf '%s\n' "$PWD"
-        return 0
-      fi
+      local candidate
+      for candidate in "$PWD/packages/${pname}" "$PWD"; do
+        if [ -f "$candidate/main.py" ]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+      done
       return 1
     }
     if [ "''${DEBUG:-0}" = "1" ]; then
@@ -50,12 +44,10 @@ pkgs.stdenv.mkDerivation {
   inherit pname;
   dontWrapPythonPrograms = true;
   installPhase = ''
-    mkdir -p $out/bin
-    cp ./main.py $out/bin/.${pname}-wrapped
-    cp ${wrapperScript} $out/bin/${pname}
+    install -Dm755 ./main.py "$out/bin/.${pname}-wrapped"
+    install -Dm755 ${wrapperScript} "$out/bin/${pname}"
     substituteInPlace "$out/bin/${pname}" \
       --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
-    chmod +x "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
   '';
   meta.mainProgram = pname;
   src = ./.;
