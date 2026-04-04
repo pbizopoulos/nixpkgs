@@ -8,7 +8,7 @@ if [ -z "${PGDATA:-}" ] || [ -z "${PGHOST:-}" ]; then
   tmp_pg_root="$(mktemp -d "$project_root/tmp/adonisjs-template-pg-XXXXXX")"
 fi
 export PGDATA="${PGDATA:-$tmp_pg_root/.postgres}"
-export PGHOST="${PGHOST:-$tmp_pg_root/socket}"
+export PGHOST="${PGHOST:-$tmp_pg_root/.pgsocket}"
 export PGPORT="${PGPORT:-5432}"
 export PGUSER="${PGUSER:-postgres}"
 export PGPASSWORD="${PGPASSWORD:-postgres}"
