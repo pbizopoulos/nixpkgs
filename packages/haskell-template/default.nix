@@ -80,22 +80,18 @@ let
           printf 'Mutants tested: %s, caught: %s, missed: %s\n' "$total" "$caught" "$missed" | tee -a "$mutation_root/summary.txt"
           return 0
         }
-        is_package_root() {
-          local candidate="$1"
-          [ -f "$candidate/${pname}.cabal" ] && [ -f "$candidate/Main.hs" ]
-        }
         resolve_source_root() {
           local current_dir="$PWD"
-          local workspace_package_root
+          local candidate
           while [ "$current_dir" != "/" ]; do
-            workspace_package_root="$current_dir/packages/${pname}"
-            if is_package_root "$workspace_package_root"; then
-              printf '%s\n' "$workspace_package_root"
+            candidate="$current_dir/packages/${pname}"
+            if [ -f "$candidate/${pname}.cabal" ] && [ -f "$candidate/Main.hs" ]; then
+              printf '%s\n' "$candidate"
               return 0
             fi
             current_dir="$(dirname "$current_dir")"
           done
-          if is_package_root "$PWD"; then
+          if [ -f "$PWD/${pname}.cabal" ] && [ -f "$PWD/Main.hs" ]; then
             printf '%s\n' "$PWD"
             return 0
           fi
@@ -139,10 +135,9 @@ pkgs.haskellPackages.mkDerivation {
   mainProgram = pname;
   postInstall = ''
     mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
-    cp ${wrapperScript} "$out/bin/${pname}"
+    install -m755 ${wrapperScript} "$out/bin/${pname}"
     substituteInPlace "$out/bin/${pname}" \
       --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
-    chmod +x "$out/bin/${pname}"
   '';
   src = ./.;
   version = "0.0.0";

@@ -19,20 +19,14 @@ let
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    is_package_root() {
-      local candidate="$1"
-      [ -f "$candidate/Cargo.toml" ] && [ -f "$candidate/src/main.rs" ]
-    }
     resolve_source_root() {
-      local workspace_package_root="$PWD/packages/${pname}"
-      if is_package_root "$workspace_package_root"; then
-        printf '%s\n' "$workspace_package_root"
-        return 0
-      fi
-      if is_package_root "$PWD"; then
-        printf '%s\n' "$PWD"
-        return 0
-      fi
+      local candidate
+      for candidate in "$PWD/packages/${pname}" "$PWD"; do
+        if [ -f "$candidate/Cargo.toml" ] && [ -f "$candidate/src/main.rs" ]; then
+          printf '%s\n' "$candidate"
+          return 0
+        fi
+      done
       return 1
     }
     if [ "''${DEBUG:-0}" = "1" ]; then
@@ -68,10 +62,9 @@ pkgs.rustPlatform.buildRustPackage {
   meta.mainProgram = pname;
   postInstall = ''
     mv "$out/bin/${pname}" "$out/bin/.${pname}-wrapped"
-    cp ${wrapperScript} "$out/bin/${pname}"
+    install -m755 ${wrapperScript} "$out/bin/${pname}"
     substituteInPlace "$out/bin/${pname}" \
       --replace-fail "@wrappedBin@" "$out/bin/.${pname}-wrapped"
-    chmod +x "$out/bin/${pname}"
   '';
   src = ./.;
   version = "0.0.0";
