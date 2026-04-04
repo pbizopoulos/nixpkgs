@@ -40,9 +40,8 @@ let
     exec "@wrappedBin@" "$@"
   '';
 in
-pkgs.stdenv.mkDerivation {
+pkgs.stdenvNoCC.mkDerivation {
   inherit pname;
-  dontWrapPythonPrograms = true;
   installPhase = ''
     install -Dm755 ./main.py "$out/bin/.${pname}-wrapped"
     install -Dm755 ${wrapperScript} "$out/bin/${pname}"
