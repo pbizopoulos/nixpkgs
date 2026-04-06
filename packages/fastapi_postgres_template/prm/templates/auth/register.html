@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <section class="auth-shell">
+    <section class="auth-panel">
+      <p class="hero__eyebrow">Register</p>
+      <h1>Create an account.</h1>
+      <p class="hero__body">
+        Registration creates a real user, signs them into the session, emits a
+        welcome email, and is throttled by client IP.
+      </p>
+      {% for error in form_errors.get("__all__", []) %}
+      <p class="flash flash--error">{{ error }}</p>
+      {% endfor %}
+      <form action="/register" class="auth-form" method="post">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token }}" />
+        <label class="field">
+          <span>Username</span>
+          <input name="username" type="text" value="{{ form_data.get('username', '') }}" />
+          {% for error in form_errors.get("username", []) %}
+          <small class="field__error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <label class="field">
+          <span>Email</span>
+          <input name="email" type="email" value="{{ form_data.get('email', '') }}" />
+          {% for error in form_errors.get("email", []) %}
+          <small class="field__error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input name="password" type="password" />
+          {% for error in form_errors.get("password", []) %}
+          <small class="field__error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <label class="field">
+          <span>Confirm password</span>
+          <input name="password_confirmation" type="password" />
+          {% for error in form_errors.get("password_confirmation", []) %}
+          <small class="field__error">{{ error }}</small>
+          {% endfor %}
+        </label>
+        <button class="button button--primary" type="submit">Create account</button>
+      </form>
+    </section>
+  </section>
+</main>
+{% endblock %}

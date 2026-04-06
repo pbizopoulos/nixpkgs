@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <section class="auth-shell">
+    <section class="auth-panel">
+      <p class="hero__eyebrow">Login</p>
+      <h1>Sign in to the starter app.</h1>
+      <p class="hero__body">
+        Session auth, CSRF protection, server-rendered forms, and rate limiting
+        are active on this screen.
+      </p>
+      {% for error in form_errors.get("__all__", []) %}
+      <p class="flash flash--error">{{ error }}</p>
+      {% endfor %}
+      <form action="/login" class="auth-form" method="post">
+        <input name="csrf_token" type="hidden" value="{{ csrf_token }}" />
+        <label class="field">
+          <span>Email or username</span>
+          <input name="login" type="text" value="{{ form_data.get('login', '') }}" />
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input name="password" type="password" />
+        </label>
+        <button class="button button--primary" type="submit">Sign in</button>
+      </form>
+    </section>
+  </section>
+</main>
+{% endblock %}

@@ -4,7 +4,7 @@
   ...
 }:
 pkgs.testers.runNixOSTest rec {
-  name = "adonisjs-template";
+  name = "template";
   nodes.machine = {
     environment.systemPackages = [
       pkgs.curl
@@ -17,7 +17,9 @@ pkgs.testers.runNixOSTest rec {
       appKey = "01234567890123456789012345678901";
       appUrl = "http://127.0.0.1:3333";
       enable = true;
+      executable = "adonisjs-template";
       host = "0.0.0.0";
+      migrationExecutable = "adonisjs-template-migrate";
       nginx = {
         defaultVirtualHost = true;
         serverName = "machine";

@@ -1,23 +1,42 @@
 {
   config,
   inputs,
+  lib,
   modulesPath,
   pkgs,
   ...
 }:
 let
+  app = {
+    inherit
+      framework
+      packageAttrName
+      packageName
+      port
+      runtimeUser
+      ;
+  };
+  framework = "adonisjs";
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  packageAttrName = "adonisjs-template";
-  packageName = "adonisjs-template";
+  packageAttrName =
+    if framework == "adonisjs" then
+      "adonisjs-template"
+    else if framework == "django" then
+      "django_template"
+    else
+      "fastapi_postgres_template";
+  packageName = packageAttrName;
+  port = if framework == "adonisjs" then 3333 else 8000;
+  runtimeUser = packageName;
 in
 {
   age.secrets.secrets-env = {
     file = ../../secrets/secrets.age;
-    group = packageName;
-    owner = packageName;
+    group = app.runtimeUser;
+    owner = app.runtimeUser;
   };
   boot = {
     initrd.systemd.enable = true;
@@ -73,6 +92,8 @@ in
   fileSystems."/persistent".neededForBoot = true;
   imports = [
     ../../modules/nixos/adonisjs.nix
+    ../../modules/nixos/django.nix
+    ../../modules/nixos/fastapi-postgres.nix
     inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
@@ -99,7 +120,7 @@ in
     preserveAt."/persistent" = {
       directories = [
         "/var/lib/postgresql"
-        "/var/lib/${packageName}"
+        "/var/lib/${app.runtimeUser}"
         {
           directory = "/etc/ssh";
           inInitrd = true;
@@ -120,19 +141,62 @@ in
   programs.bash.promptInit = "";
   security.sudo.wheelNeedsPassword = false;
   services = {
-    adonisjs-app = {
+    adonisjs-app = lib.mkIf (app.framework == "adonisjs") {
+      inherit (app) port;
       appUrl = "http://${hostName}";
       enable = true;
       environmentFile = config.age.secrets.secrets-env.path;
       extraEnvironment = { };
       host = "127.0.0.1";
-      name = packageName;
+      name = app.runtimeUser;
       nginx = {
         defaultVirtualHost = true;
         serverName = hostName;
       };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${packageAttrName};
-      port = 3333;
+      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
+    };
+    django-app = lib.mkIf (app.framework == "django") {
+      inherit (app) port;
+      allowedHosts = [
+        hostName
+        "127.0.0.1"
+        "localhost"
+        "[::1]"
+      ];
+      appName = "Django Starter";
+      csrfTrustedOrigins = [
+        "http://${hostName}"
+      ];
+      enable = true;
+      environmentFile = config.age.secrets.secrets-env.path;
+      extraEnvironment = { };
+      host = "127.0.0.1";
+      name = app.runtimeUser;
+      nginx = {
+        defaultVirtualHost = true;
+        serverName = hostName;
+      };
+      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
+    };
+    fastapi-postgres-app = lib.mkIf (app.framework == "fastapi-postgres") {
+      inherit (app) port;
+      allowedHosts = [
+        hostName
+        "127.0.0.1"
+        "localhost"
+        "[::1]"
+      ];
+      appName = "FastAPI Postgres Starter";
+      enable = true;
+      environmentFile = config.age.secrets.secrets-env.path;
+      extraEnvironment = { };
+      host = "127.0.0.1";
+      name = app.runtimeUser;
+      nginx = {
+        defaultVirtualHost = true;
+        serverName = hostName;
+      };
+      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
     };
     openssh = {
       enable = true;
@@ -144,15 +208,6 @@ in
         local all all trust
       '';
       enable = true;
-      ensureDatabases = [
-        packageName
-      ];
-      ensureUsers = [
-        {
-          ensureDBOwnership = true;
-          name = packageName;
-        }
-      ];
     };
   };
   system.stateVersion = "25.11";

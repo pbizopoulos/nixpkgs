@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<main>
+  <section class="hero">
+    <p class="hero__eyebrow">Dashboard</p>
+    <h1>Welcome back, {{ user_summary.username }}.</h1>
+    <p class="hero__body">
+      Your session is active, your account lives in the database, and the auth
+      pipeline is handled directly by the starter instead of generated code.
+    </p>
+  </section>
+  <section class="feature-grid">
+    <article class="feature-card">
+      <h2>Identity</h2>
+      <p>{{ user_summary.email }}</p>
+      <p>Created at {{ user_summary.created_at }}</p>
+    </article>
+    <article class="feature-card">
+      <h2>Operations</h2>
+      <p>The starter includes health checks and database-backed state.</p>
+    </article>
+  </section>
+  <section class="action-row">
+    <form action="/logout" method="post">
+      <input name="csrf_token" type="hidden" value="{{ csrf_token }}" />
+      <button class="button button--primary" type="submit">Sign out</button>
+    </form>
+    <form action="/account-delete" method="post">
+      <input name="csrf_token" type="hidden" value="{{ csrf_token }}" />
+      <button class="button button--secondary" type="submit">Delete account</button>
+    </form>
+  </section>
+</main>
+{% endblock %}

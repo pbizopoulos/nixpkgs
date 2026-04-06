@@ -21,6 +21,9 @@ fn is_dash_case(name: &str) -> bool {
     let re = Regex::new(r"^[a-z0-9]+([-.][a-z0-9]+)*$").unwrap();
     re.is_match(name)
 }
+fn should_ignore_untracked_path(path: &str) -> bool {
+    path == ".codex" || path.contains("/__pycache__") || path.ends_with("/__pycache__")
+}
 fn package_root(rel_path: &Path) -> Option<PathBuf> {
     let components: Vec<_> = rel_path
         .components()
@@ -111,6 +114,75 @@ fn validate_adonis_package_layout(
     }
     warnings
 }
+fn validate_django_package_layout(
+    working_dir: &Path,
+    package_root: &Path,
+    dir_and_file_names: &HashSet<PathBuf>,
+) -> Vec<String> {
+    let allowed_patterns = [
+        r"^\.gitignore$",
+        r"^default\.nix$",
+        r"^manage\.py$",
+        r"^[^/]+/__init__\.py$",
+        r"^[^/]+/(apps|auth_backends|context_processors|forms|models|settings|throttle|urls|views|wsgi)\.py$",
+        r"^[^/]+/migrations(/.*)?$",
+        r"^[^/]+/tests(/.*)?$",
+        r"^templates(/.*)?$",
+        r"^static(/.*)?$",
+    ]
+    .iter()
+    .map(|pattern| Regex::new(pattern).unwrap())
+    .collect::<Vec<_>>();
+    let mut warnings = Vec::new();
+    for path in dir_and_file_names {
+        let Ok(package_relative_path) = path.strip_prefix(package_root) else {
+            continue;
+        };
+        let package_relative_path = package_relative_path.to_str().unwrap();
+        if !allowed_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(package_relative_path))
+        {
+            warnings.push(format!(
+                "{}: is not allowed for a Django template package",
+                working_dir.join(path).display()
+            ));
+        }
+    }
+    warnings
+}
+fn validate_fastapi_package_layout(
+    working_dir: &Path,
+    package_root: &Path,
+    dir_and_file_names: &HashSet<PathBuf>,
+) -> Vec<String> {
+    let allowed_patterns = [
+        r"^\.gitignore$",
+        r"^default\.nix$",
+        r"^main\.py$",
+        r"^prm(/.*)?$",
+    ]
+    .iter()
+    .map(|pattern| Regex::new(pattern).unwrap())
+    .collect::<Vec<_>>();
+    let mut warnings = Vec::new();
+    for path in dir_and_file_names {
+        let Ok(package_relative_path) = path.strip_prefix(package_root) else {
+            continue;
+        };
+        let package_relative_path = package_relative_path.to_str().unwrap();
+        if !allowed_patterns
+            .iter()
+            .any(|pattern| pattern.is_match(package_relative_path))
+        {
+            warnings.push(format!(
+                "{}: is not allowed for a FastAPI template package",
+                working_dir.join(path).display()
+            ));
+        }
+    }
+    warnings
+}
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
     let args = Args::parse();
@@ -166,7 +238,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         Err(_) => return Ok(()),
     };
     for entry in statuses.iter() {
-        if entry.status().is_wt_new() {
+        if entry.status().is_wt_new() && !entry.path().is_some_and(should_ignore_untracked_path) {
             warnings.push(format!(
                 "{}: is untracked",
                 working_dir.join(entry.path().unwrap()).display()
@@ -218,6 +290,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "node_modules"
                 || s == ".nuxt"
                 || s == ".svelte-kit"
+                || s == "__pycache__"
                 || s == "result"
             {
                 return false;
@@ -246,6 +319,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     let names_allowed = [
         r"\.git(/.*)?",
         r"\.github/workflows/workflow\.yml",
+        r"\.codex(/.*)?",
         r"\.gitignore",
         r"CITATION\.bib",
         r"LICENSE",
@@ -262,6 +336,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"packages/[^/]+/Cargo\.toml",
         r"packages/[^/]+/default\.nix",
         r"packages/[^/]+/index\.html",
+        r"packages/[^/]+/manage\.py",
         r"packages/[^/]+/main\.(c|py|sh|tf)",
         r"packages/[^/]+/ms\.tex",
         r"packages/[^/]+/package\.json",
@@ -326,6 +401,21 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 r"packages/[^/]+/vitest\.config\.ts",
             ],
         ),
+        (
+            r"packages/[^/]+/manage\.py",
+            vec![
+                r"packages/[^/]+/[^/]+/__init__\.py",
+                r"packages/[^/]+/[^/]+/(apps|auth_backends|context_processors|forms|models|settings|throttle|urls|views|wsgi)\.py",
+                r"packages/[^/]+/[^/]+/migrations(/.*)?",
+                r"packages/[^/]+/[^/]+/tests(/.*)?",
+                r"packages/[^/]+/templates(/.*)?",
+                r"packages/[^/]+/static(/.*)?",
+            ],
+        ),
+        (
+            r"packages/[^/]+/main\.py",
+            vec![r"packages/[^/]+/prm(/.*)?"],
+        ),
     ];
     let prefix = r"(templates/[^/]+/)?";
     let compiled_names_allowed: Vec<Regex> = names_allowed
@@ -388,6 +478,22 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     for package_root in &package_roots {
         if all_rel_paths.contains(&package_root.join("adonisrc.ts")) {
             final_warnings.extend(validate_adonis_package_layout(
+                working_dir,
+                package_root,
+                &dir_and_file_names,
+            ));
+        }
+        if all_rel_paths.contains(&package_root.join("manage.py")) {
+            final_warnings.extend(validate_django_package_layout(
+                working_dir,
+                package_root,
+                &dir_and_file_names,
+            ));
+        }
+        if all_rel_paths.contains(&package_root.join("main.py"))
+            && all_rel_paths.contains(&package_root.join("prm"))
+        {
+            final_warnings.extend(validate_fastapi_package_layout(
                 working_dir,
                 package_root,
                 &dir_and_file_names,
@@ -659,6 +765,19 @@ mod tests {
         assert!(!is_dash_case("my_package"));
     }
     #[test]
+    fn test_should_ignore_untracked_path() {
+        assert!(should_ignore_untracked_path(".codex"));
+        assert!(should_ignore_untracked_path(
+            "packages/django_template/starter/__pycache__",
+        ));
+        assert!(should_ignore_untracked_path(
+            "packages/django_template/starter/__pycache__/views.cpython-313.pyc",
+        ));
+        assert!(!should_ignore_untracked_path(
+            "packages/django_template/starter/views.py"
+        ));
+    }
+    #[test]
     fn test_package_root() {
         assert_eq!(
             package_root(Path::new("packages/adonisjs_template/package.json")),
@@ -673,15 +792,15 @@ mod tests {
             ))
         );
         assert_eq!(
-            package_root(Path::new("hosts/adonisjs-template/configuration.nix")),
+            package_root(Path::new("hosts/template/configuration.nix")),
             None
         );
     }
     #[test]
     fn test_host_root() {
         assert_eq!(
-            host_root(Path::new("hosts/adonisjs-template/configuration.nix")),
-            Some(PathBuf::from("hosts/adonisjs-template"))
+            host_root(Path::new("hosts/template/configuration.nix")),
+            Some(PathBuf::from("hosts/template"))
         );
         assert_eq!(
             host_root(Path::new("packages/adonisjs_template/default.nix")),
@@ -710,6 +829,59 @@ mod tests {
         let dir_and_file_names = HashSet::from([PathBuf::from("packages/python_template/main.py")]);
         let warnings =
             validate_adonis_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert!(warnings.is_empty());
+    }
+    #[test]
+    fn test_validate_django_package_layout_accepts_conventional_layout() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/django_template");
+        let dir_and_file_names = HashSet::from([
+            PathBuf::from("packages/django_template/manage.py"),
+            PathBuf::from("packages/django_template/django_template/__init__.py"),
+            PathBuf::from("packages/django_template/django_template/settings.py"),
+            PathBuf::from("packages/django_template/django_template/urls.py"),
+            PathBuf::from("packages/django_template/django_template/wsgi.py"),
+            PathBuf::from("packages/django_template/starter/__init__.py"),
+            PathBuf::from("packages/django_template/starter/apps.py"),
+            PathBuf::from("packages/django_template/starter/auth_backends.py"),
+            PathBuf::from("packages/django_template/starter/context_processors.py"),
+            PathBuf::from("packages/django_template/starter/forms.py"),
+            PathBuf::from("packages/django_template/starter/tests/test_views.py"),
+            PathBuf::from("packages/django_template/starter/throttle.py"),
+            PathBuf::from("packages/django_template/starter/urls.py"),
+            PathBuf::from("packages/django_template/starter/views.py"),
+            PathBuf::from("packages/django_template/templates/auth/login.html"),
+            PathBuf::from("packages/django_template/static/starter/app.css"),
+        ]);
+        let warnings =
+            validate_django_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert!(warnings.is_empty());
+    }
+    #[test]
+    fn test_validate_django_package_layout_rejects_generated_cache_files() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/django_template");
+        let dir_and_file_names = HashSet::from([
+            PathBuf::from("packages/django_template/manage.py"),
+            PathBuf::from("packages/django_template/starter/__pycache__/views.cpython-313.pyc"),
+        ]);
+        let warnings =
+            validate_django_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("__pycache__/views.cpython-313.pyc"));
+    }
+    #[test]
+    fn test_validate_fastapi_package_layout_accepts_conventional_layout() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/fastapi_postgres_template");
+        let dir_and_file_names = HashSet::from([
+            PathBuf::from("packages/fastapi_postgres_template/default.nix"),
+            PathBuf::from("packages/fastapi_postgres_template/main.py"),
+            PathBuf::from("packages/fastapi_postgres_template/prm/templates/auth/login.html"),
+            PathBuf::from("packages/fastapi_postgres_template/prm/static/app.css"),
+        ]);
+        let warnings =
+            validate_fastapi_package_layout(working_dir, package_root, &dir_and_file_names);
         assert!(warnings.is_empty());
     }
     #[test]
@@ -941,6 +1113,142 @@ mod tests {
         assert!(
             result.is_err(),
             "Expected Err for legacy scripts/ layout, but got Ok",
+        );
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_django_package_layout_matches_repository_conventions() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-django");
+        init_temp_repo(&temp_dir);
+        fs::create_dir_all(temp_dir.join(".codex")).unwrap();
+        let package_root = temp_dir.join("packages/django_template");
+        for relative_dir in [
+            "django_template",
+            "starter/tests",
+            "static/starter",
+            "templates/auth",
+            "tmp/coverage/html",
+        ] {
+            fs::create_dir_all(package_root.join(relative_dir)).unwrap();
+        }
+        for (relative_path, contents) in [
+            (".gitignore", "tmp/\n"),
+            ("default.nix", "{}"),
+            ("manage.py", "print('manage')\n"),
+            ("django_template/__init__.py", ""),
+            ("django_template/settings.py", "SECRET_KEY = 'test'\n"),
+            ("django_template/urls.py", "urlpatterns = []\n"),
+            ("django_template/wsgi.py", "application = None\n"),
+            ("starter/__init__.py", ""),
+            ("starter/apps.py", "class StarterConfig: ...\n"),
+            (
+                "starter/auth_backends.py",
+                "class EmailOrUsernameBackend: ...\n",
+            ),
+            (
+                "starter/context_processors.py",
+                "def current_year(request): return {}\n",
+            ),
+            ("starter/forms.py", "class RegistrationForm: ...\n"),
+            ("starter/tests/__init__.py", ""),
+            (
+                "starter/tests/test_auth_backend.py",
+                "def test_backend(): pass\n",
+            ),
+            ("starter/tests/test_views.py", "def test_views(): pass\n"),
+            ("starter/throttle.py", "LOGIN_RATE_LIMIT = (5, 60)\n"),
+            ("starter/urls.py", "urlpatterns = []\n"),
+            ("starter/views.py", "def home(request): return None\n"),
+            ("static/starter/app.css", "body {}\n"),
+            ("templates/404.html", "not found\n"),
+            ("templates/auth/login.html", "login\n"),
+            ("templates/auth/register.html", "register\n"),
+            ("templates/base.html", "base\n"),
+            ("templates/dashboard.html", "dashboard\n"),
+            ("templates/home.html", "home\n"),
+            ("tmp/coverage/html/.gitignore", "*\n"),
+        ] {
+            fs::write(package_root.join(relative_path), contents).unwrap();
+        }
+        Command::new("git")
+            .args(["add", "."])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for the current Django package layout, but got Err: {:?}",
+            result.err()
+        );
+        fs::create_dir_all(package_root.join("starter/__pycache__")).unwrap();
+        fs::write(
+            package_root.join("starter/__pycache__/views.cpython-313.pyc"),
+            "cache",
+        )
+        .unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok with ignored generated cache directories, but got Err: {:?}",
+            result.err()
+        );
+        fs::write(package_root.join("starter/admin.py"), "class Admin: ...\n").unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_err(),
+            "Expected Err for non-whitelisted Django module, but got Ok",
+        );
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_fastapi_package_layout_matches_repository_conventions() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-fastapi");
+        init_temp_repo(&temp_dir);
+        let package_root = temp_dir.join("packages/fastapi_postgres_template");
+        for relative_dir in ["prm/static", "prm/templates/auth", "tmp/coverage/html"] {
+            fs::create_dir_all(package_root.join(relative_dir)).unwrap();
+        }
+        for (relative_path, contents) in [
+            (".gitignore", "tmp/\n"),
+            ("default.nix", "{}"),
+            ("main.py", "app = object()\n"),
+            ("prm/static/app.css", "body {}\n"),
+            ("prm/templates/404.html", "not found\n"),
+            ("prm/templates/auth/login.html", "login\n"),
+            ("prm/templates/auth/register.html", "register\n"),
+            ("prm/templates/base.html", "base\n"),
+            ("prm/templates/dashboard.html", "dashboard\n"),
+            ("prm/templates/home.html", "home\n"),
+            ("tmp/coverage/html/.gitignore", "*\n"),
+        ] {
+            fs::write(package_root.join(relative_path), contents).unwrap();
+        }
+        Command::new("git")
+            .args(["add", "packages"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for the current FastAPI package layout, but got Err: {:?}",
+            result.err()
+        );
+        fs::write(package_root.join("admin.py"), "class Admin: ...\n").unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_err(),
+            "Expected Err for non-whitelisted FastAPI module, but got Ok",
         );
         fs::remove_dir_all(&temp_dir).unwrap();
     }
