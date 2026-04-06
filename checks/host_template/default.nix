@@ -3,6 +3,9 @@
   pkgs,
   ...
 }:
+let
+  serviceName = "adonisjs-template";
+in
 pkgs.testers.runNixOSTest rec {
   name = "template";
   nodes.machine = {
@@ -10,29 +13,29 @@ pkgs.testers.runNixOSTest rec {
       pkgs.curl
     ];
     imports = [
-      ../../modules/nixos/adonisjs.nix
+      ../../modules/nixos/template-app.nix
     ];
-    services.adonisjs-app = {
-      inherit name;
+    services.template-app = {
       appKey = "01234567890123456789012345678901";
-      appUrl = "http://127.0.0.1:3333";
+      appName = "AdonisJS Starter";
+      backend = "adonisjs";
       enable = true;
-      executable = "adonisjs-template";
       host = "0.0.0.0";
-      migrationExecutable = "adonisjs-template-migrate";
+      name = serviceName;
       nginx = {
         defaultVirtualHost = true;
         serverName = "machine";
       };
       package = inputs.self.packages.${pkgs.stdenv.system}.adonisjs-template;
       port = 3333;
+      publicUrl = "http://127.0.0.1:3333";
     };
     virtualisation.memorySize = 8192;
   };
   testScript = ''
     machine.succeed("timeout 120 bash -lc 'until systemctl is-active --quiet nginx.service; do sleep 1; done'")
     machine.succeed("timeout 120 bash -lc 'until systemctl is-active --quiet postgresql.service; do sleep 1; done'")
-    machine.succeed("timeout 120 bash -lc 'until systemctl is-active --quiet ${name}.service; do sleep 1; done'")
+    machine.succeed("timeout 120 bash -lc 'until systemctl is-active --quiet ${serviceName}.service; do sleep 1; done'")
     machine.succeed("timeout 120 bash -lc 'until ss -ltn | grep -q :3333; do sleep 1; done'")
     machine.succeed("timeout 120 bash -lc 'until ss -ltn | grep -q :80; do sleep 1; done'")
     machine.succeed("timeout 120 bash -lc 'until curl -fsS http://127.0.0.1/health; do sleep 1; done'")

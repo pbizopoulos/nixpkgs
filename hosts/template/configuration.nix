@@ -1,42 +1,40 @@
 {
   config,
   inputs,
-  lib,
   modulesPath,
   pkgs,
   ...
 }:
 let
-  app = {
-    inherit
-      framework
-      packageAttrName
-      packageName
-      port
-      runtimeUser
-      ;
+  backendMatrix = {
+    adonisjs = {
+      appName = "AdonisJS Starter";
+      packageAttrName = "adonisjs-template";
+      port = 3333;
+    };
+    django = {
+      appName = "Django Starter";
+      packageAttrName = "django_template";
+      port = 8000;
+    };
+    fastapi-postgres = {
+      appName = "FastAPI Postgres Starter";
+      packageAttrName = "fastapi_postgres_template";
+      port = 8000;
+    };
   };
-  framework = "adonisjs";
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  packageAttrName =
-    if framework == "adonisjs" then
-      "adonisjs-template"
-    else if framework == "django" then
-      "django_template"
-    else
-      "fastapi_postgres_template";
-  packageName = packageAttrName;
-  port = if framework == "adonisjs" then 3333 else 8000;
-  runtimeUser = packageName;
+  selectedBackend = backendMatrix.${templateCfg.backend};
+  templateCfg = config.services.template-app;
 in
 {
   age.secrets.secrets-env = {
     file = ../../secrets/secrets.age;
-    group = app.runtimeUser;
-    owner = app.runtimeUser;
+    group = templateCfg.name;
+    owner = templateCfg.name;
   };
   boot = {
     initrd.systemd.enable = true;
@@ -91,9 +89,7 @@ in
   environment.systemPackages = [ ];
   fileSystems."/persistent".neededForBoot = true;
   imports = [
-    ../../modules/nixos/adonisjs.nix
-    ../../modules/nixos/django.nix
-    ../../modules/nixos/fastapi-postgres.nix
+    ../../modules/nixos/template-app.nix
     inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
@@ -120,7 +116,7 @@ in
     preserveAt."/persistent" = {
       directories = [
         "/var/lib/postgresql"
-        "/var/lib/${app.runtimeUser}"
+        "/var/lib/${templateCfg.name}"
         {
           directory = "/etc/ssh";
           inInitrd = true;
@@ -141,63 +137,6 @@ in
   programs.bash.promptInit = "";
   security.sudo.wheelNeedsPassword = false;
   services = {
-    adonisjs-app = lib.mkIf (app.framework == "adonisjs") {
-      inherit (app) port;
-      appUrl = "http://${hostName}";
-      enable = true;
-      environmentFile = config.age.secrets.secrets-env.path;
-      extraEnvironment = { };
-      host = "127.0.0.1";
-      name = app.runtimeUser;
-      nginx = {
-        defaultVirtualHost = true;
-        serverName = hostName;
-      };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
-    };
-    django-app = lib.mkIf (app.framework == "django") {
-      inherit (app) port;
-      allowedHosts = [
-        hostName
-        "127.0.0.1"
-        "localhost"
-        "[::1]"
-      ];
-      appName = "Django Starter";
-      csrfTrustedOrigins = [
-        "http://${hostName}"
-      ];
-      enable = true;
-      environmentFile = config.age.secrets.secrets-env.path;
-      extraEnvironment = { };
-      host = "127.0.0.1";
-      name = app.runtimeUser;
-      nginx = {
-        defaultVirtualHost = true;
-        serverName = hostName;
-      };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
-    };
-    fastapi-postgres-app = lib.mkIf (app.framework == "fastapi-postgres") {
-      inherit (app) port;
-      allowedHosts = [
-        hostName
-        "127.0.0.1"
-        "localhost"
-        "[::1]"
-      ];
-      appName = "FastAPI Postgres Starter";
-      enable = true;
-      environmentFile = config.age.secrets.secrets-env.path;
-      extraEnvironment = { };
-      host = "127.0.0.1";
-      name = app.runtimeUser;
-      nginx = {
-        defaultVirtualHost = true;
-        serverName = hostName;
-      };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${app.packageAttrName};
-    };
     openssh = {
       enable = true;
       settings.PasswordAuthentication = false;
@@ -208,6 +147,31 @@ in
         local all all trust
       '';
       enable = true;
+    };
+    template-app = {
+      inherit (selectedBackend) appName;
+      inherit (selectedBackend) port;
+      allowedHosts = [
+        hostName
+        "127.0.0.1"
+        "localhost"
+        "[::1]"
+      ];
+      backend = "adonisjs";
+      csrfTrustedOrigins = [
+        "http://${hostName}"
+      ];
+      enable = true;
+      environmentFile = config.age.secrets.secrets-env.path;
+      extraEnvironment = { };
+      host = "127.0.0.1";
+      name = selectedBackend.packageAttrName;
+      nginx = {
+        defaultVirtualHost = true;
+        serverName = hostName;
+      };
+      package = inputs.self.packages.${pkgs.stdenv.system}.${selectedBackend.packageAttrName};
+      publicUrl = "http://${hostName}";
     };
   };
   system.stateVersion = "25.11";
