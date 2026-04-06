@@ -15,7 +15,7 @@ def split_csv_env(name: str, default: str) -> list[str]:
 
 def database_settings() -> dict[str, str]:
     """Build the Django database settings from environment variables."""
-    engine_name = os.getenv("DATABASE_ENGINE", "sqlite3")
+    engine_name = os.getenv("DATABASE_ENGINE", "postgresql")
     if engine_name == "postgresql":
         return {
             "ENGINE": "django.db.backends.postgresql",
