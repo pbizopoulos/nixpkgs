@@ -7,7 +7,10 @@ let
   cfg = config.services.fastapi-postgres-app;
   databaseUrl =
     if pgcfg.enable then
-      "postgresql+psycopg://${pgcfg.user}:${pgcfg.password}@${pgcfg.host}:${toString pgcfg.port}/${pgcfg.database}"
+      if lib.hasPrefix "/" pgcfg.host then
+        "postgresql+psycopg://${pgcfg.user}:${pgcfg.password}@/${pgcfg.database}?host=${pgcfg.host}&port=${toString pgcfg.port}"
+      else
+        "postgresql+psycopg://${pgcfg.user}:${pgcfg.password}@${pgcfg.host}:${toString pgcfg.port}/${pgcfg.database}"
     else
       "sqlite:////var/lib/${cfg.name}/${cfg.name}.sqlite3";
   pgcfg = cfg.postgresql;

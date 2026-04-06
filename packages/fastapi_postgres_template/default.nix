@@ -99,7 +99,7 @@ let
       create_db >/dev/null 2>&1 || true
       export DATABASE_URL="postgresql+psycopg://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
     fi
-    exec python3 main.py
+    exec python3 "$package_root/main.py"
   '';
   packageRootRuntimeEnvironment = ''
     export PATH="${runtimePath}:$PATH"
