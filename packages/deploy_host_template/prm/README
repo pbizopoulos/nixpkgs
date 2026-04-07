@@ -2,7 +2,7 @@
 
 git clone git@github.com:pbizopoulos/canonicalization ~/github.com/pbizopoulos/canonicalization/
 cd ~/github.com/pbizopoulos/canonicalization/
-# server_type ~/github.com/pbizopoulos/canonicalization/packages/deploy_adonisjs_host_template/main.tf at least cpx22
+# server_type ~/github.com/pbizopoulos/canonicalization/packages/deploy_host_template/main.tf at least cpx22
 cd secrets/
 nix run github:ryantm/agenix -- -e secrets.age
 # Upload your public ssh key named default in https://console.hetzner.com/projects/<project-id>/security/sshkeys
@@ -10,14 +10,14 @@ nix run github:ryantm/agenix -- -e secrets.age
 # put hetnzer token in TF_VAR_hcloud_token=...
 # generate a random password for APP_KEY=...
 cd ..
-cd packages/deploy_adonisjs_host_template/
-nix run .#deploy_adonisjs_host_template
-# ssh-keyscan the prm/ipv4_address and put the key in prm/adonisjs-template.pub
+cd packages/deploy_host_template/
+nix run .#deploy_host_template
+# ssh-keyscan the prm/ipv4_address and put the key in prm/template.pub
 bash prm/agenix-rekey.sh
-cd packages/deploy_adonisjs_host_template/
-nix run .#deploy_adonisjs_host_template
+cd packages/deploy_host_template/
+nix run .#deploy_host_template
 
 # delete server
-rm -rf tmp/deploy_adonisjs_host_template.tfstate*
+rm -rf tmp/deploy_host_template.tfstate*
 # disable protection and delete server from console.hetzner
 # (if needed) Remove API token named default in https://console.hetzner.com/projects/<project-id>/security/tokens

@@ -6,7 +6,7 @@ let
   installationScript = inputs.agenix-shell.lib.installationScript pkgs.stdenv.system {
     secrets.secrets.file = ../../secrets/secrets.age;
   };
-  packageRelativePath = "packages/deploy_adonisjs_host_template";
+  packageRelativePath = "packages/deploy_host_template";
   repoSrc = ../..;
 in
 pkgs.writeShellApplication {
@@ -32,7 +32,7 @@ pkgs.writeShellApplication {
     repo_root="$(git rev-parse --show-toplevel)"
     package_dir="$repo_root/${packageRelativePath}"
     state_dir="$package_dir/tmp"
-    state_path="$state_dir/deploy_adonisjs_host_template.tfstate"
+    state_path="$state_dir/deploy_host_template.tfstate"
     workdir=$(mktemp -d)
     trap 'rm -rf "$workdir"' EXIT
     mkdir -p "$state_dir"

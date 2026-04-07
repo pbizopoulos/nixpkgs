@@ -12,10 +12,10 @@ variable "hcloud_token" {
   sensitive = true
 }
 variable "nixos_config_name" {
-  default = "adonisjs-template"
+  default = "template"
 }
 variable "server_name" {
-  default = "adonisjs-template"
+  default = "template"
 }
 variable "output_dir" {
   type = string
