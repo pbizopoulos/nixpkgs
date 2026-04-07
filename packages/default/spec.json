@@ -1,0 +1,38 @@
+{
+  "testCommand": "nix build .#checks.x86_64-linux.default",
+  "selfEditingRules": [
+    "Keep this file intent-focused and describe user-visible behavior and constraints rather than implementation details.",
+    "Update features and scenarios whenever the implemented behavior changes and the new behavior is intended.",
+    "Add, merge, split, or remove features and scenarios to keep the spec aligned with the current intended product behavior.",
+    "Prefer adjusting existing scenarios over adding redundant ones when intent can be expressed more clearly by rewriting.",
+    "If code and tests conflict with this file, first determine whether the implementation is intentionally different; if so, update this file to match the intended behavior.",
+    "Do not change testCommand unless explicitly instructed."
+  ],
+  "features": [
+    {
+      "feature": "Project initialization",
+      "scenarios": [
+        {
+          "scenario": "User initializes a target directory",
+          "given": ["the user provides a target directory path"],
+          "when": ["the CLI initializes a new project"],
+          "then": [
+            "the CLI creates the target directory when it does not already exist",
+            "the CLI initializes a git repository in the target directory",
+            "the CLI adds the repository-level flake and starter files needed for the generated project"
+          ]
+        },
+        {
+          "scenario": "User selects templates to include",
+          "given": ["one or more supported template names are provided"],
+          "when": ["the CLI copies template content into the target directory"],
+          "then": [
+            "the CLI only copies the templates the user selected",
+            "the available template names are derived from the repository's packages",
+            "the generated project is ready for follow-up edits rather than remaining an empty shell"
+          ]
+        }
+      ]
+    }
+  ]
+}

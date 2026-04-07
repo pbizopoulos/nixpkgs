@@ -1,5 +1,5 @@
 {
-  "testCommand": "nix build .#checks.x86_64-linux.adonisjs-template",
+  "testCommand": "nix build .#checks.x86_64-linux.django_template",
   "selfEditingRules": [
     "Keep this file intent-focused and describe user-visible behavior and constraints rather than implementation details.",
     "Update features and scenarios whenever the implemented behavior changes and the new behavior is intended.",
@@ -17,15 +17,15 @@
           "given": ["the application is running"],
           "when": ["the visitor requests the home page"],
           "then": [
-            "the application presents itself as a real AdonisJS web starter instead of a placeholder scaffold",
-            "the page highlights sessions, auth, Shield, rate limiting, mail, and Vite-backed assets",
-            "the page offers clear next actions for registration, login, dashboard access, docs, and health checks"
+            "the application presents itself as a real Django starter rather than a placeholder scaffold",
+            "the page highlights templates, sessions, auth, CSRF, mail, and health checks",
+            "the page offers clear next actions for registration, login, and dashboard access"
           ]
         }
       ]
     },
     {
-      "feature": "Registration and sessions",
+      "feature": "Registration and session auth",
       "scenarios": [
         {
           "scenario": "Visitor registers a new account",
@@ -34,60 +34,45 @@
             "the visitor submits a valid username, email address, and password through the registration form"
           ],
           "then": [
-            "the application creates a persisted user with hashed credentials",
+            "the application creates a persisted user record",
             "the application signs the visitor into the session immediately",
-            "the application sends a welcome mail through the configured mailer"
+            "the application sends a welcome mail"
           ]
         },
         {
-          "scenario": "Visitor signs in with valid credentials",
+          "scenario": "Visitor signs in with email or username",
           "given": ["an account already exists"],
           "when": [
             "the visitor submits valid credentials through the login form"
           ],
           "then": [
-            "the application authenticates the visitor with session-backed auth",
+            "the application accepts either the username or the email address as the login identifier",
             "the application redirects the visitor to the protected dashboard",
-            "the application exposes a logout action that ends the session"
+            "the application provides logout and account deletion flows for authenticated users"
           ]
         }
       ]
     },
     {
-      "feature": "Protected dashboard",
+      "feature": "Protection and health reporting",
       "scenarios": [
         {
-          "scenario": "Authenticated visitor opens the dashboard",
-          "given": ["the visitor is signed in"],
-          "when": ["the visitor requests the dashboard route"],
-          "then": [
-            "the application renders account details for the authenticated user",
-            "the dashboard offers account-level actions such as logout and deletion",
-            "the application keeps the route unavailable to guests"
-          ]
-        }
-      ]
-    },
-    {
-      "feature": "Form protection and operational health",
-      "scenarios": [
-        {
-          "scenario": "Visitor submits authentication forms",
-          "given": ["the visitor uses the login or registration forms"],
-          "when": ["the visitor sends a state-changing request"],
+          "scenario": "Visitor submits authentication forms repeatedly",
+          "given": ["the visitor uses the login or registration flows"],
+          "when": ["the visitor sends state-changing requests"],
           "then": [
             "the application requires CSRF protection",
-            "the application rate-limits login and signup attempts",
-            "the application can return a throttled response after repeated abuse"
+            "the application can throttle repeated login and signup attempts",
+            "the application returns a clear throttling error when limits are exceeded"
           ]
         },
         {
-          "scenario": "Operator checks service health",
-          "given": ["the application is running with its required services"],
+          "scenario": "Operator checks application health",
+          "given": ["the application is running"],
           "when": ["an operator requests the health endpoint"],
           "then": [
-            "the application reports overall health status",
-            "the response includes database status information",
+            "the response reports overall health status",
+            "the response includes database health information",
             "the response includes memory health information"
           ]
         }
