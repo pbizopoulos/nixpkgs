@@ -351,7 +351,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
     @app.get("/register", response_class=HTMLResponse)  # type: ignore[untyped-decorator]
     def register_page(request: Request) -> HTMLResponse:
         if require_authenticated_user(request, app.state.session_factory) is not None:
-            return redirect("/dashboard")
+            return redirect("/app")
         return render_template(
             request,
             "auth/register.html",
@@ -423,12 +423,12 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
             "success",
             f"Welcome, {user.username}. Your account is ready.",
         )
-        return redirect("/dashboard")
+        return redirect("/app")
 
     @app.get("/login", response_class=HTMLResponse)  # type: ignore[untyped-decorator]
     def login_page(request: Request) -> HTMLResponse:
         if require_authenticated_user(request, app.state.session_factory) is not None:
-            return redirect("/dashboard")
+            return redirect("/app")
         return render_template(
             request,
             "auth/login.html",
@@ -486,10 +486,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
                 )
         request.session["user_id"] = user.id
         flash_message(request, "success", f"Welcome back, {user.username}.")
-        return redirect("/dashboard")
+        return redirect("/app")
 
     @app.get(  # type: ignore[untyped-decorator]
-        "/dashboard",
+        "/app",
         response_class=HTMLResponse,
         response_model=None,
     )
@@ -510,7 +510,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
         flash_message(request, "success", "You have been signed out.")
         return redirect("/")
 
-    @app.post("/account-delete", response_model=None)  # type: ignore[untyped-decorator]
+    @app.post("/account/delete", response_model=None)  # type: ignore[untyped-decorator]
     def delete_account(
         request: Request,
         csrf_token: Annotated[str, Form()],
@@ -635,7 +635,7 @@ class _TestCase(unittest.TestCase):
         )
         self.assertEqual(registration.status_code, HTTP_OK)  # noqa: PT009
         self.assertIn("starter-user", registration.text)  # noqa: PT009
-        logout_page = self.client.get("/dashboard")
+        logout_page = self.client.get("/app")
         logout_response = self.client.post(
             "/logout",
             data={"csrf_token": csrf_token(logout_page.text)},
@@ -653,9 +653,9 @@ class _TestCase(unittest.TestCase):
             follow_redirects=True,
         )
         self.assertIn("Welcome back, starter-user.", login_response.text)  # noqa: PT009
-        delete_page = self.client.get("/dashboard")
+        delete_page = self.client.get("/app")
         delete_response = self.client.post(
-            "/account-delete",
+            "/account/delete",
             data={"csrf_token": csrf_token(delete_page.text)},
             follow_redirects=True,
         )
@@ -674,7 +674,7 @@ class _TestCase(unittest.TestCase):
                 "username": "username-login",
             },
         )
-        logout_page = self.client.get("/dashboard")
+        logout_page = self.client.get("/app")
         logout_response = self.client.post(
             "/logout",
             data={"csrf_token": csrf_token(logout_page.text)},

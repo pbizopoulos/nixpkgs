@@ -4,6 +4,23 @@
   ...
 }:
 let
+  backendDefaults = {
+    adonisjs = {
+      appName = "AdonisJS Starter";
+      packageAttrName = "adonisjs-template";
+      port = 3333;
+    };
+    django = {
+      appName = "Django Starter";
+      packageAttrName = "django_template";
+      port = 8000;
+    };
+    fastapi-postgres = {
+      appName = "FastAPI Postgres Starter";
+      packageAttrName = "fastapi_postgres_template";
+      port = 8000;
+    };
+  };
   backendType = lib.types.enum [
     "adonisjs"
     "django"
@@ -142,7 +159,14 @@ in
       type = lib.types.nullOr lib.types.str;
     };
     appName = lib.mkOption {
-      default = "Starter App";
+      default = backendDefaults.${cfg.backend}.appName;
+      defaultText = lib.literalExpression ''
+        {
+          adonisjs = "AdonisJS Starter";
+          django = "Django Starter";
+          fastapi-postgres = "FastAPI Postgres Starter";
+        }.${config.services.template-app.backend}
+      '';
       description = "Application name for backends that expose APP_NAME.";
       type = lib.types.str;
     };
@@ -197,6 +221,8 @@ in
       type = lib.types.nullOr lib.types.str;
     };
     name = lib.mkOption {
+      default = cfg.packageAttrName;
+      defaultText = lib.literalExpression "config.services.template-app.packageAttrName";
       description = "The systemd service, user, and group name for the selected backend.";
       type = lib.types.str;
     };
@@ -222,7 +248,27 @@ in
       description = "The packaged application corresponding to the selected backend.";
       type = lib.types.package;
     };
+    packageAttrName = lib.mkOption {
+      default = backendDefaults.${cfg.backend}.packageAttrName;
+      defaultText = lib.literalExpression ''
+        {
+          adonisjs = "adonisjs-template";
+          django = "django_template";
+          fastapi-postgres = "fastapi_postgres_template";
+        }.${config.services.template-app.backend}
+      '';
+      description = "The flake package attribute corresponding to the selected backend.";
+      type = lib.types.str;
+    };
     port = lib.mkOption {
+      default = backendDefaults.${cfg.backend}.port;
+      defaultText = lib.literalExpression ''
+        {
+          adonisjs = 3333;
+          django = 8000;
+          fastapi-postgres = 8000;
+        }.${config.services.template-app.backend}
+      '';
       description = "Listen port for the selected backend.";
       type = lib.types.port;
     };

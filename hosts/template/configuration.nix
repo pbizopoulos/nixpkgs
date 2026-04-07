@@ -1,33 +1,16 @@
 {
   config,
   inputs,
+  lib,
   modulesPath,
   pkgs,
   ...
 }:
 let
-  backendMatrix = {
-    adonisjs = {
-      appName = "AdonisJS Starter";
-      packageAttrName = "adonisjs-template";
-      port = 3333;
-    };
-    django = {
-      appName = "Django Starter";
-      packageAttrName = "django_template";
-      port = 8000;
-    };
-    fastapi-postgres = {
-      appName = "FastAPI Postgres Starter";
-      packageAttrName = "fastapi_postgres_template";
-      port = 8000;
-    };
-  };
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  selectedBackend = backendMatrix.${templateCfg.backend};
   templateCfg = config.services.template-app;
 in
 {
@@ -149,15 +132,13 @@ in
       enable = true;
     };
     template-app = {
-      inherit (selectedBackend) appName;
-      inherit (selectedBackend) port;
       allowedHosts = [
         hostName
         "127.0.0.1"
         "localhost"
         "[::1]"
       ];
-      backend = "adonisjs";
+      backend = lib.mkDefault "adonisjs";
       csrfTrustedOrigins = [
         "http://${hostName}"
       ];
@@ -165,12 +146,11 @@ in
       environmentFile = config.age.secrets.secrets-env.path;
       extraEnvironment = { };
       host = "127.0.0.1";
-      name = selectedBackend.packageAttrName;
       nginx = {
         defaultVirtualHost = true;
         serverName = hostName;
       };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${selectedBackend.packageAttrName};
+      package = inputs.self.packages.${pkgs.stdenv.system}.${templateCfg.packageAttrName};
       publicUrl = "http://${hostName}";
     };
   };
