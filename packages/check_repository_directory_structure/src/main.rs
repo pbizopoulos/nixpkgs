@@ -22,7 +22,7 @@ fn is_dash_case(name: &str) -> bool {
     re.is_match(name)
 }
 fn should_ignore_untracked_path(path: &str) -> bool {
-    path == ".codex" || path.contains("/__pycache__") || path.ends_with("/__pycache__")
+    path == ".codex"
 }
 fn package_root(rel_path: &Path) -> Option<PathBuf> {
     let components: Vec<_> = rel_path
@@ -290,7 +290,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "node_modules"
                 || s == ".nuxt"
                 || s == ".svelte-kit"
-                || s == "__pycache__"
                 || s == "result"
             {
                 return false;
@@ -767,10 +766,10 @@ mod tests {
     #[test]
     fn test_should_ignore_untracked_path() {
         assert!(should_ignore_untracked_path(".codex"));
-        assert!(should_ignore_untracked_path(
+        assert!(!should_ignore_untracked_path(
             "packages/django_template/starter/__pycache__",
         ));
-        assert!(should_ignore_untracked_path(
+        assert!(!should_ignore_untracked_path(
             "packages/django_template/starter/__pycache__/views.cpython-313.pyc",
         ));
         assert!(!should_ignore_untracked_path(
@@ -1193,8 +1192,8 @@ mod tests {
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(
-            result.is_ok(),
-            "Expected Ok with ignored generated cache directories, but got Err: {:?}",
+            result.is_err(),
+            "Expected Err with generated cache directories, but got: {:?}",
             result.err()
         );
         fs::write(package_root.join("starter/admin.py"), "class Admin: ...\n").unwrap();
