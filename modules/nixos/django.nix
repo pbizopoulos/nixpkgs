@@ -25,9 +25,9 @@ in
       nginx = lib.mkIf cfg.nginx.enable {
         enable = true;
         virtualHosts.${cfg.nginx.serverName} = {
-          default = cfg.nginx.defaultVirtualHost;
           inherit (cfg.nginx) enableACME;
           inherit (cfg.nginx) forceSSL;
+          default = cfg.nginx.defaultVirtualHost;
           locations."/" = {
             proxyPass = "http://${cfg.host}:${toString cfg.port}";
             recommendedProxySettings = true;
