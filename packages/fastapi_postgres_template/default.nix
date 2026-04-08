@@ -9,7 +9,6 @@ let
     ${postgresBootstrapFunctions}
     start_temp_postgres() {
       start_db "$PGDATA/postgres.log"
-      trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
       create_db >/dev/null 2>&1
     }
     resolve_source_root() {
@@ -48,10 +47,10 @@ let
       export COVERAGE_FILE="$coverage_root/.coverage"
       ${defaultPostgresEnvironment}
       export PGDATA="$coverage_root/.postgres"
-      export PGHOST="$(mktemp -d "/tmp/${pname}-pgsocket.XXXXXX")"
+      export PGHOST="$coverage_root/.pgsocket"
       export PGDATABASE="''${PGDATABASE:-${pname}}"
       start_temp_postgres
-      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi; rm -rf "$PGHOST"' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
       export DATABASE_URL="postgresql+psycopg://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
       export SECRET_KEY="fastapi-template-secret-key"
       python3 -m coverage erase

@@ -51,14 +51,14 @@ let
       export SECRET_KEY="django-insecure-template-secret-key"
       ${defaultPostgresEnvironment}
       export PGDATA="$coverage_root/.postgres"
-      export PGHOST="$(mktemp -d "/tmp/${pname}-pgsocket.XXXXXX")"
+      export PGHOST="$coverage_root/.pgsocket"
       export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
       export DB_PORT="$PGPORT"
       export DB_USER="$PGUSER"
       export DB_PASSWORD="$PGPASSWORD"
       export DB_HOST="$PGHOST"
       start_temp_postgres
-      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi; rm -rf "$PGHOST"' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
       export EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
       export ALLOWED_HOSTS="testserver,localhost,127.0.0.1,[::1]"
       export COVERAGE_FILE="$coverage_root/.coverage"
