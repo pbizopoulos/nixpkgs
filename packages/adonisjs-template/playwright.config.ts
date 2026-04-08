@@ -5,14 +5,10 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, devices } from "@playwright/test";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-try {
-  const envLocalPath = path.resolve(__dirname, ".env.local");
-  if (fs.existsSync(envLocalPath)) {
-    loadEnvFile(envLocalPath);
-    console.log("Loaded environment variables from .env.local for E2E tests");
-  }
-} catch (e) {
-  console.warn("Failed to load .env.local:", e);
+const envLocalPath = path.resolve(__dirname, ".env.local");
+if (fs.existsSync(envLocalPath)) {
+  loadEnvFile(envLocalPath);
+  console.log("Loaded environment variables from .env.local for E2E tests");
 }
 const shellQuote = (value: string) => `'${value.replaceAll("'", "'\"'\"'")}'`;
 const isProdE2E = (process.env as { E2E_MODE?: string }).E2E_MODE === "prod";

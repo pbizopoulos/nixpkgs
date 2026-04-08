@@ -1,3 +1,4 @@
+import { errors } from "@adonisjs/auth";
 import type { HttpContext } from "@adonisjs/core/http";
 import User from "#models/user";
 import { loginValidator } from "#validators/auth";
@@ -25,7 +26,10 @@ export default class SessionController {
       await auth.use().login(user);
       session.flash("success", `Welcome back, ${user.username}.`);
       return response.redirect("/app");
-    } catch {
+    } catch (error) {
+      if (!(error instanceof errors.E_INVALID_CREDENTIALS)) {
+        throw error;
+      }
       session.flash("error", "The credentials you entered are invalid.");
       session.flashExcept(["password"]);
       return response.redirect().back();
