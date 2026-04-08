@@ -28,6 +28,8 @@ let
         host = "0.0.0.0";
         nginx = {
           defaultVirtualHost = true;
+          enableACME = false;
+          forceSSL = false;
           serverName = name;
         };
         package =

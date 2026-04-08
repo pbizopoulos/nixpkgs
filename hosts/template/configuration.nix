@@ -7,10 +7,12 @@
   ...
 }:
 let
+  acmeEmail = "admin@example.com";
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
+  publicDomain = "${hostName}.example.com";
   templateCfg = config.services.template-app;
 in
 {
@@ -98,6 +100,7 @@ in
     enable = true;
     preserveAt."/persistent" = {
       directories = [
+        "/var/lib/acme"
         "/var/lib/postgresql"
         "/var/lib/${templateCfg.name}"
         {
@@ -118,11 +121,21 @@ in
     };
   };
   programs.bash.promptInit = "";
-  security.sudo.wheelNeedsPassword = false;
+  security = {
+    acme = {
+      acceptTerms = true;
+      certs.${publicDomain}.webroot = "/var/lib/acme/acme-challenge";
+      defaults.email = acmeEmail;
+    };
+    sudo.wheelNeedsPassword = false;
+  };
   services = {
     openssh = {
       enable = true;
-      settings.PasswordAuthentication = false;
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+      };
     };
     postgresql = {
       authentication = pkgs.lib.mkOverride 10 ''
@@ -133,6 +146,7 @@ in
     };
     template-app = {
       allowedHosts = [
+        publicDomain
         hostName
         "127.0.0.1"
         "localhost"
@@ -140,18 +154,19 @@ in
       ];
       backend = lib.mkDefault "adonisjs";
       csrfTrustedOrigins = [
-        "http://${hostName}"
+        "https://${publicDomain}"
       ];
       enable = true;
       environmentFile = config.age.secrets.secrets-env.path;
       extraEnvironment = { };
       host = "127.0.0.1";
       nginx = {
-        defaultVirtualHost = true;
-        serverName = hostName;
+        enableACME = true;
+        forceSSL = true;
+        serverName = publicDomain;
       };
       package = inputs.self.packages.${pkgs.stdenv.system}.${templateCfg.packageAttrName};
-      publicUrl = "http://${hostName}";
+      publicUrl = "https://${publicDomain}";
     };
   };
   system.stateVersion = "25.11";
@@ -159,17 +174,14 @@ in
     "systemd-machine-id-commit.service"
   ];
   users = {
-    allowNoPasswordLogin = true;
+    allowNoPasswordLogin = false;
     mutableUsers = false;
-    users = {
-      nixos = {
-        extraGroups = [
-          "wheel"
-        ];
-        isNormalUser = true;
-        openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
-      };
-      root.openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
+    users.nixos = {
+      extraGroups = [
+        "wheel"
+      ];
+      isNormalUser = true;
+      openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
     };
   };
   virtualisation.vmVariantWithDisko = {

@@ -26,10 +26,15 @@ in
         enable = true;
         virtualHosts.${cfg.nginx.serverName} = {
           default = cfg.nginx.defaultVirtualHost;
+          inherit (cfg.nginx) enableACME;
+          inherit (cfg.nginx) forceSSL;
           locations."/" = {
             proxyPass = "http://${cfg.host}:${toString cfg.port}";
             recommendedProxySettings = true;
           };
+        }
+        // lib.optionalAttrs (cfg.nginx.useACMEHost != null) {
+          inherit (cfg.nginx) useACMEHost;
         };
       };
       postgresql = lib.mkIf pgcfg.enable {
@@ -144,11 +149,26 @@ in
         description = "Whether to expose the AdonisJS service behind nginx on port 80.";
         type = lib.types.bool;
       };
+      enableACME = lib.mkOption {
+        default = false;
+        description = "Whether nginx should request ACME certificates for this virtual host.";
+        type = lib.types.bool;
+      };
+      forceSSL = lib.mkOption {
+        default = false;
+        description = "Whether nginx should redirect HTTP traffic to HTTPS for this virtual host.";
+        type = lib.types.bool;
+      };
       serverName = lib.mkOption {
         default = config.networking.hostName;
         defaultText = lib.literalExpression "config.networking.hostName";
         description = "nginx virtual host name.";
         type = lib.types.str;
+      };
+      useACMEHost = lib.mkOption {
+        default = null;
+        description = "Optional ACME host to reuse instead of enabling ACME directly on this virtual host.";
+        type = lib.types.nullOr lib.types.str;
       };
     };
     package = lib.mkOption {

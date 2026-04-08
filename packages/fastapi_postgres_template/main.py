@@ -28,6 +28,7 @@ from sqlalchemy.orm import (
     sessionmaker,
 )
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
 from werkzeug.security import check_password_hash, generate_password_hash
 
 if TYPE_CHECKING:
@@ -151,6 +152,16 @@ def split_csv_env(name: str, default: str) -> list[str]:
     ]
 
 
+def env_bool(name: str, *, default: bool = False) -> bool:
+    """Parse a conventional environment boolean."""
+    return os.getenv(name, "1" if default else "0").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
 class Settings:
     """Runtime configuration for the FastAPI starter."""
 
@@ -159,6 +170,7 @@ class Settings:
     database_url: str
     debug: bool
     secret_key: str
+    secure_cookies: bool
     support_email: str
 
     def __init__(  # noqa: PLR0913
@@ -169,6 +181,7 @@ class Settings:
         database_url: str | None = None,
         debug: bool | None = None,
         secret_key: str | None = None,
+        secure_cookies: bool | None = None,
         support_email: str | None = None,
     ) -> None:
         """Resolve runtime settings from explicit values or environment variables."""
@@ -192,6 +205,11 @@ class Settings:
                 "SECRET_KEY",
                 "",
             ),
+        )
+        self.secure_cookies = (
+            secure_cookies
+            if secure_cookies is not None
+            else env_bool("SESSION_COOKIE_SECURE")
         )
         self.support_email = support_email or str(
             os.getenv(
@@ -349,7 +367,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
     """Create the FastAPI application."""
     runtime_settings = settings or Settings()
     app = FastAPI(debug=runtime_settings.debug)
-    app.add_middleware(SessionMiddleware, secret_key=runtime_settings.secret_key)
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=runtime_settings.allowed_hosts,
+    )
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=runtime_settings.secret_key,
+        https_only=runtime_settings.secure_cookies,
+        same_site="lax",
+    )
     app.mount(
         "/static",
         StaticFiles(directory=str(PRM_ROOT / "static")),

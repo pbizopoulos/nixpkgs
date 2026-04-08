@@ -15,6 +15,16 @@ def split_csv_env(name: str, default: str) -> list[str]:
     ]
 
 
+def env_bool(name: str, *, default: bool = False) -> bool:
+    """Parse a conventional environment boolean."""
+    return os.getenv(name, "1" if default else "0").lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
 def database_settings() -> dict[str, str]:
     """Build the Django database settings from environment variables."""
     engine_name = os.getenv("DATABASE_ENGINE", "postgresql")
@@ -105,6 +115,14 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "dashboard"
 LOGOUT_REDIRECT_URL = "home"
+CSRF_COOKIE_SECURE = env_bool("CSRF_COOKIE_SECURE")
+SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "0"))
+SECURE_PROXY_SSL_HEADER = (
+    ("HTTP_X_FORWARDED_PROTO", "https") if env_bool("SECURE_PROXY_SSL_HEADER") else None
+)
+SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT")
+SESSION_COOKIE_SECURE = env_bool("SESSION_COOKIE_SECURE")
+X_FRAME_OPTIONS = "DENY"
 AUTHENTICATION_BACKENDS = [
     "starter.auth_backends.EmailOrUsernameBackend",
     "django.contrib.auth.backends.ModelBackend",
