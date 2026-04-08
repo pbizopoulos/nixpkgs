@@ -127,7 +127,7 @@ in
     postgresql = {
       authentication = pkgs.lib.mkOverride 10 ''
         # type database user address method
-        local all all trust
+        local all all peer
       '';
       enable = true;
     };

@@ -7,8 +7,8 @@ let
   mkNode =
     {
       backend,
+      environmentFile,
       name,
-      secretEnvironment,
     }:
     {
       config,
@@ -23,6 +23,7 @@ let
       ];
       services.template-app = {
         inherit backend;
+        inherit environmentFile;
         enable = true;
         host = "0.0.0.0";
         nginx = {
@@ -32,28 +33,38 @@ let
         package =
           inputs.self.packages.${pkgs.stdenv.system}.${config.services.template-app.packageAttrName};
         publicUrl = "http://127.0.0.1:${toString config.services.template-app.port}";
-      }
-      // secretEnvironment;
+      };
       virtualisation.memorySize = 8192;
     };
+  secretEnvironmentFiles = {
+    adonis = pkgs.writeText "adonis-template-secrets.env" ''
+      APP_KEY=01234567890123456789012345678901
+    '';
+    django = pkgs.writeText "django-template-secrets.env" ''
+      SECRET_KEY=django-insecure-template-secret-key
+    '';
+    fastapi = pkgs.writeText "fastapi-template-secrets.env" ''
+      SECRET_KEY=fastapi-template-secret-key
+    '';
+  };
 in
 pkgs.testers.runNixOSTest {
   name = "template";
   nodes = {
     adonis = mkNode {
       backend = "adonisjs";
+      environmentFile = secretEnvironmentFiles.adonis;
       name = "adonis";
-      secretEnvironment.appKey = "01234567890123456789012345678901";
     };
     django = mkNode {
       backend = "django";
+      environmentFile = secretEnvironmentFiles.django;
       name = "django";
-      secretEnvironment.secretKey = "django-insecure-template-secret-key";
     };
     fastapi = mkNode {
       backend = "fastapi-postgres";
+      environmentFile = secretEnvironmentFiles.fastapi;
       name = "fastapi";
-      secretEnvironment.secretKey = "fastapi-template-secret-key";
     };
   };
   testScript = ''

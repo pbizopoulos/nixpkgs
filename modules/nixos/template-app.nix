@@ -34,7 +34,6 @@ in
       (lib.mkIf (cfg.backend == "adonisjs") {
         services.adonisjs-app = {
           inherit (cfg) addToSystemPackages;
-          inherit (cfg) appKey;
           inherit (cfg) environmentFile;
           inherit (cfg) extraEnvironment;
           inherit (cfg) host;
@@ -50,7 +49,6 @@ in
               database
               enable
               host
-              password
               port
               ssl
               user
@@ -80,7 +78,6 @@ in
           inherit (cfg) package;
           inherit (cfg) port;
           inherit (cfg) runMigrations;
-          inherit (cfg) secretKey;
           inherit (cfg) supportEmail;
           enable = true;
           postgresql = {
@@ -88,7 +85,6 @@ in
               database
               enable
               host
-              password
               port
               user
               ;
@@ -113,7 +109,6 @@ in
           inherit (cfg) nginx;
           inherit (cfg) package;
           inherit (cfg) port;
-          inherit (cfg) secretKey;
           inherit (cfg) supportEmail;
           enable = true;
           postgresql = {
@@ -121,7 +116,6 @@ in
               database
               enable
               host
-              password
               port
               user
               ;
@@ -152,11 +146,6 @@ in
       ];
       description = "Allowed hosts for backends that use host allow-lists.";
       type = lib.types.listOf lib.types.str;
-    };
-    appKey = lib.mkOption {
-      default = null;
-      description = "Optional AdonisJS APP_KEY to inject directly into the service environment.";
-      type = lib.types.nullOr lib.types.str;
     };
     appName = lib.mkOption {
       default = backendDefaults.${cfg.backend}.appName;
@@ -289,11 +278,6 @@ in
         description = "Database host for the selected backend.";
         type = lib.types.str;
       };
-      password = lib.mkOption {
-        default = "postgres";
-        description = "Database password for the selected backend.";
-        type = lib.types.str;
-      };
       port = lib.mkOption {
         default = 5432;
         description = "Database port for the selected backend.";
@@ -320,11 +304,6 @@ in
       default = true;
       description = "Whether to run packaged migrations before starting the selected backend when supported.";
       type = lib.types.bool;
-    };
-    secretKey = lib.mkOption {
-      default = null;
-      description = "Optional SECRET_KEY to inject directly into backends that use it.";
-      type = lib.types.nullOr lib.types.str;
     };
     supportEmail = lib.mkOption {
       default = "support@example.com";

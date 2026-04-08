@@ -53,6 +53,9 @@ let
       export PGDATA="$coverage_root/.postgres"
       export PGHOST="$(mktemp -d "/tmp/${pname}-pgsocket.XXXXXX")"
       export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
+      export DB_PORT="$PGPORT"
+      export DB_USER="$PGUSER"
+      export DB_PASSWORD="$PGPASSWORD"
       export DB_HOST="$PGHOST"
       start_temp_postgres
       trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true; rm -rf "$PGHOST"' EXIT
@@ -69,9 +72,9 @@ let
   '';
   defaultPostgresEnvironment = ''
     export DATABASE_ENGINE="''${DATABASE_ENGINE:-postgresql}"
-    export DB_PORT="''${DB_PORT:-5432}"
-    export DB_USER="''${DB_USER:-postgres}"
-    export DB_PASSWORD="''${DB_PASSWORD:-postgres}"
+    export PGPORT="''${PGPORT:-5432}"
+    export PGUSER="''${PGUSER:-postgres}"
+    export PGPASSWORD="''${PGPASSWORD:-postgres}"
   '';
   launcher = pkgs.writeShellScript pname ''
     set -euo pipefail
@@ -87,7 +90,7 @@ let
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
     has_database_config=0
-    for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DATABASE_NAME PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
+    for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DATABASE_NAME PGDATA PGHOST PGDATABASE; do
       value="$(printenv "$key" || true)"
       if [ -n "$value" ]; then
         has_database_config=1
@@ -98,6 +101,9 @@ let
       export PGDATA="$state_root/.postgres"
       export PGHOST="$state_root/.pgsocket"
       export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
+      export DB_PORT="$PGPORT"
+      export DB_USER="$PGUSER"
+      export DB_PASSWORD="$PGPASSWORD"
       export DB_HOST="$PGHOST"
       start_db "$PGDATA/postgres.log"
       trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
@@ -158,8 +164,8 @@ let
     }
     init_db() {
       prepare_pg_dirs
-      export PGUSER="''${PGUSER:-$DB_USER}"
-      export PGPORT="''${PGPORT:-$DB_PORT}"
+      export PGUSER="''${PGUSER:-''${DB_USER:-postgres}}"
+      export PGPORT="''${PGPORT:-''${DB_PORT:-5432}}"
       export PGDATABASE="''${PGDATABASE:-$DATABASE_NAME}"
       if [ ! -f "$PGDATA/PG_VERSION" ]; then
         run_pg initdb --username="$PGUSER" --auth=trust -D "$PGDATA" >/dev/null

@@ -8,9 +8,9 @@ let
   databaseUrl =
     if pgcfg.enable then
       if lib.hasPrefix "/" pgcfg.host then
-        "postgresql+psycopg://${pgcfg.user}:${pgcfg.password}@/${pgcfg.database}?host=${pgcfg.host}&port=${toString pgcfg.port}"
+        "postgresql+psycopg://${pgcfg.user}@/${pgcfg.database}?host=${pgcfg.host}&port=${toString pgcfg.port}"
       else
-        "postgresql+psycopg://${pgcfg.user}:${pgcfg.password}@${pgcfg.host}:${toString pgcfg.port}/${pgcfg.database}"
+        "postgresql+psycopg://${pgcfg.user}@${pgcfg.host}:${toString pgcfg.port}/${pgcfg.database}"
     else
       "sqlite:////var/lib/${cfg.name}/${cfg.name}.sqlite3";
   pgcfg = cfg.postgresql;
@@ -19,8 +19,8 @@ in
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.secretKey != null || cfg.environmentFile != null;
-        message = "services.fastapi-postgres-app requires either secretKey or environmentFile.";
+        assertion = cfg.environmentFile != null;
+        message = "services.fastapi-postgres-app requires environmentFile.";
       }
     ];
     environment.systemPackages = lib.mkIf cfg.addToSystemPackages [
@@ -65,9 +65,6 @@ in
         HOST = cfg.host;
         PORT = toString cfg.port;
         SUPPORT_EMAIL = cfg.supportEmail;
-      }
-      // lib.optionalAttrs (cfg.secretKey != null) {
-        SECRET_KEY = cfg.secretKey;
       }
       // cfg.extraEnvironment;
       serviceConfig = {
@@ -184,11 +181,6 @@ in
         description = "Database host exposed through DATABASE_URL.";
         type = lib.types.str;
       };
-      password = lib.mkOption {
-        default = "postgres";
-        description = "Database password exposed through DATABASE_URL.";
-        type = lib.types.str;
-      };
       port = lib.mkOption {
         default = 5432;
         description = "Database port exposed through DATABASE_URL.";
@@ -200,11 +192,6 @@ in
         description = "Database user exposed through DATABASE_URL.";
         type = lib.types.str;
       };
-    };
-    secretKey = lib.mkOption {
-      default = null;
-      description = "Optional SECRET_KEY to inject directly into the service environment.";
-      type = lib.types.nullOr lib.types.str;
     };
     supportEmail = lib.mkOption {
       default = "support@example.com";

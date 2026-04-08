@@ -11,8 +11,8 @@ in
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.appKey != null || cfg.environmentFile != null;
-        message = "services.adonisjs-app requires either appKey or environmentFile.";
+        assertion = cfg.environmentFile != null;
+        message = "services.adonisjs-app requires environmentFile.";
       }
     ];
     environment.systemPackages = lib.mkIf cfg.addToSystemPackages [
@@ -54,15 +54,12 @@ in
         APP_URL = cfg.appUrl;
         DB_DATABASE = pgcfg.database;
         DB_HOST = pgcfg.host;
-        DB_PASSWORD = pgcfg.password;
+        DB_PASSWORD = "peer-auth";
         DB_PORT = toString pgcfg.port;
         DB_SSL = lib.boolToString pgcfg.ssl;
         DB_USER = pgcfg.user;
         HOST = cfg.host;
         PORT = toString cfg.port;
-      }
-      // lib.optionalAttrs (cfg.appKey != null) {
-        APP_KEY = cfg.appKey;
       }
       // cfg.extraEnvironment;
       serviceConfig = {
@@ -97,11 +94,6 @@ in
       default = true;
       description = "Install the packaged application into environment.systemPackages.";
       type = lib.types.bool;
-    };
-    appKey = lib.mkOption {
-      default = null;
-      description = "Optional APP_KEY to inject directly into the service environment.";
-      type = lib.types.nullOr lib.types.str;
     };
     appUrl = lib.mkOption {
       description = "Public application URL exposed as APP_URL.";
@@ -183,11 +175,6 @@ in
       host = lib.mkOption {
         default = "/run/postgresql";
         description = "Database host exposed as DB_HOST.";
-        type = lib.types.str;
-      };
-      password = lib.mkOption {
-        default = "postgres";
-        description = "Database password exposed as DB_PASSWORD.";
         type = lib.types.str;
       };
       port = lib.mkOption {

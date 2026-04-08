@@ -11,8 +11,8 @@ in
   config = lib.mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.secretKey != null || cfg.environmentFile != null;
-        message = "services.django-app requires either secretKey or environmentFile.";
+        assertion = cfg.environmentFile != null;
+        message = "services.django-app requires environmentFile.";
       }
     ];
     environment.systemPackages = lib.mkIf cfg.addToSystemPackages [
@@ -57,7 +57,6 @@ in
         DATABASE_ENGINE = if pgcfg.enable then "postgresql" else "sqlite3";
         DATABASE_NAME = if pgcfg.enable then pgcfg.database else "/var/lib/${cfg.name}/${cfg.name}.sqlite3";
         DB_HOST = pgcfg.host;
-        DB_PASSWORD = pgcfg.password;
         DB_PORT = toString pgcfg.port;
         DB_USER = pgcfg.user;
         DEFAULT_FROM_EMAIL = cfg.defaultFromEmail;
@@ -66,9 +65,6 @@ in
         PORT = toString cfg.port;
         STATIC_ROOT = "/var/lib/${cfg.name}/staticfiles";
         SUPPORT_EMAIL = cfg.supportEmail;
-      }
-      // lib.optionalAttrs (cfg.secretKey != null) {
-        SECRET_KEY = cfg.secretKey;
       }
       // cfg.extraEnvironment;
       serviceConfig = {
@@ -211,11 +207,6 @@ in
         description = "Database host exposed as DB_HOST.";
         type = lib.types.str;
       };
-      password = lib.mkOption {
-        default = "postgres";
-        description = "Database password exposed as DB_PASSWORD.";
-        type = lib.types.str;
-      };
       port = lib.mkOption {
         default = 5432;
         description = "Database port exposed as DB_PORT.";
@@ -232,11 +223,6 @@ in
       default = true;
       description = "Whether to run database migrations before starting the service.";
       type = lib.types.bool;
-    };
-    secretKey = lib.mkOption {
-      default = null;
-      description = "Optional SECRET_KEY to inject directly into the service environment.";
-      type = lib.types.nullOr lib.types.str;
     };
     supportEmail = lib.mkOption {
       default = "support@example.com";

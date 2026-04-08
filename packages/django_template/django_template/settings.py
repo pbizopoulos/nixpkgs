@@ -21,7 +21,7 @@ def database_settings() -> dict[str, str]:
             "ENGINE": "django.db.backends.postgresql",
             "HOST": os.getenv("DB_HOST", "/run/postgresql"),
             "NAME": os.getenv("DATABASE_NAME", "django_template"),
-            "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+            "PASSWORD": os.getenv("DB_PASSWORD", ""),
             "PORT": os.getenv("DB_PORT", "5432"),
             "USER": os.getenv("DB_USER", "django_template"),
         }
