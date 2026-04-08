@@ -303,6 +303,11 @@ def send_welcome_email(email: str, username: str) -> None:
     """Emit a simple welcome email for local development."""
 
 
+def append_error(errors: dict[str, list[str]], field: str, message: str) -> None:
+    """Append a validation error for a field."""
+    errors.setdefault(field, []).append(message)
+
+
 def validate_registration(
     session: Session,
     username: str,
@@ -315,26 +320,28 @@ def validate_registration(
     normalized_email = email.strip().lower()
     normalized_username = username.strip()
     if not normalized_username or " " in normalized_username:
-        errors.setdefault("username", []).append(
-            "Enter a valid username without spaces.",
-        )
+        append_error(errors, "username", "Enter a valid username without spaces.")
     if "@" not in normalized_email:
-        errors.setdefault("email", []).append("Enter a valid email address.")
+        append_error(errors, "email", "Enter a valid email address.")
     if len(password) < MIN_PASSWORD_LENGTH:
-        errors.setdefault("password", []).append(
+        append_error(
+            errors,
+            "password",
             "This password is too short. It must contain at least 8 characters.",
         )
     if password != password_confirmation:
-        errors.setdefault("password_confirmation", []).append(
+        append_error(
+            errors,
+            "password_confirmation",
             "The two password fields did not match.",
         )
     if (
         session.scalar(select(User).where(User.username == normalized_username))
         is not None
     ):
-        errors.setdefault("username", []).append("This value is already taken.")
+        append_error(errors, "username", "This value is already taken.")
     if session.scalar(select(User).where(User.email == normalized_email)) is not None:
-        errors.setdefault("email", []).append("This value is already taken.")
+        append_error(errors, "email", "This value is already taken.")
     return errors
 
 
