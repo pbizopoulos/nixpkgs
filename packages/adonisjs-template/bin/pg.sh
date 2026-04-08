@@ -85,7 +85,9 @@ stop) stop_db ;;
 status) run_pg pg_ctl -D "$pgdata" status ;;
 createdb) create_db ;;
 reset)
-  stop_db || true
+  if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then
+    stop_db
+  fi
   rm -rf "$pgdata" "$pgsocket"
   create_db
   ;;

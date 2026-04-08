@@ -11,7 +11,12 @@ export default class SessionController {
     try {
       payload = await request.validateUsing(loginValidator);
     } catch (error) {
-      if (error && typeof error === "object" && "code" in error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "E_VALIDATION_ERROR"
+      ) {
         session.flashValidationErrors(error as never, true);
         session.flashExcept(["password"]);
         return response.redirect().back();

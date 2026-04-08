@@ -58,7 +58,7 @@ let
       export DB_PASSWORD="$PGPASSWORD"
       export DB_HOST="$PGHOST"
       start_temp_postgres
-      trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true; rm -rf "$PGHOST"' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi; rm -rf "$PGHOST"' EXIT
       export EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
       export ALLOWED_HOSTS="testserver,localhost,127.0.0.1,[::1]"
       export COVERAGE_FILE="$coverage_root/.coverage"
@@ -115,7 +115,7 @@ let
       export DB_PASSWORD="$PGPASSWORD"
       export DB_HOST="$PGHOST"
       start_db "$PGDATA/postgres.log"
-      trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
       create_db >/dev/null 2>&1
     fi
     export STATIC_ROOT="''${STATIC_ROOT:-$state_root/staticfiles}"

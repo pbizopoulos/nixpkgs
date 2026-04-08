@@ -17,7 +17,12 @@ export default class UsersController {
     try {
       payload = await request.validateUsing(registerUserValidator);
     } catch (error) {
-      if (error && typeof error === "object" && "code" in error) {
+      if (
+        error &&
+        typeof error === "object" &&
+        "code" in error &&
+        error.code === "E_VALIDATION_ERROR"
+      ) {
         session.flashValidationErrors(error as never, true);
         session.flashExcept(["password", "passwordConfirmation"]);
         return response.redirect().back();

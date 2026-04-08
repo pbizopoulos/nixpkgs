@@ -51,7 +51,7 @@ let
       export PGHOST="$(mktemp -d "/tmp/${pname}-pgsocket.XXXXXX")"
       export PGDATABASE="''${PGDATABASE:-${pname}}"
       start_temp_postgres
-      trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true; rm -rf "$PGHOST"' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi; rm -rf "$PGHOST"' EXIT
       export DATABASE_URL="postgresql+psycopg://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
       export SECRET_KEY="fastapi-template-secret-key"
       python3 -m coverage erase
@@ -104,7 +104,7 @@ let
       export PGHOST="$state_root/.pgsocket"
       export PGDATABASE="''${PGDATABASE:-${pname}}"
       start_db "$PGDATA/postgres.log"
-      trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
+      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
       create_db >/dev/null 2>&1
       export DATABASE_URL="postgresql+psycopg://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
     fi

@@ -62,7 +62,9 @@ let
     child_pid=""
     cleanup() {
       if [ -n "''${tmp_pg_root:-}" ] && [ -e "''${tmp_pg_root:-}" ]; then
-        ${pkgs.bash}/bin/bash "$pg_helper" stop >/dev/null 2>&1 || true
+        if ${pkgs.bash}/bin/bash "$pg_helper" status >/dev/null 2>&1; then
+          ${pkgs.bash}/bin/bash "$pg_helper" stop >/dev/null 2>&1
+        fi
         rm -rf "$tmp_pg_root"
       fi
     }
@@ -70,8 +72,10 @@ let
       local signal="$1"
       trap - INT TERM
       if [ -n "''${child_pid:-}" ]; then
-        kill -s "$signal" "$child_pid" 2>/dev/null || true
-        wait "$child_pid" 2>/dev/null || true
+        if kill -0 "$child_pid" 2>/dev/null; then
+          kill -s "$signal" "$child_pid"
+          wait "$child_pid"
+        fi
       fi
       cleanup
       exit 0
