@@ -85,10 +85,19 @@ let
     export PORT="''${PORT:-8000}"
     export APP_NAME="''${APP_NAME:-Django Starter}"
     export SUPPORT_EMAIL="''${SUPPORT_EMAIL:-support@example.com}"
-    export SECRET_KEY="''${SECRET_KEY:-django-insecure-template-secret-key}"
-    export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-$HOST,127.0.0.1,localhost,[::1]}"
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
+    if [ -z "''${SECRET_KEY:-}" ]; then
+      secret_key_file="$state_root/secret_key"
+      if [ -f "$secret_key_file" ]; then
+        export SECRET_KEY="$(cat "$secret_key_file")"
+      else
+        umask 077
+        export SECRET_KEY="$(head -c 32 /dev/urandom | base64 | tr -d '\n')"
+        printf '%s\n' "$SECRET_KEY" > "$secret_key_file"
+      fi
+    fi
+    export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-$HOST,127.0.0.1,localhost,[::1]}"
     has_database_config=0
     for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DATABASE_NAME PGDATA PGHOST PGDATABASE; do
       value="$(printenv "$key" || true)"

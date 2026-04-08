@@ -10,7 +10,6 @@ let
     export HOST="''${HOST:-localhost}"
     export LOG_LEVEL="''${LOG_LEVEL:-info}"
     export APP_NAME="''${APP_NAME:-AdonisJS Starter}"
-    export APP_KEY="''${APP_KEY:-01234567890123456789012345678901}"
     export APP_URL="''${APP_URL:-http://$HOST:$PORT}"
     export SESSION_DRIVER="''${SESSION_DRIVER:-cookie}"
     export LIMITER_STORE="''${LIMITER_STORE:-memory}"
@@ -28,6 +27,23 @@ let
     migrate_helper="$package_root/bin/${pname}-migrate"
     pg_helper="$package_root/lib/node_modules/${pname}/bin/pg.sh"
     ${defaultEnvironment}
+    state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
+    mkdir -p "$state_root"
+    if [ -z "''${APP_KEY:-}" ] && [ "''${DEBUG:-0}" != "1" ]; then
+      app_key_file="$state_root/app_key"
+      if [ -f "$app_key_file" ]; then
+        export APP_KEY="$(cat "$app_key_file")"
+      else
+        umask 077
+        export APP_KEY="$(head -c 32 /dev/urandom | base64 | tr -d '\n')"
+        printf '%s\n' "$APP_KEY" > "$app_key_file"
+      fi
+    fi
+    if [ "''${DEBUG:-0}" = "1" ]; then
+      export APP_KEY="''${APP_KEY:-01234567890123456789012345678901}"
+    else
+      export APP_KEY="''${APP_KEY:?APP_KEY must be set}"
+    fi
     has_database_config=0
     for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DB_SSL PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
       value="$(printenv "$key" || true)"
@@ -91,6 +107,7 @@ let
     set -euo pipefail
     ${packageRootRuntimeEnvironment}
     ${defaultEnvironment}
+    export APP_KEY="''${APP_KEY:?APP_KEY must be set}"
     exec ${pkgs.lib.getExe pkgs.nodejs} \
       "$package_root/lib/node_modules/${pname}/build/ace.js" \
       migration:run \

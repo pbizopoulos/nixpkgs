@@ -186,7 +186,7 @@ class Settings:
         self.secret_key = secret_key or str(
             os.getenv(
                 "SECRET_KEY",
-                "fastapi-template-secret-key",
+                "",
             ),
         )
         self.support_email = support_email or str(
@@ -195,16 +195,25 @@ class Settings:
                 "support@example.com",
             ),
         )
+        if not self.secret_key:
+            msg = "SECRET_KEY must be set."
+            raise RuntimeError(msg)
 
 
 def client_identifier(request: Request) -> str:
     """Resolve the best available client identifier for throttling."""
+    if request.client is None:
+        return "unknown"
+    remote_addr = str(request.client.host)
+    if remote_addr not in {"127.0.0.1", "::1"}:
+        return remote_addr
     forwarded_for = str(request.headers.get("x-forwarded-for", ""))
     if forwarded_for:
         return forwarded_for.split(",", maxsplit=1)[0].strip()
-    if request.client is None:
-        return "unknown"
-    return str(request.client.host)
+    real_ip = str(request.headers.get("x-real-ip", "")).strip()
+    if real_ip:
+        return real_ip
+    return remote_addr
 
 
 def flash_message(request: Request, level: str, text: str) -> None:

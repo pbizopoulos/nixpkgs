@@ -20,10 +20,16 @@ MEMORY_FAIL_THRESHOLD_MB = 600
 
 def client_identifier(request: HttpRequest) -> str:
     """Resolve the best available client identifier for throttling."""
+    remote_addr = str(request.META.get("REMOTE_ADDR", "unknown"))
+    if remote_addr not in {"127.0.0.1", "::1"}:
+        return remote_addr
     forwarded_for = str(request.META.get("HTTP_X_FORWARDED_FOR", ""))
     if forwarded_for:
         return forwarded_for.split(",", maxsplit=1)[0].strip()
-    return str(request.META.get("REMOTE_ADDR", "unknown"))
+    real_ip = str(request.META.get("HTTP_X_REAL_IP", "")).strip()
+    if real_ip:
+        return real_ip
+    return remote_addr
 
 
 @require_GET  # type: ignore[untyped-decorator]

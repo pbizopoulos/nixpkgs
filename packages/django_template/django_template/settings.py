@@ -3,6 +3,8 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -31,8 +33,11 @@ def database_settings() -> dict[str, str]:
     }
 
 
-SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-template-secret-key")
 DEBUG = os.getenv("DJANGO_DEBUG", os.getenv("DEBUG", "0")) == "1"
+SECRET_KEY = os.getenv("SECRET_KEY", "")
+if not SECRET_KEY:
+    msg = "SECRET_KEY must be set."
+    raise ImproperlyConfigured(msg)
 ALLOWED_HOSTS = split_csv_env("ALLOWED_HOSTS", "127.0.0.1,localhost,[::1],testserver")
 CSRF_TRUSTED_ORIGINS = split_csv_env("CSRF_TRUSTED_ORIGINS", "")
 APP_NAME = os.getenv("APP_NAME", "Django Starter")
