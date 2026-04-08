@@ -1,5 +1,5 @@
 {
-  "testCommand": "nix build .#checks.x86_64-linux.latex_template",
+  "testCommand": "nix fmt && nix build .#checks.x86_64-linux.latex_template",
   "selfEditingRules": [
     "Keep this file intent-focused and describe user-visible behavior and constraints rather than implementation details.",
     "Update features and scenarios whenever the implemented behavior changes and the new behavior is intended.",
