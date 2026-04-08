@@ -26,7 +26,7 @@ cleanup() {
     rm -rf "$tmp_pg_root"
   fi
 }
-run_checks() {
+if
   npm run db:start
   npm run db:createdb
   npm run db:migrate
@@ -40,8 +40,10 @@ run_checks() {
     --project=chromium \
     --project=audit
   npm run test:lint
-}
-status=0
-run_checks || status=$?
+then
+  cleanup
+  exit 0
+fi
+status=$?
 cleanup
 exit "$status"

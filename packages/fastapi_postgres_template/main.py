@@ -65,6 +65,21 @@ class ThrottleStore:
         self._attempts: dict[str, list[float]] = defaultdict(list)
         self._blocked_until: dict[str, float] = {}
 
+    def _recent_attempts(
+        self,
+        key: str,
+        window_seconds: int,
+        now: float,
+    ) -> list[float]:
+        """Return and persist the unexpired attempts for a throttle key."""
+        recent_attempts = [
+            attempt
+            for attempt in self._attempts.get(key, [])
+            if attempt > now - window_seconds
+        ]
+        self._attempts[key] = recent_attempts
+        return recent_attempts
+
     def retry_after(self, key: str, limit: RateLimit) -> int | None:
         """Return seconds until retry when the caller is throttled."""
         now = time()
@@ -72,13 +87,8 @@ class ThrottleStore:
         if blocked_until is not None and blocked_until > now:
             return max(1, int(blocked_until - now))
         if blocked_until is not None:
-            self._blocked_until.pop(key, None)
-        recent_attempts = [
-            attempt
-            for attempt in self._attempts.get(key, [])
-            if attempt > now - limit.window_seconds
-        ]
-        self._attempts[key] = recent_attempts
+            del self._blocked_until[key]
+        recent_attempts = self._recent_attempts(key, limit.window_seconds, now)
         if len(recent_attempts) >= limit.attempts:
             self._blocked_until[key] = now + limit.block_seconds
             return limit.block_seconds
@@ -87,13 +97,8 @@ class ThrottleStore:
     def record_attempt(self, key: str, limit: RateLimit) -> None:
         """Record a new attempt for the given throttle key."""
         now = time()
-        recent_attempts = [
-            attempt
-            for attempt in self._attempts.get(key, [])
-            if attempt > now - limit.window_seconds
-        ]
+        recent_attempts = self._recent_attempts(key, limit.window_seconds, now)
         recent_attempts.append(now)
-        self._attempts[key] = recent_attempts
 
 
 class User(Base):  # type: ignore[misc,valid-type]

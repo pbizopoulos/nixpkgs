@@ -39,14 +39,16 @@ pkgs.writeShellApplication {
     chmod -R u+w "$workdir"
     work_package_dir="$workdir/${packageRelativePath}"
     rm -rf "$work_package_dir/.terraform" "$work_package_dir/.terraform.lock.hcl"
-    run_deploy() {
+    if
       tofu -chdir="$work_package_dir" init -reconfigure \
-        -backend-config="path=$state_path"
+      -backend-config="path=$state_path"
       tofu -chdir="$work_package_dir" apply \
-        -var="output_dir=$state_dir"
-    }
-    status=0
-    run_deploy || status=$?
+      -var="output_dir=$state_dir"
+    then
+      rm -rf "$workdir"
+      exit 0
+    fi
+    status=$?
     rm -rf "$workdir"
     exit "$status"
   '';

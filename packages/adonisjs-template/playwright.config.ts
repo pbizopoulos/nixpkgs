@@ -74,11 +74,9 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: (() => {
-      return isProdE2E
-        ? `cd build && ${webServerEnvCommand} node bin/server.js`
-        : `${webServerEnvCommand} npm run dev`;
-    })(),
+    command: isProdE2E
+      ? `cd build && ${webServerEnvCommand} node bin/server.js`
+      : `${webServerEnvCommand} npm run dev`,
     url: baseURL,
     reuseExistingServer: true,
     timeout: 120 * 1000,
