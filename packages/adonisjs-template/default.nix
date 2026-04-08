@@ -46,7 +46,7 @@ let
     fi
     has_database_config=0
     for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DB_SSL PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
-      value="$(printenv "$key" || true)"
+      value="''${!key-}"
       if [ -n "$value" ]; then
         has_database_config=1
         break

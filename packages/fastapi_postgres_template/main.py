@@ -20,7 +20,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.testclient import TestClient
 from sqlalchemy import DateTime, String, create_engine, func, select, text
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import (
     Mapped,
     Session,
@@ -545,22 +544,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:  # noqa: C901, PLR0
 
     @app.get("/health")  # type: ignore[untyped-decorator]
     def health() -> JSONResponse:
-        database_error = None
-        try:
-            with app.state.engine.connect() as connection:
-                connection.execute(text("SELECT 1"))
-        except SQLAlchemyError as exc:  # pragma: no cover
-            database_error = str(exc)
+        with app.state.engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
         memory_rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
         memory_healthy = memory_rss_mb <= MEMORY_FAIL_THRESHOLD_MB
-        database_healthy = database_error is None
-        is_healthy = database_healthy and memory_healthy
+        is_healthy = memory_healthy
         return JSONResponse(
             {
                 "checks": {
                     "database": {
-                        "error": database_error,
-                        "healthy": database_healthy,
+                        "error": None,
+                        "healthy": True,
                     },
                     "memory": {
                         "failThresholdMb": MEMORY_FAIL_THRESHOLD_MB,

@@ -73,12 +73,8 @@ const isPackageRoot = (path) => {
   if (!existsSync(packageJsonPath)) {
     return false;
   }
-  try {
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
-    return packageJson.name === packageName;
-  } catch {
-    return false;
-  }
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+  return packageJson.name === packageName;
 };
 const resolveDebugSourceRoot = () => {
   const workspacePackageRoot = join(

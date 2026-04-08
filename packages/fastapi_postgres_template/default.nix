@@ -10,7 +10,7 @@ let
     start_temp_postgres() {
       start_db "$PGDATA/postgres.log"
       trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
-      create_db >/dev/null 2>&1 || true
+      create_db >/dev/null 2>&1
     }
     resolve_source_root() {
       local candidate
@@ -93,7 +93,7 @@ let
     export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-$HOST,127.0.0.1,localhost,[::1]}"
     has_database_config=0
     for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE PGDATA PGHOST PGPORT PGUSER PGPASSWORD PGDATABASE; do
-      value="$(printenv "$key" || true)"
+      value="''${!key-}"
       if [ -n "$value" ]; then
         has_database_config=1
         break
@@ -105,7 +105,7 @@ let
       export PGDATABASE="''${PGDATABASE:-${pname}}"
       start_db "$PGDATA/postgres.log"
       trap 'run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1 || true' EXIT
-      create_db >/dev/null 2>&1 || true
+      create_db >/dev/null 2>&1
       export DATABASE_URL="postgresql+psycopg://$PGUSER:$PGPASSWORD@/$PGDATABASE?host=$PGHOST&port=$PGPORT"
     fi
     exec python3 "$package_root/main.py"

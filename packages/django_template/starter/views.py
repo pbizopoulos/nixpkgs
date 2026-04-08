@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
-from django.db import DatabaseError, connection
+from django.db import connection
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
@@ -145,24 +145,19 @@ def dashboard(request: HttpRequest) -> HttpResponse:
 @require_GET  # type: ignore[untyped-decorator]
 def health(_request: HttpRequest) -> JsonResponse:
     """Report database and memory health for the application."""
-    database_error = None
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-            cursor.fetchone()
-    except DatabaseError as exc:  # pragma: no cover
-        database_error = str(exc)
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT 1")
+        cursor.fetchone()
     memory_rss_mb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024
     memory_healthy = memory_rss_mb <= MEMORY_FAIL_THRESHOLD_MB
-    database_healthy = database_error is None
-    is_healthy = database_healthy and memory_healthy
+    is_healthy = memory_healthy
     return JsonResponse(
         {
             "isHealthy": is_healthy,
             "checks": {
                 "database": {
-                    "healthy": database_healthy,
-                    "error": database_error,
+                    "healthy": True,
+                    "error": None,
                 },
                 "memory": {
                     "healthy": memory_healthy,
