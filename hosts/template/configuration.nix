@@ -7,12 +7,10 @@
   ...
 }:
 let
-  acmeEmail = "admin@example.com";
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  publicDomain = "${hostName}.example.com";
   templateCfg = config.services.template-app;
 in
 {
@@ -121,14 +119,7 @@ in
     };
   };
   programs.bash.promptInit = "";
-  security = {
-    acme = {
-      acceptTerms = true;
-      certs.${publicDomain}.webroot = "/var/lib/acme/acme-challenge";
-      defaults.email = acmeEmail;
-    };
-    sudo.wheelNeedsPassword = false;
-  };
+  security.sudo.wheelNeedsPassword = false;
   services = {
     openssh = {
       enable = true;
@@ -146,7 +137,6 @@ in
     };
     template-app = {
       allowedHosts = [
-        publicDomain
         hostName
         "127.0.0.1"
         "localhost"
@@ -154,19 +144,18 @@ in
       ];
       backend = lib.mkDefault "adonisjs";
       csrfTrustedOrigins = [
-        "https://${publicDomain}"
+        "http://${hostName}"
       ];
       enable = true;
       environmentFile = config.age.secrets.secrets-env.path;
       extraEnvironment = { };
       host = "127.0.0.1";
       nginx = {
-        enableACME = true;
-        forceSSL = true;
-        serverName = publicDomain;
+        defaultVirtualHost = true;
+        serverName = hostName;
       };
       package = inputs.self.packages.${pkgs.stdenv.system}.${templateCfg.packageAttrName};
-      publicUrl = "https://${publicDomain}";
+      publicUrl = "http://${hostName}";
     };
   };
   system.stateVersion = "25.11";

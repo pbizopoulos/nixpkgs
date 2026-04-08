@@ -3,6 +3,19 @@
 git clone git@github.com:pbizopoulos/canonicalization ~/github.com/pbizopoulos/canonicalization/
 cd ~/github.com/pbizopoulos/canonicalization/
 # server_type ~/github.com/pbizopoulos/canonicalization/packages/deploy_host_template/main.tf at least cpx22
+
+# Domain name is optional.
+# Without a domain, the template deploys over plain HTTP and is reachable by IP/hostname.
+# If you want HTTPS, you must set your own real domain in hosts/template/configuration.nix
+# before deployment:
+# - add your domain to services.template-app.allowedHosts
+# - set services.template-app.csrfTrustedOrigins = [ "https://<your-domain>" ]
+# - set services.template-app.nginx.serverName = "<your-domain>"
+# - set services.template-app.nginx.enableACME = true
+# - set services.template-app.nginx.forceSSL = true
+# - set services.template-app.publicUrl = "https://<your-domain>"
+# - add a matching security.acme configuration and email address
+
 cd secrets/
 nix run github:ryantm/agenix -- -e secrets.age
 # Upload your public ssh key named default in https://console.hetzner.com/projects/<project-id>/security/sshkeys
