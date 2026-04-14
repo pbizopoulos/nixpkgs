@@ -1037,7 +1037,10 @@ mod tests {
                 "export default class AuthMiddleware {}",
             ),
             ("app/models/user.ts", "export default class User {}"),
-            ("app/services/starter_content_service.ts", "export default class StarterContentService {}"),
+            (
+                "app/services/starter_content_service.ts",
+                "export default class StarterContentService {}",
+            ),
             (
                 "app/transformers/user_transformer.ts",
                 "export const userTransformer = {};",

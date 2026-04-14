@@ -10,6 +10,7 @@
     "#mails/*": "./app/mails/*.js",
     "#models/*": "./app/models/*.js",
     "#middleware/*": "./app/middleware/*.js",
+    "#services/*": "./app/services/*.js",
     "#transformers/*": "./app/transformers/*.js",
     "#validators/*": "./app/validators/*.js",
     "#start/*": "./start/*.js",
