@@ -67,6 +67,7 @@ fn validate_adonis_package_layout(
         r"^app/mails/(\.gitkeep|.*\.ts)$",
         r"^app/middleware/.*\.ts$",
         r"^app/models/.*\.ts$",
+        r"^app/services/.*\.ts$",
         r"^app/transformers/.*\.ts$",
         r"^app/validators/.*\.ts$",
         r"^bin/.*\.(js|sh|ts)$",
@@ -990,6 +991,7 @@ mod tests {
             "app/mails",
             "app/middleware",
             "app/models",
+            "app/services",
             "app/transformers",
             "app/validators",
             "bin",
@@ -1035,6 +1037,7 @@ mod tests {
                 "export default class AuthMiddleware {}",
             ),
             ("app/models/user.ts", "export default class User {}"),
+            ("app/services/starter_content_service.ts", "export default class StarterContentService {}"),
             (
                 "app/transformers/user_transformer.ts",
                 "export const userTransformer = {};",

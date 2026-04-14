@@ -35,12 +35,10 @@
       @end
       <main>
         <section class="hero">
-          <p class="hero__eyebrow">Hypermedia starter</p>
-          <h1>Build the app, not the scaffold.</h1>
+          <p class="hero__eyebrow">{{ starterContent.eyebrow }}</p>
+          <h1>{{ starterContent.title }}</h1>
           <p class="hero__body">
-            This template now uses the conventional AdonisJS v7 web stack:
-            Edge views, sessions, Shield, auth, limiter, mail, Vite, and a Lucid
-            user model with real credentials.
+            {{ starterContent.body }}
           </p>
           <div class="hero__actions">
             @if(isAuthenticated)
@@ -51,12 +49,9 @@
             @endif
           </div>
           <div class="stack-list" aria-label="Starter stack">
-            <span class="stack-pill">Sessions</span>
-            <span class="stack-pill">Auth</span>
-            <span class="stack-pill">Shield</span>
-            <span class="stack-pill">Limiter</span>
-            <span class="stack-pill">Mail</span>
-            <span class="stack-pill">Vite + Alpine</span>
+            @each(item in starterContent.stack)
+              <span class="stack-pill">{{ item }}</span>
+            @end
           </div>
         </section>
         <section class="feature-grid" aria-label="Starter highlights">
