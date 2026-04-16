@@ -72,7 +72,9 @@ in
   environment.systemPackages = [ ];
   fileSystems."/persistent".neededForBoot = true;
   imports = [
-    ../../modules/nixos/template-app.nix
+    (import ../../modules/nixos/template-app.nix {
+      flake = inputs.self;
+    })
     inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default

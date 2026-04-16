@@ -1,4 +1,8 @@
 {
+  flake,
+  ...
+}:
+{
   config,
   lib,
   ...
@@ -128,9 +132,15 @@ in
     ]
   );
   imports = [
-    ./adonisjs.nix
-    ./django.nix
-    ./fastapi-postgres.nix
+    (import ./adonisjs.nix {
+      inherit flake;
+    })
+    (import ./django.nix {
+      inherit flake;
+    })
+    (import ./fastapi-postgres.nix {
+      inherit flake;
+    })
   ];
   options.services.template-app = {
     addToSystemPackages = lib.mkOption {

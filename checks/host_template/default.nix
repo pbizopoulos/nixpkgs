@@ -19,7 +19,9 @@ let
         pkgs.curl
       ];
       imports = [
-        ../../modules/nixos/template-app.nix
+        (import ../../modules/nixos/template-app.nix {
+          flake = inputs.self;
+        })
       ];
       services.template-app = {
         inherit backend;
