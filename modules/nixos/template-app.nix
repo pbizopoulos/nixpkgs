@@ -19,16 +19,10 @@ let
       packageAttrName = "django_template";
       port = 8000;
     };
-    fastapi-postgres = {
-      appName = "FastAPI Postgres Starter";
-      packageAttrName = "fastapi_postgres_template";
-      port = 8000;
-    };
   };
   backendType = lib.types.enum [
     "adonisjs"
     "django"
-    "fastapi-postgres"
   ];
   cfg = config.services.template-app;
 in
@@ -101,34 +95,6 @@ in
           inherit (cfg) manageExecutable;
         };
       })
-      (lib.mkIf (cfg.backend == "fastapi-postgres") {
-        services.fastapi-postgres-app = {
-          inherit (cfg) addToSystemPackages;
-          inherit (cfg) allowedHosts;
-          inherit (cfg) appName;
-          inherit (cfg) environmentFile;
-          inherit (cfg) extraEnvironment;
-          inherit (cfg) host;
-          inherit (cfg) name;
-          inherit (cfg) nginx;
-          inherit (cfg) package;
-          inherit (cfg) port;
-          inherit (cfg) supportEmail;
-          enable = true;
-          postgresql = {
-            inherit (cfg.postgresql)
-              database
-              enable
-              host
-              port
-              user
-              ;
-          };
-        }
-        // lib.optionalAttrs (cfg.executable != null) {
-          inherit (cfg) executable;
-        };
-      })
     ]
   );
   imports = [
@@ -136,9 +102,6 @@ in
       inherit flake;
     })
     (import ./django.nix {
-      inherit flake;
-    })
-    (import ./fastapi-postgres.nix {
       inherit flake;
     })
   ];
@@ -163,7 +126,6 @@ in
         {
           adonisjs = "AdonisJS Starter";
           django = "Django Starter";
-          fastapi-postgres = "FastAPI Postgres Starter";
         }.${config.services.template-app.backend}
       '';
       description = "Application name for backends that expose APP_NAME.";
@@ -268,7 +230,6 @@ in
         {
           adonisjs = "adonisjs-template";
           django = "django_template";
-          fastapi-postgres = "fastapi_postgres_template";
         }.${config.services.template-app.backend}
       '';
       description = "The flake package attribute corresponding to the selected backend.";
@@ -280,7 +241,6 @@ in
         {
           adonisjs = 3333;
           django = 8000;
-          fastapi-postgres = 8000;
         }.${config.services.template-app.backend}
       '';
       description = "Listen port for the selected backend.";

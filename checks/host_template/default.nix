@@ -47,9 +47,6 @@ let
     django = pkgs.writeText "django-template-secrets.env" ''
       SECRET_KEY=django-insecure-template-secret-key
     '';
-    fastapi = pkgs.writeText "fastapi-template-secrets.env" ''
-      SECRET_KEY=fastapi-template-secret-key
-    '';
   };
 in
 pkgs.testers.runNixOSTest {
@@ -64,11 +61,6 @@ pkgs.testers.runNixOSTest {
       backend = "django";
       environmentFile = secretEnvironmentFiles.django;
       name = "django";
-    };
-    fastapi = mkNode {
-      backend = "fastapi-postgres";
-      environmentFile = secretEnvironmentFiles.fastapi;
-      name = "fastapi";
     };
   };
   testScript = ''
@@ -199,7 +191,5 @@ pkgs.testers.runNixOSTest {
     auth_flow(adonis, app_path="/app", csrf_field="_csrf", delete_path="/account/delete", unique="adonis")
     smoke(django, "django_template", 8000)
     auth_flow(django, app_path="/app", csrf_field="csrfmiddlewaretoken", delete_path="/account/delete", unique="django")
-    smoke(fastapi, "fastapi_postgres_template", 8000)
-    auth_flow(fastapi, app_path="/app", csrf_field="csrf_token", delete_path="/account/delete", unique="fastapi")
   '';
 }

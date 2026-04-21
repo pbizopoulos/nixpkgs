@@ -161,7 +161,7 @@ pkgs.buildNpmPackage {
   shellHook = ''
     # shellcheck disable=SC1091
     source ${pkgs.lib.getExe installationScript}
-    export $(grep -v '^#' "$secrets_PATH" | xargs)
+    export $secrets
     export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
     export PLAYWRIGHT_BROWSERS_PATH=${pkgs.playwright-driver.browsers}
     export PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=${pkgs.lib.getExe pkgs.chromium}

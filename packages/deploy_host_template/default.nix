@@ -25,10 +25,8 @@ pkgs.writeShellApplication {
   text = ''
     # shellcheck disable=SC1091
     source ${pkgs.lib.getExe installationScript}
-    set -a
-    # shellcheck disable=SC1090,SC2154
-    source "$secrets_PATH"
-    set +a
+    # shellcheck disable=SC1090,SC2086,SC2154
+    source $secrets
     repo_root="$(git rev-parse --show-toplevel)"
     package_dir="$repo_root/${packageRelativePath}"
     state_dir="$package_dir/tmp"
