@@ -46,7 +46,6 @@ let
     }
     init_db() {
       prepare_pg_dirs
-      export DB_HOST="$PGHOST"
       if [ ! -f "$PGDATA/PG_VERSION" ]; then
         run_pg initdb --username="$DB_USER" --auth=trust -D "$PGDATA" >/dev/null
       fi
