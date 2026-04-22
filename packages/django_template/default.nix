@@ -65,7 +65,6 @@ let
         "select 1 from pg_database where datname = '$PGDATABASE'" | grep -q 1 && return
       run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
     }
-    export HOST="''${HOST:-127.0.0.1}"
     export PORT="''${PORT:-8000}"
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
@@ -79,7 +78,7 @@ let
         printf '%s\n' "$SECRET_KEY" > "$secret_key_file"
       fi
     fi
-    export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-$HOST,127.0.0.1,localhost,[::1]}"
+    export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-127.0.0.1,localhost,[::1]}"
     export PGDATA="$state_root/.postgres"
     export PGHOST="$state_root/.pgsocket"
     export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
@@ -97,7 +96,7 @@ let
     python3 "$package_root/manage.py" migrate --noinput
     python3 "$package_root/manage.py" collectstatic --noinput >/dev/null
     exec gunicorn \
-      --bind "$HOST:$PORT" \
+      --bind "127.0.0.1:$PORT" \
       --chdir "$package_root" \
       django_template.wsgi:application
   '';
