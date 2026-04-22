@@ -47,74 +47,6 @@ fn host_root(rel_path: &Path) -> Option<PathBuf> {
         _ => None,
     }
 }
-fn validate_adonis_package_layout(
-    working_dir: &Path,
-    package_root: &Path,
-    dir_and_file_names: &HashSet<PathBuf>,
-) -> Vec<String> {
-    let allowed_patterns = [
-        r"^\.adonisjs/client/.*$",
-        r"^\.adonisjs/server/.*\.(d\.)?ts$",
-        r"^\.dependency-cruiser\.cjs$",
-        r"^\.env$",
-        r"^\.env\.example$",
-        r"^\.gitignore$",
-        r"^\.jscpd\.json$",
-        r"^ace\.js$",
-        r"^adonisrc\.ts$",
-        r"^app/controllers/.*\.ts$",
-        r"^app/exceptions/.*\.ts$",
-        r"^app/mails/(\.gitkeep|.*\.ts)$",
-        r"^app/middleware/.*\.ts$",
-        r"^app/models/.*\.ts$",
-        r"^app/services/.*\.ts$",
-        r"^app/transformers/.*\.ts$",
-        r"^app/validators/.*\.ts$",
-        r"^bin/.*\.(js|sh|ts)$",
-        r"^config/.*\.ts$",
-        r"^database/.*\.ts$",
-        r"^default\.nix$",
-        r"^eslint\.config\.js$",
-        r"^package-lock\.json$",
-        r"^package\.json$",
-        r"^playwright\.config\.ts$",
-        r"^providers/.*\.ts$",
-        r"^public/.*$",
-        r"^resources/css/.*\.css$",
-        r"^resources/js/.*\.js$",
-        r"^resources/views(/.*)?$",
-        r"^spec\.json$",
-        r"^start/.*\.ts$",
-        r"^stryker\.config\.mjs$",
-        r"^tests/bootstrap\.ts$",
-        r"^tests/browser/.*\.ts$",
-        r"^tests/functional/.*\.ts$",
-        r"^tests/unit/.*\.ts$",
-        r"^tmp/\.gitignore$",
-        r"^tsconfig\.json$",
-        r"^vite\.config\.ts$",
-    ]
-    .iter()
-    .map(|pattern| Regex::new(pattern).unwrap())
-    .collect::<Vec<_>>();
-    let mut warnings = Vec::new();
-    for path in dir_and_file_names {
-        let Ok(package_relative_path) = path.strip_prefix(package_root) else {
-            continue;
-        };
-        let package_relative_path = package_relative_path.to_str().unwrap();
-        if !allowed_patterns
-            .iter()
-            .any(|pattern| pattern.is_match(package_relative_path))
-        {
-            warnings.push(format!(
-                "{}: is not allowed for an AdonisJS template package",
-                working_dir.join(path).display()
-            ));
-        }
-    }
-    warnings
-}
 fn validate_django_package_layout(
     working_dir: &Path,
     package_root: &Path,
@@ -284,7 +216,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
                 || s == "prm"
                 || s == "target"
                 || s == "CSharpier"
-                || s == ".adonisjs"
                 || s == "build"
                 || s == "_build"
                 || s == "deps"
@@ -339,7 +270,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         r"packages/[^/]+/manage\.py",
         r"packages/[^/]+/main\.(c|py|sh|tf)",
         r"packages/[^/]+/ms\.tex",
-        r"packages/[^/]+/package\.json",
         r"packages/[^/]+/spec\.json",
         r"packages/[^/]+/style\.css",
         r"packages/[^/]+/script\.js",
@@ -372,35 +302,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
             ],
         ),
         (r"packages/[^/]+/ms\.tex", vec![r"packages/[^/]+/ms\.bib"]),
-        (
-            r"packages/[^/]+/package\.json",
-            vec![
-                r"packages/[^/]+/\.adonisjs/.*",
-                r"packages/[^/]+/\.dependency-cruiser\.cjs",
-                r"packages/[^/]+/\.env",
-                r"packages/[^/]+/\.env\.example",
-                r"packages/[^/]+/\.jscpd\.json",
-                r"packages/[^/]+/ace\.js",
-                r"packages/[^/]+/adonisrc\.ts",
-                r"packages/[^/]+/app/.*",
-                r"packages/[^/]+/bin/.*",
-                r"packages/[^/]+/config/.*",
-                r"packages/[^/]+/database/.*",
-                r"packages/[^/]+/eslint\.config\.js",
-                r"packages/[^/]+/package-lock\.json",
-                r"packages/[^/]+/playwright\.config\.ts",
-                r"packages/[^/]+/providers/.*",
-                r"packages/[^/]+/public/.*",
-                r"packages/[^/]+/resources/.*",
-                r"packages/[^/]+/commands/.*",
-                r"packages/[^/]+/start/.*",
-                r"packages/[^/]+/stryker\.config\.mjs",
-                r"packages/[^/]+/tests/.*",
-                r"packages/[^/]+/tsconfig\.json",
-                r"packages/[^/]+/vite\.config\.ts",
-                r"packages/[^/]+/vitest\.config\.ts",
-            ],
-        ),
         (
             r"packages/[^/]+/manage\.py",
             vec![
@@ -476,13 +377,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         }
     }
     for package_root in &package_roots {
-        if all_rel_paths.contains(&package_root.join("adonisrc.ts")) {
-            final_warnings.extend(validate_adonis_package_layout(
-                working_dir,
-                package_root,
-                &dir_and_file_names,
-            ));
-        }
         if all_rel_paths.contains(&package_root.join("manage.py")) {
             final_warnings.extend(validate_django_package_layout(
                 working_dir,
@@ -590,11 +484,6 @@ fn test_check_repository_directory_structure_standalone() {
     )
     .unwrap();
     fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
-        "test",
-    )
-    .unwrap();
-    fs::write(
         temp_dir.join("templates/my-template/packages/my-pkg/.env.example"),
         "test",
     )
@@ -628,11 +517,6 @@ fn test_check_repository_directory_structure_standalone() {
     let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(result.is_err());
     fs::remove_file(temp_dir.join("templates/my-template/packages/my-pkg/unallowed.txt")).unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
-        "test",
-    )
-    .unwrap();
     fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/tests")).unwrap();
     fs::write(
         temp_dir.join("templates/my-template/packages/my-pkg/tests/test.ts"),
@@ -647,7 +531,7 @@ fn test_check_repository_directory_structure_standalone() {
     let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
     assert!(
         result.is_ok(),
-        "Expected Ok for package.json tests, but got Err: {:?}",
+        "Expected Ok for templates/tests, but got Err: {:?}",
         result.err()
     );
     fs::create_dir_all(temp_dir.join("packages/no-default")).unwrap();
@@ -780,16 +664,14 @@ mod tests {
     #[test]
     fn test_package_root() {
         assert_eq!(
-            package_root(Path::new("packages/adonisjs_template/package.json")),
-            Some(PathBuf::from("packages/adonisjs_template"))
+            package_root(Path::new("packages/django_template/manage.py")),
+            Some(PathBuf::from("packages/django_template"))
         );
         assert_eq!(
             package_root(Path::new(
-                "templates/example/packages/adonisjs_template/package.json"
+                "templates/example/packages/django_template/manage.py"
             )),
-            Some(PathBuf::from(
-                "templates/example/packages/adonisjs_template"
-            ))
+            Some(PathBuf::from("templates/example/packages/django_template"))
         );
         assert_eq!(
             package_root(Path::new("hosts/template/configuration.nix")),
@@ -803,33 +685,9 @@ mod tests {
             Some(PathBuf::from("hosts/template"))
         );
         assert_eq!(
-            host_root(Path::new("packages/adonisjs_template/default.nix")),
+            host_root(Path::new("packages/django_template/default.nix")),
             None
         );
-    }
-    #[test]
-    fn test_validate_adonis_package_layout_rejects_legacy_scripts() {
-        let working_dir = Path::new("/tmp/repo");
-        let package_root = Path::new("packages/adonisjs_template");
-        let dir_and_file_names = HashSet::from([
-            PathBuf::from("packages/adonisjs_template/bin/entrypoint.js"),
-            PathBuf::from("packages/adonisjs_template/scripts/test-ci.sh"),
-            PathBuf::from("packages/adonisjs_template/resources/views/errors"),
-            PathBuf::from("packages/adonisjs_template/database/schema.ts"),
-        ]);
-        let warnings =
-            validate_adonis_package_layout(working_dir, package_root, &dir_and_file_names);
-        assert_eq!(warnings.len(), 1);
-        assert!(warnings[0].contains("packages/adonisjs_template/scripts/test-ci.sh"));
-    }
-    #[test]
-    fn test_validate_adonis_package_layout_ignores_other_packages() {
-        let working_dir = Path::new("/tmp/repo");
-        let package_root = Path::new("packages/adonisjs_template");
-        let dir_and_file_names = HashSet::from([PathBuf::from("packages/python_template/main.py")]);
-        let warnings =
-            validate_adonis_package_layout(working_dir, package_root, &dir_and_file_names);
-        assert!(warnings.is_empty());
     }
     #[test]
     fn test_validate_django_package_layout_accepts_conventional_layout() {
@@ -902,24 +760,14 @@ mod tests {
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
         fs::remove_file(temp_dir.join("unallowed.txt")).unwrap();
-        fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/config")).unwrap();
+        fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg")).unwrap();
         fs::write(
             temp_dir.join("templates/my-template/packages/my-pkg/default.nix"),
             "test",
         )
         .unwrap();
         fs::write(
-            temp_dir.join("templates/my-template/packages/my-pkg/package.json"),
-            "test",
-        )
-        .unwrap();
-        fs::write(
             temp_dir.join("templates/my-template/packages/my-pkg/.gitignore"),
-            "test",
-        )
-        .unwrap();
-        fs::write(
-            temp_dir.join("templates/my-template/packages/my-pkg/config/app.ts"),
             "test",
         )
         .unwrap();
@@ -975,150 +823,6 @@ mod tests {
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
-        fs::remove_dir_all(&temp_dir).unwrap();
-    }
-    #[test]
-    fn test_adonis_package_layout_matches_repository_conventions() {
-        std::env::remove_var("NIX_BUILD_TOP");
-        let temp_dir = std::env::temp_dir().join("test-repo-structure-adonis");
-        init_temp_repo(&temp_dir);
-        let package_root = temp_dir.join("packages/adonisjs_template");
-        for relative_dir in [
-            ".adonisjs/client",
-            ".adonisjs/server",
-            "app/controllers",
-            "app/exceptions",
-            "app/mails",
-            "app/middleware",
-            "app/models",
-            "app/services",
-            "app/transformers",
-            "app/validators",
-            "bin",
-            "config",
-            "database/factories",
-            "database/migrations",
-            "database/seeders",
-            "providers",
-            "public",
-            "resources/css",
-            "resources/js",
-            "resources/views/auth",
-            "resources/views/emails",
-            "resources/views/errors",
-            "start",
-            "tests/functional/browser",
-            "tests/unit",
-            "tmp",
-        ] {
-            fs::create_dir_all(package_root.join(relative_dir)).unwrap();
-        }
-        for (relative_path, contents) in [
-            (".dependency-cruiser.cjs", "module.exports = {};"),
-            (".env", "PORT=3333\n"),
-            (".env.example", "PORT=3333\n"),
-            (".gitignore", "tmp/\n"),
-            (".jscpd.json", "{}"),
-            ("ace.js", "console.log('ace');"),
-            ("adonisrc.ts", "export default {};"),
-            (".adonisjs/client/types.ts", "export type App = {};"),
-            (".adonisjs/server/routes.d.ts", "export {};"),
-            (
-                "app/controllers/home_controller.ts",
-                "export default class HomeController {}",
-            ),
-            (
-                "app/exceptions/handler.ts",
-                "export default class Handler {}",
-            ),
-            ("app/mails/.gitkeep", ""),
-            (
-                "app/middleware/auth_middleware.ts",
-                "export default class AuthMiddleware {}",
-            ),
-            ("app/models/user.ts", "export default class User {}"),
-            (
-                "app/services/starter_content_service.ts",
-                "export default class StarterContentService {}",
-            ),
-            (
-                "app/transformers/user_transformer.ts",
-                "export const userTransformer = {};",
-            ),
-            ("app/validators/auth.ts", "export const authValidator = {};"),
-            ("bin/console.ts", "export {};"),
-            ("bin/entrypoint.js", "console.log('entrypoint');"),
-            ("bin/pg.sh", "#!/usr/bin/env sh\n"),
-            ("bin/server.ts", "export {};"),
-            ("bin/test-ci.sh", "#!/usr/bin/env sh\n"),
-            ("bin/test.ts", "export {};"),
-            ("config/app.ts", "export default {};"),
-            ("database/factories/user_factory.ts", "export default {};"),
-            (
-                "database/migrations/000_create_users_table.ts",
-                "export default {};",
-            ),
-            ("database/schema.ts", "export class UserSchema {}"),
-            (
-                "database/schema_rules.ts",
-                "export const usernameSchemaRules = {};",
-            ),
-            ("database/seeders/user_seeder.ts", "export default {};"),
-            ("default.nix", "{}"),
-            ("eslint.config.js", "export default [];"),
-            ("package-lock.json", "{}"),
-            ("package.json", "{\"name\":\"adonisjs-template\"}"),
-            ("playwright.config.ts", "export default {};"),
-            (
-                "providers/app_provider.ts",
-                "export default class AppProvider {}",
-            ),
-            ("public/robots.txt", "User-agent: *\n"),
-            ("resources/css/app.css", "body {}\n"),
-            ("resources/js/app.js", "console.log('app');"),
-            ("resources/views/auth/login.edge", ""),
-            ("resources/views/emails/welcome.edge", ""),
-            ("resources/views/errors/404.edge", ""),
-            ("resources/views/home.edge", ""),
-            ("spec.json", "{}"),
-            ("start/env.ts", "export {};"),
-            ("start/kernel.ts", "export {};"),
-            ("start/routes.ts", "export {};"),
-            ("stryker.config.mjs", "export default {};"),
-            ("tests/bootstrap.ts", "export {};"),
-            ("tests/functional/browser/app.spec.ts", "export {};"),
-            ("tests/unit/username.test.ts", "export {};"),
-            ("tmp/.gitignore", "*\n"),
-            ("tsconfig.json", "{}"),
-            ("vite.config.ts", "export default {};"),
-        ] {
-            fs::write(package_root.join(relative_path), contents).unwrap();
-        }
-        Command::new("git")
-            .args(["add", "packages"])
-            .current_dir(&temp_dir)
-            .output()
-            .unwrap();
-        let flake_nix_path = temp_dir.join("flake.nix");
-        let result =
-            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-        assert!(
-            result.is_ok(),
-            "Expected Ok for the current AdonisJS package layout, but got Err: {:?}",
-            result.err()
-        );
-        fs::create_dir_all(package_root.join("scripts")).unwrap();
-        fs::write(
-            package_root.join("scripts/test-ci.sh"),
-            "#!/usr/bin/env sh\n",
-        )
-        .unwrap();
-        let result =
-            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-        assert!(
-            result.is_err(),
-            "Expected Err for legacy scripts/ layout, but got Ok",
-        );
         fs::remove_dir_all(&temp_dir).unwrap();
     }
     #[test]

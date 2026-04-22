@@ -11,13 +11,13 @@ let
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  templateCfg = config.services.template-app;
+  djangoCfg = config.services.django-app;
 in
 {
   age.secrets.secrets-env = {
     file = ../../secrets/secrets.age;
-    group = templateCfg.name;
-    owner = templateCfg.name;
+    group = djangoCfg.name;
+    owner = djangoCfg.name;
   };
   boot = {
     initrd.systemd.enable = true;
@@ -72,9 +72,7 @@ in
   environment.systemPackages = [ ];
   fileSystems."/persistent".neededForBoot = true;
   imports = [
-    (import ../../modules/nixos/template-app.nix {
-      flake = inputs.self;
-    })
+    (import ../../modules/nixos/django.nix { })
     inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
@@ -102,7 +100,7 @@ in
       directories = [
         "/var/lib/acme"
         "/var/lib/postgresql"
-        "/var/lib/${templateCfg.name}"
+        "/var/lib/${djangoCfg.name}"
         {
           directory = "/etc/ssh";
           inInitrd = true;
@@ -137,14 +135,13 @@ in
       '';
       enable = true;
     };
-    template-app = {
+    django-app = {
       allowedHosts = [
         hostName
         "127.0.0.1"
         "localhost"
         "[::1]"
       ];
-      backend = lib.mkDefault "adonisjs";
       csrfTrustedOrigins = [
         "http://${hostName}"
       ];
@@ -152,12 +149,12 @@ in
       environmentFile = config.age.secrets.secrets-env.path;
       extraEnvironment = { };
       host = "127.0.0.1";
+      name = "django_template";
       nginx = {
         defaultVirtualHost = true;
         serverName = hostName;
       };
-      package = inputs.self.packages.${pkgs.stdenv.system}.${templateCfg.packageAttrName};
-      publicUrl = "http://${hostName}";
+      package = inputs.self.packages.${pkgs.stdenv.system}.django_template;
     };
   };
   system.stateVersion = "25.11";
