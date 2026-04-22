@@ -2,16 +2,13 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  defaultPostgresEnvironment = ''
+  launcher = pkgs.writeShellScript pname ''
+    set -euo pipefail
+    ${packageRootRuntimeEnvironment}
     export DATABASE_ENGINE="''${DATABASE_ENGINE:-postgresql}"
     export PGPORT="''${PGPORT:-5432}"
     export PGUSER="''${PGUSER:-postgres}"
     export PGPASSWORD="''${PGPASSWORD:-postgres}"
-  '';
-  launcher = pkgs.writeShellScript pname ''
-    set -euo pipefail
-    ${packageRootRuntimeEnvironment}
-    ${defaultPostgresEnvironment}
     ${postgresBootstrapFunctions}
     export HOST="''${HOST:-127.0.0.1}"
     export PORT="''${PORT:-8000}"
@@ -65,7 +62,16 @@ let
     exec python3 "$package_root/manage.py" "$@"
   '';
   packageRootRuntimeEnvironment = ''
-    export PATH="${runtimePath}:$PATH"
+    export PATH="${
+      pkgs.lib.makeBinPath [
+        pkgs.coreutils
+        pkgs.findutils
+        pkgs.gnugrep
+        pkgs.gnused
+        pkgs.postgresql
+        pythonWithDeps
+      ]
+    }:$PATH"
     package_root="@packageRoot@"
     export DJANGO_SETTINGS_MODULE="django_template.settings"
     export PYTHONPATH="$package_root''${PYTHONPATH:+:$PYTHONPATH}"
@@ -133,14 +139,6 @@ let
     whitenoise
   ];
   pythonWithDeps = pkgs.python313.withPackages (_: pythonDeps);
-  runtimePath = pkgs.lib.makeBinPath [
-    pkgs.coreutils
-    pkgs.findutils
-    pkgs.gnugrep
-    pkgs.gnused
-    pkgs.postgresql
-    pythonWithDeps
-  ];
 in
 pkgs.python313Packages.buildPythonPackage rec {
   inherit pname;
