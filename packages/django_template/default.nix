@@ -2,10 +2,12 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  debugWrapper = pkgs.writeShellScript "${pname}-wrapper" ''
-    set -euo pipefail
-    exec "@launcher@" "$@"
-  '';
+  pythonPackageNames = [
+    "django"
+    "gunicorn"
+    "psycopg"
+    "whitenoise"
+  ];
   defaultPostgresEnvironment = ''
     export DATABASE_ENGINE="''${DATABASE_ENGINE:-postgresql}"
     export PGPORT="''${PGPORT:-5432}"
@@ -130,13 +132,10 @@ let
       run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
     }
   '';
-  pythonDeps = with pkgs.python313Packages; [
-    django
-    gunicorn
-    psycopg
-    whitenoise
-  ];
-  pythonWithDeps = pkgs.python313.withPackages (_: pythonDeps);
+  pythonDeps = map (pythonPackageName: pkgs.python313Packages.${pythonPackageName}) pythonPackageNames;
+  pythonWithDeps = pkgs.python313.withPackages (
+    ps: map (pythonPackageName: ps.${pythonPackageName}) pythonPackageNames
+  );
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.coreutils
     pkgs.findutils
@@ -151,20 +150,14 @@ pkgs.python313Packages.buildPythonPackage rec {
   installPhase = ''
     mkdir -p "$out/lib/${pname}"
     cp -r ./. "$out/lib/${pname}"
-    install -Dm755 ${launcher} "$out/bin/.${pname}-launcher"
+    install -Dm755 ${launcher} "$out/bin/${pname}"
     install -Dm755 ${manage} "$out/bin/${pname}-manage"
-    install -Dm755 ${debugWrapper} "$out/bin/${pname}"
-    substituteInPlace "$out/bin/.${pname}-launcher" \
-      --replace-fail "@packageRoot@" "$out/lib/${pname}"
     substituteInPlace "$out/bin/${pname}-manage" \
       --replace-fail "@packageRoot@" "$out/lib/${pname}"
     substituteInPlace "$out/bin/${pname}" \
-      --replace-fail "@launcher@" "$out/bin/.${pname}-launcher"
+      --replace-fail "@packageRoot@" "$out/lib/${pname}"
   '';
   meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.makeWrapper
-  ];
   propagatedBuildInputs = pythonDeps;
   pyproject = false;
   src = ./.;
