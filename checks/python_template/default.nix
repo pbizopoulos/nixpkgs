@@ -22,7 +22,6 @@ pkgs.runCommand "${name}"
   ''
     export HOME="$PWD"
     DEBUG=1 coverage run --source="$src" "$src/main.py"
-    coverage_percent=$(coverage report | awk '/^TOTAL/{print $4}')
-    echo "coverage: $coverage_percent"
+    coverage report
     touch "$out"
   ''
