@@ -1,17 +1,16 @@
 {
   config,
   inputs,
-  lib,
   modulesPath,
   pkgs,
   ...
 }:
 let
+  djangoCfg = config.services.django-app;
   hostName = baseNameOf ./.;
   opensshAuthorizedKeyFiles = [
     ./../../prm/developer.pub
   ];
-  djangoCfg = config.services.django-app;
 in
 {
   age.secrets.secrets-env = {
@@ -121,20 +120,6 @@ in
   programs.bash.promptInit = "";
   security.sudo.wheelNeedsPassword = false;
   services = {
-    openssh = {
-      enable = true;
-      settings = {
-        PasswordAuthentication = false;
-        PermitRootLogin = "no";
-      };
-    };
-    postgresql = {
-      authentication = pkgs.lib.mkOverride 10 ''
-        # type database user address method
-        local all all peer
-      '';
-      enable = true;
-    };
     django-app = {
       allowedHosts = [
         hostName
@@ -155,6 +140,20 @@ in
         serverName = hostName;
       };
       package = inputs.self.packages.${pkgs.stdenv.system}.django_template;
+    };
+    openssh = {
+      enable = true;
+      settings = {
+        PasswordAuthentication = false;
+        PermitRootLogin = "no";
+      };
+    };
+    postgresql = {
+      authentication = pkgs.lib.mkOverride 10 ''
+        # type database user address method
+        local all all peer
+      '';
+      enable = true;
     };
   };
   system.stateVersion = "25.11";
