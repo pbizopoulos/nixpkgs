@@ -5,6 +5,11 @@ let
   launcher = pkgs.writeShellScript pname ''
     set -euo pipefail
     ${packageRootRuntimeEnvironment}
+    script_name="''${0##*/}"
+    mode="serve"
+    if [ "$script_name" = "${pname}-manage" ]; then
+      mode="manage"
+    fi
     export DATABASE_ENGINE="''${DATABASE_ENGINE:-postgresql}"
     export PGPORT="''${PGPORT:-5432}"
     export PGUSER="''${PGUSER:-postgres}"
@@ -89,6 +94,9 @@ let
     start_db "$PGDATA/postgres.log"
     trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
     create_db >/dev/null 2>&1
+    if [ "$mode" = "manage" ]; then
+      exec python3 "$package_root/manage.py" "$@"
+    fi
     export STATIC_ROOT="''${STATIC_ROOT:-$state_root/staticfiles}"
     export EMAIL_BACKEND="''${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}"
     python3 "$package_root/manage.py" migrate --noinput
@@ -97,11 +105,6 @@ let
       --bind "$HOST:$PORT" \
       --chdir "$package_root" \
       django_template.wsgi:application
-  '';
-  manage = pkgs.writeShellScript "${pname}-manage" ''
-    set -euo pipefail
-    ${packageRootRuntimeEnvironment}
-    exec python3 "$package_root/manage.py" "$@"
   '';
   packageRootRuntimeEnvironment = ''
     export PATH="${
@@ -133,11 +136,9 @@ pkgs.python313Packages.buildPythonPackage rec {
     mkdir -p "$out/lib/${pname}"
     cp -r ./. "$out/lib/${pname}"
     install -Dm755 ${launcher} "$out/bin/${pname}"
-    install -Dm755 ${manage} "$out/bin/${pname}-manage"
-    substituteInPlace "$out/bin/${pname}-manage" \
-      --replace-fail "@packageRoot@" "$out/lib/${pname}"
     substituteInPlace "$out/bin/${pname}" \
       --replace-fail "@packageRoot@" "$out/lib/${pname}"
+    ln -s "${pname}" "$out/bin/${pname}-manage"
   '';
   meta.mainProgram = pname;
   propagatedBuildInputs = pythonDeps;
