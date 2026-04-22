@@ -9,7 +9,59 @@ let
     export PGPORT="''${PGPORT:-5432}"
     export PGUSER="''${PGUSER:-postgres}"
     export PGPASSWORD="''${PGPASSWORD:-postgres}"
-    ${postgresBootstrapFunctions}
+    pgsystem_user=""
+    if [ "$(id -u)" -eq 0 ]; then
+      for candidate in postgres nobody; do
+        if id "$candidate" >/dev/null 2>&1; then
+          pgsystem_user="$candidate"
+          break
+        fi
+      done
+      if [ -z "$pgsystem_user" ]; then
+        echo "No unprivileged system user available" >&2
+        exit 1
+      fi
+    fi
+    run_pg() {
+      if [ -z "$pgsystem_user" ]; then
+        "$@"
+        return
+      fi
+      env PATH="$PATH" su -s /bin/sh -c '
+        export PATH="$1"
+        shift
+        exec "$@"
+      ' "$pgsystem_user" -- sh "$PATH" "$@"
+    }
+    prepare_pg_dirs() {
+      mkdir -p "$PGDATA" "$PGHOST"
+      if [ -n "$pgsystem_user" ]; then
+        chown -R "$pgsystem_user" "$PGDATA" "$PGHOST"
+      fi
+      chmod 700 "$PGDATA" "$PGHOST"
+    }
+    init_db() {
+      prepare_pg_dirs
+      export PGUSER="''${PGUSER:-''${DB_USER:-postgres}}"
+      export PGPORT="''${PGPORT:-''${DB_PORT:-5432}}"
+      export PGDATABASE="''${PGDATABASE:-$DATABASE_NAME}"
+      if [ ! -f "$PGDATA/PG_VERSION" ]; then
+        run_pg initdb --username="$PGUSER" --auth=trust -D "$PGDATA" >/dev/null
+      fi
+    }
+    start_db() {
+      init_db
+      if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
+        return
+      fi
+      run_pg pg_ctl -D "$PGDATA" -l "$1" -o "-k '$PGHOST' -p '$PGPORT'" start >/dev/null
+      run_pg pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null
+    }
+    create_db() {
+      run_pg psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc \
+        "select 1 from pg_database where datname = '$PGDATABASE'" | grep -q 1 && return
+      run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
+    }
     export HOST="''${HOST:-127.0.0.1}"
     export PORT="''${PORT:-8000}"
     export APP_NAME="''${APP_NAME:-Django Starter}"
@@ -77,61 +129,6 @@ let
     export PYTHONPATH="$package_root''${PYTHONPATH:+:$PYTHONPATH}"
   '';
   pname = "django_template";
-  postgresBootstrapFunctions = ''
-    pgsystem_user=""
-    if [ "$(id -u)" -eq 0 ]; then
-      for candidate in postgres nobody; do
-        if id "$candidate" >/dev/null 2>&1; then
-          pgsystem_user="$candidate"
-          break
-        fi
-      done
-      if [ -z "$pgsystem_user" ]; then
-        echo "No unprivileged system user available" >&2
-        exit 1
-      fi
-    fi
-    run_pg() {
-      if [ -z "$pgsystem_user" ]; then
-        "$@"
-        return
-      fi
-      env PATH="$PATH" su -s /bin/sh -c '
-        export PATH="$1"
-        shift
-        exec "$@"
-      ' "$pgsystem_user" -- sh "$PATH" "$@"
-    }
-    prepare_pg_dirs() {
-      mkdir -p "$PGDATA" "$PGHOST"
-      if [ -n "$pgsystem_user" ]; then
-        chown -R "$pgsystem_user" "$PGDATA" "$PGHOST"
-      fi
-      chmod 700 "$PGDATA" "$PGHOST"
-    }
-    init_db() {
-      prepare_pg_dirs
-      export PGUSER="''${PGUSER:-''${DB_USER:-postgres}}"
-      export PGPORT="''${PGPORT:-''${DB_PORT:-5432}}"
-      export PGDATABASE="''${PGDATABASE:-$DATABASE_NAME}"
-      if [ ! -f "$PGDATA/PG_VERSION" ]; then
-        run_pg initdb --username="$PGUSER" --auth=trust -D "$PGDATA" >/dev/null
-      fi
-    }
-    start_db() {
-      init_db
-      if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
-        return
-      fi
-      run_pg pg_ctl -D "$PGDATA" -l "$1" -o "-k '$PGHOST' -p '$PGPORT'" start >/dev/null
-      run_pg pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null
-    }
-    create_db() {
-      run_pg psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc \
-        "select 1 from pg_database where datname = '$PGDATABASE'" | grep -q 1 && return
-      run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
-    }
-  '';
   pythonDeps = with pkgs.python313Packages; [
     django
     gunicorn
