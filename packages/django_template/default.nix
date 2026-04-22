@@ -4,7 +4,19 @@
 let
   launcher = pkgs.writeShellScript pname ''
     set -euo pipefail
-    ${packageRootRuntimeEnvironment}
+    export PATH="${
+      pkgs.lib.makeBinPath [
+        pkgs.coreutils
+        pkgs.findutils
+        pkgs.gnugrep
+        pkgs.gnused
+        pkgs.postgresql
+        pythonWithDeps
+      ]
+    }:$PATH"
+    package_root="@packageRoot@"
+    export DJANGO_SETTINGS_MODULE="django_template.settings"
+    export PYTHONPATH="$package_root''${PYTHONPATH:+:$PYTHONPATH}"
     script_name="''${0##*/}"
     mode="serve"
     if [ "$script_name" = "${pname}-manage" ]; then
@@ -85,6 +97,10 @@ let
     start_db "$pgdata/postgres.log"
     trap 'if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then run_pg pg_ctl -D "$pgdata" stop >/dev/null 2>&1; fi' EXIT
     create_db >/dev/null 2>&1
+    if [ "''${DEBUG:-0}" = "1" ]; then
+      cd "$package_root"
+      exec python3 "$package_root/manage.py" test
+    fi
     if [ "$mode" = "manage" ]; then
       exec python3 "$package_root/manage.py" "$@"
     fi
@@ -95,22 +111,7 @@ let
       --chdir "$package_root" \
       django_template.wsgi:application
   '';
-  packageRootRuntimeEnvironment = ''
-    export PATH="${
-      pkgs.lib.makeBinPath [
-        pkgs.coreutils
-        pkgs.findutils
-        pkgs.gnugrep
-        pkgs.gnused
-        pkgs.postgresql
-        pythonWithDeps
-      ]
-    }:$PATH"
-    package_root="@packageRoot@"
-    export DJANGO_SETTINGS_MODULE="django_template.settings"
-    export PYTHONPATH="$package_root''${PYTHONPATH:+:$PYTHONPATH}"
-  '';
-  pname = "django_template";
+  pname = builtins.baseNameOf ./.;
   pythonDeps = with pkgs.python313Packages; [
     django
     gunicorn
