@@ -20,7 +20,6 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    export HOME="$PWD"
     export SECRET_KEY="django-insecure-template-secret-key"
     export DATABASE_ENGINE="sqlite"
     export EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
