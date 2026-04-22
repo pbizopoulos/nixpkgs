@@ -10,9 +10,9 @@ let
     if [ "$script_name" = "${pname}-manage" ]; then
       mode="manage"
     fi
-    export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
-    export DB_PORT="''${DB_PORT:-5432}"
-    export DB_USER="''${DB_USER:-postgres}"
+    database_name="${pname}"
+    db_port=5432
+    db_user=postgres
     pgsystem_user=""
     if [ "$(id -u)" -eq 0 ]; then
       for candidate in postgres nobody; do
@@ -38,30 +38,30 @@ let
       ' "$pgsystem_user" -- sh "$PATH" "$@"
     }
     prepare_pg_dirs() {
-      mkdir -p "$PGDATA" "$PGHOST"
+      mkdir -p "$pgdata" "$pghost"
       if [ -n "$pgsystem_user" ]; then
-        chown -R "$pgsystem_user" "$PGDATA" "$PGHOST"
+        chown -R "$pgsystem_user" "$pgdata" "$pghost"
       fi
-      chmod 700 "$PGDATA" "$PGHOST"
+      chmod 700 "$pgdata" "$pghost"
     }
     init_db() {
       prepare_pg_dirs
-      if [ ! -f "$PGDATA/PG_VERSION" ]; then
-        run_pg initdb --username="$DB_USER" --auth=trust -D "$PGDATA" >/dev/null
+      if [ ! -f "$pgdata/PG_VERSION" ]; then
+        run_pg initdb --username="$db_user" --auth=trust -D "$pgdata" >/dev/null
       fi
     }
     start_db() {
       init_db
-      if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
+      if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then
         return
       fi
-      run_pg pg_ctl -D "$PGDATA" -l "$1" -o "-k '$PGHOST' -p '$DB_PORT'" start >/dev/null
-      run_pg pg_isready -h "$PGHOST" -p "$DB_PORT" -U "$DB_USER" >/dev/null
+      run_pg pg_ctl -D "$pgdata" -l "$1" -o "-k '$pghost' -p '$db_port'" start >/dev/null
+      run_pg pg_isready -h "$pghost" -p "$db_port" -U "$db_user" >/dev/null
     }
     create_db() {
-      run_pg psql -h "$PGHOST" -p "$DB_PORT" -U "$DB_USER" -d postgres -tAc \
-        "select 1 from pg_database where datname = '$DATABASE_NAME'" | grep -q 1 && return
-      run_pg createdb -h "$PGHOST" -p "$DB_PORT" -U "$DB_USER" "$DATABASE_NAME"
+      run_pg psql -h "$pghost" -p "$db_port" -U "$db_user" -d postgres -tAc \
+        "select 1 from pg_database where datname = '$database_name'" | grep -q 1 && return
+      run_pg createdb -h "$pghost" -p "$db_port" -U "$db_user" "$database_name"
     }
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
@@ -75,18 +75,19 @@ let
         printf '%s\n' "$SECRET_KEY" > "$secret_key_file"
       fi
     fi
-    export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-127.0.0.1,localhost,[::1]}"
-    export PGDATA="$state_root/.postgres"
-    export PGHOST="$state_root/.pgsocket"
-    export DB_HOST="$PGHOST"
-    start_db "$PGDATA/postgres.log"
-    trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
+    pgdata="$state_root/.postgres"
+    pghost="$state_root/.pgsocket"
+    export DATABASE_NAME="$database_name"
+    export DB_HOST="$pghost"
+    export DB_PORT="$db_port"
+    export DB_USER="$db_user"
+    export STATIC_ROOT="''${STATIC_ROOT:-$state_root/staticfiles}"
+    start_db "$pgdata/postgres.log"
+    trap 'if run_pg pg_ctl -D "$pgdata" status >/dev/null 2>&1; then run_pg pg_ctl -D "$pgdata" stop >/dev/null 2>&1; fi' EXIT
     create_db >/dev/null 2>&1
     if [ "$mode" = "manage" ]; then
       exec python3 "$package_root/manage.py" "$@"
     fi
-    export STATIC_ROOT="''${STATIC_ROOT:-$state_root/staticfiles}"
-    export EMAIL_BACKEND="''${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}"
     python3 "$package_root/manage.py" migrate --noinput
     python3 "$package_root/manage.py" collectstatic --noinput >/dev/null
     exec gunicorn \
