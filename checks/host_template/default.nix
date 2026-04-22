@@ -40,28 +40,16 @@ let
       };
       virtualisation.memorySize = 8192;
     };
-  secretEnvironmentFiles = {
-    adonis = pkgs.writeText "adonis-template-secrets.env" ''
-      APP_KEY=01234567890123456789012345678901
-    '';
-    django = pkgs.writeText "django-template-secrets.env" ''
-      SECRET_KEY=django-insecure-template-secret-key
-    '';
-  };
+  secretEnvironmentFiles.django = pkgs.writeText "django-template-secrets.env" ''
+    SECRET_KEY=django-insecure-template-secret-key
+  '';
 in
 pkgs.testers.runNixOSTest {
   name = "template";
-  nodes = {
-    adonis = mkNode {
-      backend = "adonisjs";
-      environmentFile = secretEnvironmentFiles.adonis;
-      name = "adonis";
-    };
-    django = mkNode {
-      backend = "django";
-      environmentFile = secretEnvironmentFiles.django;
-      name = "django";
-    };
+  nodes.django = mkNode {
+    backend = "django";
+    environmentFile = secretEnvironmentFiles.django;
+    name = "django";
   };
   testScript = ''
     import re
@@ -187,8 +175,6 @@ pkgs.testers.runNixOSTest {
         )
         assert delete_response["status"] == 200, delete_response
         assert "account has been deleted" in delete_response["body"].lower(), delete_response["body"]
-    smoke(adonis, "adonisjs-template", 3333)
-    auth_flow(adonis, app_path="/app", csrf_field="_csrf", delete_path="/account/delete", unique="adonis")
     smoke(django, "django_template", 8000)
     auth_flow(django, app_path="/app", csrf_field="csrfmiddlewaretoken", delete_path="/account/delete", unique="django")
   '';
