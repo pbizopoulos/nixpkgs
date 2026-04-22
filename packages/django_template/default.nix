@@ -10,8 +10,9 @@ let
     if [ "$script_name" = "${pname}-manage" ]; then
       mode="manage"
     fi
-    export PGPORT="''${PGPORT:-5432}"
-    export PGUSER="''${PGUSER:-postgres}"
+    pg_port=5432
+    pg_user=postgres
+    db_name="${pname}"
     pgsystem_user=""
     if [ "$(id -u)" -eq 0 ]; then
       for candidate in postgres nobody; do
@@ -45,11 +46,13 @@ let
     }
     init_db() {
       prepare_pg_dirs
-      export PGUSER="''${PGUSER:-''${DB_USER:-postgres}}"
-      export PGPORT="''${PGPORT:-''${DB_PORT:-5432}}"
-      export PGDATABASE="''${PGDATABASE:-$DATABASE_NAME}"
+      export DATABASE_ENGINE="postgresql"
+      export DATABASE_NAME="$db_name"
+      export DB_HOST="$PGHOST"
+      export DB_PORT="$pg_port"
+      export DB_USER="$pg_user"
       if [ ! -f "$PGDATA/PG_VERSION" ]; then
-        run_pg initdb --username="$PGUSER" --auth=trust -D "$PGDATA" >/dev/null
+        run_pg initdb --username="$pg_user" --auth=trust -D "$PGDATA" >/dev/null
       fi
     }
     start_db() {
@@ -57,15 +60,14 @@ let
       if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then
         return
       fi
-      run_pg pg_ctl -D "$PGDATA" -l "$1" -o "-k '$PGHOST' -p '$PGPORT'" start >/dev/null
-      run_pg pg_isready -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" >/dev/null
+      run_pg pg_ctl -D "$PGDATA" -l "$1" -o "-k '$PGHOST' -p '$pg_port'" start >/dev/null
+      run_pg pg_isready -h "$PGHOST" -p "$pg_port" -U "$pg_user" >/dev/null
     }
     create_db() {
-      run_pg psql -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" -d postgres -tAc \
-        "select 1 from pg_database where datname = '$PGDATABASE'" | grep -q 1 && return
-      run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
+      run_pg psql -h "$PGHOST" -p "$pg_port" -U "$pg_user" -d postgres -tAc \
+        "select 1 from pg_database where datname = '$db_name'" | grep -q 1 && return
+      run_pg createdb -h "$PGHOST" -p "$pg_port" -U "$pg_user" "$db_name"
     }
-    export PORT="''${PORT:-8000}"
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
     if [ -z "''${SECRET_KEY:-}" ]; then
@@ -81,9 +83,6 @@ let
     export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-127.0.0.1,localhost,[::1]}"
     export PGDATA="$state_root/.postgres"
     export PGHOST="$state_root/.pgsocket"
-    export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
-    export DB_PORT="$PGPORT"
-    export DB_USER="$PGUSER"
     export DB_HOST="$PGHOST"
     start_db "$PGDATA/postgres.log"
     trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
@@ -96,7 +95,7 @@ let
     python3 "$package_root/manage.py" migrate --noinput
     python3 "$package_root/manage.py" collectstatic --noinput >/dev/null
     exec gunicorn \
-      --bind "127.0.0.1:$PORT" \
+      --bind "127.0.0.1:8000" \
       --chdir "$package_root" \
       django_template.wsgi:application
   '';
