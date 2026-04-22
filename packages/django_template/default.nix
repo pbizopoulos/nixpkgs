@@ -79,26 +79,16 @@ let
       fi
     fi
     export ALLOWED_HOSTS="''${ALLOWED_HOSTS:-$HOST,127.0.0.1,localhost,[::1]}"
-    has_database_config=0
-    for key in DATABASE_URL DB_HOST DB_PORT DB_USER DB_PASSWORD DB_DATABASE DATABASE_NAME PGDATA PGHOST PGDATABASE; do
-      value="''${!key-}"
-      if [ -n "$value" ]; then
-        has_database_config=1
-        break
-      fi
-    done
-    if [ "$has_database_config" -eq 0 ]; then
-      export PGDATA="$state_root/.postgres"
-      export PGHOST="$state_root/.pgsocket"
-      export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
-      export DB_PORT="$PGPORT"
-      export DB_USER="$PGUSER"
-      export DB_PASSWORD="$PGPASSWORD"
-      export DB_HOST="$PGHOST"
-      start_db "$PGDATA/postgres.log"
-      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
-      create_db >/dev/null 2>&1
-    fi
+    export PGDATA="$state_root/.postgres"
+    export PGHOST="$state_root/.pgsocket"
+    export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
+    export DB_PORT="$PGPORT"
+    export DB_USER="$PGUSER"
+    export DB_PASSWORD="$PGPASSWORD"
+    export DB_HOST="$PGHOST"
+    start_db "$PGDATA/postgres.log"
+    trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
+    create_db >/dev/null 2>&1
     export STATIC_ROOT="''${STATIC_ROOT:-$state_root/staticfiles}"
     export EMAIL_BACKEND="''${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}"
     python3 "$package_root/manage.py" migrate --noinput
