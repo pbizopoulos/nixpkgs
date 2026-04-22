@@ -32,11 +32,13 @@ pkgs.python313Packages.buildPythonPackage rec {
   postFixup = ''
     wrapProgram $out/bin/${pname} \
       --set PYTHON_LATEX_TEMPLATE_ASSETS $out/share/${pname} \
-      --prefix PATH : ${pkgs.lib.makeBinPath [
-        pkgs.coreutils
-        pkgs.texliveFull
-        pythonWithDeps
-      ]}
+      --prefix PATH : ${
+        pkgs.lib.makeBinPath [
+          pkgs.coreutils
+          pkgs.texliveFull
+          pythonWithDeps
+        ]
+      }
   '';
   propagatedBuildInputs = with pkgs.python313Packages; [
     jinja2

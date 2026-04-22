@@ -4,70 +4,6 @@
 let
   debugWrapper = pkgs.writeShellScript "${pname}-wrapper" ''
     set -euo pipefail
-    package_root="@packageRoot@"
-    export PATH="${runtimePath}:$PATH"
-    ${postgresBootstrapFunctions}
-    start_temp_postgres() {
-      start_db "$PGDATA/postgres.log"
-      create_db >/dev/null 2>&1
-    }
-    resolve_source_root() {
-      local candidate
-      local current_dir="$PWD"
-      if [ -n "''${CANONICALIZATION_ROOT:-}" ]; then
-        candidate="$CANONICALIZATION_ROOT/packages/${pname}"
-        if [ -f "$candidate/manage.py" ]; then
-          printf '%s\n' "$candidate"
-          return 0
-        fi
-      fi
-      while [ "$current_dir" != "/" ]; do
-        candidate="$current_dir/packages/${pname}"
-        if [ -f "$candidate/manage.py" ]; then
-          printf '%s\n' "$candidate"
-          return 0
-        fi
-        current_dir="$(dirname "$current_dir")"
-      done
-      if [ -f "$PWD/manage.py" ]; then
-        printf '%s\n' "$PWD"
-        return 0
-      fi
-      return 1
-    }
-    if [ "''${DEBUG:-0}" = "1" ]; then
-      coverage_root=""
-      if source_root="$(resolve_source_root)"; then
-        coverage_root="$source_root/tmp/coverage"
-      else
-        source_root="$package_root"
-        coverage_root="''${XDG_STATE_HOME:-/tmp}/${pname}/coverage"
-      fi
-      rm -rf "$coverage_root"
-      mkdir -p "$coverage_root"
-      cd "$source_root"
-      export DJANGO_SETTINGS_MODULE="django_template.settings"
-      export PYTHONPATH="$source_root''${PYTHONPATH:+:$PYTHONPATH}"
-      export SECRET_KEY="django-insecure-template-secret-key"
-      ${defaultPostgresEnvironment}
-      export PGDATA="$coverage_root/.postgres"
-      export PGHOST="$coverage_root/.pgsocket"
-      export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
-      export DB_PORT="$PGPORT"
-      export DB_USER="$PGUSER"
-      export DB_PASSWORD="$PGPASSWORD"
-      export DB_HOST="$PGHOST"
-      start_temp_postgres
-      trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
-      export EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
-      export ALLOWED_HOSTS="testserver,localhost,127.0.0.1,[::1]"
-      export COVERAGE_FILE="$coverage_root/.coverage"
-      python3 -m coverage erase
-      DEBUG=1 python3 -m coverage run --branch --source=starter,django_template manage.py test
-      python3 -m coverage html -d "$coverage_root/html"
-      python3 -m coverage report --fail-under=75 | tee "$coverage_root/summary.txt"
-      exit 0
-    fi
     exec "@launcher@" "$@"
   '';
   defaultPostgresEnvironment = ''
@@ -194,23 +130,23 @@ let
       run_pg createdb -h "$PGHOST" -p "$PGPORT" -U "$PGUSER" "$PGDATABASE"
     }
   '';
-  python = pkgs.python313.withPackages (ps: [
-    ps.coverage
-    ps.django
-    ps.gunicorn
-    ps.psycopg
-    ps.whitenoise
-  ]);
+  pythonDeps = with pkgs.python313Packages; [
+    django
+    gunicorn
+    psycopg
+    whitenoise
+  ];
+  pythonWithDeps = pkgs.python313.withPackages (_: pythonDeps);
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.coreutils
     pkgs.findutils
     pkgs.gnugrep
     pkgs.gnused
     pkgs.postgresql
-    python
+    pythonWithDeps
   ];
 in
-pkgs.stdenvNoCC.mkDerivation {
+pkgs.python313Packages.buildPythonPackage rec {
   inherit pname;
   installPhase = ''
     mkdir -p "$out/lib/${pname}"
@@ -223,10 +159,14 @@ pkgs.stdenvNoCC.mkDerivation {
     substituteInPlace "$out/bin/${pname}-manage" \
       --replace-fail "@packageRoot@" "$out/lib/${pname}"
     substituteInPlace "$out/bin/${pname}" \
-      --replace-fail "@packageRoot@" "$out/lib/${pname}" \
       --replace-fail "@launcher@" "$out/bin/.${pname}-launcher"
   '';
   meta.mainProgram = pname;
+  nativeBuildInputs = [
+    pkgs.makeWrapper
+  ];
+  propagatedBuildInputs = pythonDeps;
+  pyproject = false;
   src = ./.;
   version = "0.0.0";
 }
