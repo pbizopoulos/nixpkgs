@@ -10,10 +10,8 @@ let
     if [ "$script_name" = "${pname}-manage" ]; then
       mode="manage"
     fi
-    export DATABASE_ENGINE="''${DATABASE_ENGINE:-postgresql}"
     export PGPORT="''${PGPORT:-5432}"
     export PGUSER="''${PGUSER:-postgres}"
-    export PGPASSWORD="''${PGPASSWORD:-postgres}"
     pgsystem_user=""
     if [ "$(id -u)" -eq 0 ]; then
       for candidate in postgres nobody; do
@@ -69,8 +67,6 @@ let
     }
     export HOST="''${HOST:-127.0.0.1}"
     export PORT="''${PORT:-8000}"
-    export APP_NAME="''${APP_NAME:-Django Starter}"
-    export SUPPORT_EMAIL="''${SUPPORT_EMAIL:-support@example.com}"
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
     if [ -z "''${SECRET_KEY:-}" ]; then
@@ -89,7 +85,6 @@ let
     export DATABASE_NAME="''${DATABASE_NAME:-${pname}}"
     export DB_PORT="$PGPORT"
     export DB_USER="$PGUSER"
-    export DB_PASSWORD="$PGPASSWORD"
     export DB_HOST="$PGHOST"
     start_db "$PGDATA/postgres.log"
     trap 'if run_pg pg_ctl -D "$PGDATA" status >/dev/null 2>&1; then run_pg pg_ctl -D "$PGDATA" stop >/dev/null 2>&1; fi' EXIT
