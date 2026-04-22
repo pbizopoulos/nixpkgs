@@ -15,7 +15,7 @@ let
       ]
     }:$PATH"
     package_root="@packageRoot@"
-    export DJANGO_SETTINGS_MODULE="django_template.settings"
+    export DJANGO_SETTINGS_MODULE="${pname}.settings"
     export PYTHONPATH="$package_root''${PYTHONPATH:+:$PYTHONPATH}"
     script_name="''${0##*/}"
     mode="serve"
@@ -109,7 +109,7 @@ let
     exec gunicorn \
       --bind "127.0.0.1:8000" \
       --chdir "$package_root" \
-      django_template.wsgi:application
+      "${pname}.wsgi:application"
   '';
   pname = builtins.baseNameOf ./.;
   pythonDeps = with pkgs.python313Packages; [
