@@ -22,12 +22,13 @@ pkgs.runCommand "${name}"
   }
   ''
     export HOME="$PWD"
-    rm -rf "$PWD/workspace"
-    mkdir -p "$PWD/workspace"
-    cp -R --no-preserve=mode "$src"/. "$PWD/workspace"
-    cd "$PWD/workspace"
-    DEBUG=1 coverage run --source=. main.py
+    DEBUG=1 coverage run --source="$src" "$src/main.py"
     coverage report
+    workspace="$PWD/workspace"
+    rm -rf "$workspace"
+    mkdir -p "$workspace"
+    cp -R --no-preserve=mode "$src"/. "$workspace"
+    cd "$workspace"
     cat > cosmic-ray.toml <<'EOF'
     [cosmic-ray]
     module-path = "main.py"
