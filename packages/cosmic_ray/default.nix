@@ -5,7 +5,6 @@ let
   exit-codes = pkgs.python3Packages.buildPythonPackage rec {
     format = "wheel";
     pname = "exit_codes";
-    propagatedBuildInputs = [ ];
     pythonImportsCheck = [
       pname
     ];

@@ -17,11 +17,10 @@ pkgs.python313Packages.buildPythonPackage rec {
     runHook postBuild
   '';
   installPhase = ''
-    mkdir -p $out/bin $out/share/${pname}
-    cp ./main.py $out/bin/${pname}
-    cp ./ms.tex $out/share/${pname}/ms.tex
-    cp ./ms.bib $out/share/${pname}/ms.bib
-    cp "$TMPDIR/build/tmp/ms.pdf" $out/share/${pname}/ms.pdf
+    install -Dm755 ./main.py $out/bin/${pname}
+    install -Dm644 ./ms.tex $out/share/${pname}/ms.tex
+    install -Dm644 ./ms.bib $out/share/${pname}/ms.bib
+    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/share/${pname}/ms.pdf
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [

@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Python Hello World."""
+"""Python Hello World."""  # noqa: INP001
 
 import os
 

@@ -32,22 +32,15 @@ pkgs.writeShellApplication {
     state_dir="$package_dir/tmp"
     state_path="$state_dir/deploy_host_template.tfstate"
     workdir=$(mktemp -d)
+    trap 'rm -rf "$workdir"' EXIT
     mkdir -p "$state_dir"
     cp -r ${repoSrc}/. "$workdir/"
     chmod -R u+w "$workdir"
     work_package_dir="$workdir/${packageRelativePath}"
     rm -rf "$work_package_dir/.terraform" "$work_package_dir/.terraform.lock.hcl"
-    if
-      tofu -chdir="$work_package_dir" init -reconfigure \
+    tofu -chdir="$work_package_dir" init -reconfigure \
       -backend-config="path=$state_path"
-      tofu -chdir="$work_package_dir" apply \
+    tofu -chdir="$work_package_dir" apply \
       -var="output_dir=$state_dir"
-    then
-      rm -rf "$workdir"
-      exit 0
-    fi
-    status=$?
-    rm -rf "$workdir"
-    exit "$status"
   '';
 }

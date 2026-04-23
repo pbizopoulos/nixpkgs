@@ -3,8 +3,7 @@
 }:
 pkgs.python312Packages.buildPythonPackage rec {
   installPhase = ''
-    mkdir -p $out/bin
-    cp ./main.py $out/bin/${pname}
+    install -Dm755 ./main.py $out/bin/${pname}
   '';
   meta.mainProgram = pname;
   pname = builtins.baseNameOf src;

@@ -2,10 +2,6 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  pkgConfigPath = pkgs.lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
-    pkgs.openssl
-    pkgs.zlib
-  ];
   pname = baseNameOf ./.;
   runtimePath = pkgs.lib.makeBinPath [
     pkgs.cargo
@@ -24,7 +20,12 @@ let
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    export PKG_CONFIG_PATH='${pkgConfigPath}'
+    export PKG_CONFIG_PATH='${
+      pkgs.lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
+        pkgs.openssl
+        pkgs.zlib
+      ]
+    }'
     resolve_source_root() {
       local candidate
       local current_dir="$PWD"

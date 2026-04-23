@@ -1,5 +1,4 @@
-#!/usr/bin/env python3
-"""Generate Python-produced artifacts for a LaTeX build."""
+"""Generate Python-produced artifacts for a LaTeX build."""  # noqa: INP001
 
 from __future__ import annotations
 

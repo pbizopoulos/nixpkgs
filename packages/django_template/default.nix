@@ -11,7 +11,7 @@ let
         pkgs.gnugrep
         pkgs.gnused
         pkgs.postgresql
-        pythonWithDeps
+        (pkgs.python313.withPackages (_: pythonDeps))
       ]
     }:$PATH"
     package_root="@packageRoot@"
@@ -22,7 +22,6 @@ let
     if [ "$script_name" = "${pname}-manage" ]; then
       mode="manage"
     fi
-    database_name="${pname}"
     db_port=5432
     db_user=postgres
     pgsystem_user=""
@@ -72,8 +71,8 @@ let
     }
     create_db() {
       run_pg psql -h "$pghost" -p "$db_port" -U "$db_user" -d postgres -tAc \
-        "select 1 from pg_database where datname = '$database_name'" | grep -q 1 && return
-      run_pg createdb -h "$pghost" -p "$db_port" -U "$db_user" "$database_name"
+        "select 1 from pg_database where datname = '${pname}'" | grep -q 1 && return
+      run_pg createdb -h "$pghost" -p "$db_port" -U "$db_user" "${pname}"
     }
     state_root="''${XDG_STATE_HOME:-/tmp}/${pname}"
     mkdir -p "$state_root"
@@ -89,7 +88,7 @@ let
     fi
     pgdata="$state_root/.postgres"
     pghost="$state_root/.pgsocket"
-    export DATABASE_NAME="$database_name"
+    export DATABASE_NAME="${pname}"
     export DB_HOST="$pghost"
     export DB_PORT="$db_port"
     export DB_USER="$db_user"
@@ -118,7 +117,6 @@ let
     psycopg
     whitenoise
   ];
-  pythonWithDeps = pkgs.python313.withPackages (_: pythonDeps);
 in
 pkgs.python313Packages.buildPythonPackage rec {
   inherit pname;
