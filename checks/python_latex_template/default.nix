@@ -5,14 +5,13 @@
 }:
 let
   name = builtins.baseNameOf ./.;
-  package = inputs.self.packages.${pkgs.stdenv.system}.${name};
 in
 pkgs.runCommand "${name}"
   {
     nativeBuildInputs = [
       (pkgs.python313.withPackages (
         ps:
-        package.propagatedBuildInputs
+        inputs.self.packages.${pkgs.stdenv.system}.${name}.propagatedBuildInputs
         ++ [
           ps.coverage
         ]
