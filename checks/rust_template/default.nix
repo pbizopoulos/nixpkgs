@@ -5,6 +5,7 @@
 }:
 let
   name = builtins.baseNameOf ./.;
+  inherit (inputs.self.packages.${pkgs.stdenv.system}.${name}) cargoDeps;
 in
 pkgs.runCommand "${name}"
   {
@@ -21,22 +22,19 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    export HOME="$PWD"
+    workspace="$PWD/workspace"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    cp -R "$src" "$PWD/workspace"
-    chmod -R u+w "$PWD/workspace"
-    cp -R "${inputs.self.packages.${pkgs.stdenv.system}.${name}.cargoDeps}/.cargo" "$PWD/workspace/"
-    substituteInPlace "$PWD/workspace/.cargo/config.toml" \
-      --replace-fail "@vendor@" "${inputs.self.packages.${pkgs.stdenv.system}.${name}.cargoDeps}"
+    cp -R --no-preserve=mode "$src" "$workspace"
+    install -Dm644 "${cargoDeps}/.cargo/config.toml" "$workspace/.cargo/config.toml"
+    substituteInPlace "$workspace/.cargo/config.toml" \
+      --replace-fail "@vendor@" "${cargoDeps}"
     mkdir -p "$PWD/coverage"
-    cd "$PWD/workspace"
-    cargo llvm-cov clean --workspace
+    cd "$workspace"
     cargo llvm-cov --locked --no-report
     cargo llvm-cov report --html --output-dir "$PWD/coverage/html"
     cargo llvm-cov report --summary-only | tee "$PWD/coverage/summary.txt"
-    mkdir -p "$PWD/tmp"
     set +e
     cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$PWD/tmp"
     mutation_status=$?
