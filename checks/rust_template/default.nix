@@ -27,7 +27,7 @@ pkgs.runCommand "${name}"
     substituteInPlace "$PWD/workspace/.cargo/config.toml" \
       --replace-fail "@vendor@" "${cargoDeps}"
     cd "$PWD/workspace"
-    cargo llvm-cov --locked
+    cargo llvm-cov
     cargo mutants || mutation_status=$?
     case "''${mutation_status:-0}" in
       0 | 2) ;;
