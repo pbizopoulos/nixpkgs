@@ -19,14 +19,13 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    workspace="$PWD/workspace"
     coverage_dir="$PWD/coverage"
     hpcdir="$PWD/hpc"
     export HOME="$PWD"
-    rm -rf "$workspace" "$coverage_dir" "$hpcdir"
-    mkdir -p "$workspace" "$coverage_dir/html" "$hpcdir"
-    cp -R --no-preserve=mode "$src"/. "$workspace"
-    cd "$workspace"
+    rm -rf "$PWD/workspace" "$coverage_dir" "$hpcdir"
+    mkdir -p "$PWD/workspace" "$coverage_dir/html" "$hpcdir"
+    cp -R --no-preserve=mode "$src"/. "$PWD/workspace"
+    cd "$PWD/workspace"
     "${debugGhc}/bin/ghc" \
       -fhpc \
       -hpcdir "$hpcdir" \

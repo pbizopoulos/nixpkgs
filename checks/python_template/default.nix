@@ -21,15 +21,14 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-        export HOME="$PWD"
-        workspace="$PWD/workspace"
-        rm -rf "$workspace"
-        mkdir -p "$workspace"
-        cp -r "$src"/. "$workspace"
-        cd "$workspace"
-        DEBUG=1 coverage run --source=. main.py
-        coverage report
-        cat > cosmic-ray.toml <<'EOF'
+    export HOME="$PWD"
+    rm -rf "$PWD/workspace"
+    mkdir -p "$PWD/workspace"
+    cp -R --no-preserve=mode "$src"/. "$PWD/workspace"
+    cd "$PWD/workspace"
+    DEBUG=1 coverage run --source=. main.py
+    coverage report
+    cat > cosmic-ray.toml <<'EOF'
     [cosmic-ray]
     module-path = "main.py"
     timeout = 10.0
@@ -38,8 +37,8 @@ pkgs.runCommand "${name}"
     [cosmic-ray.distributor]
     name = "local"
     EOF
-        cosmic-ray init cosmic-ray.toml cosmic-ray.sqlite
-        cosmic-ray exec cosmic-ray.toml cosmic-ray.sqlite
-        cr-report cosmic-ray.sqlite
-        touch "$out"
+    cosmic-ray init cosmic-ray.toml cosmic-ray.sqlite
+    cosmic-ray exec cosmic-ray.toml cosmic-ray.sqlite
+    cr-report cosmic-ray.sqlite
+    touch "$out"
   ''

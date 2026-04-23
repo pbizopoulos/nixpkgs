@@ -30,7 +30,6 @@ pkgs.runCommand "${name}"
     export COVERAGE_FILE="$coverage_root/.coverage"
     cd "$src"
     DEBUG=1 coverage run --branch --source=starter,${name} "$src/manage.py" test
-    coverage_percent=$(coverage report | awk '/^TOTAL/{print $4}')
-    echo "coverage: $coverage_percent"
+    coverage report
     touch "$out"
   ''
