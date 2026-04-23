@@ -2,11 +2,11 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  pythonWithDeps = pkgs.python313.withPackages (ps: [
-    ps.jinja2
-    ps.matplotlib
-    ps.pandas
-  ]);
+  pythonDeps = with pkgs.python313Packages; [
+    jinja2
+    matplotlib
+    pandas
+  ];
 in
 pkgs.python313Packages.buildPythonPackage rec {
   buildPhase = ''
@@ -35,16 +35,12 @@ pkgs.python313Packages.buildPythonPackage rec {
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.coreutils
+          (pkgs.python313.withPackages (_: pythonDeps))
           pkgs.texliveFull
-          pythonWithDeps
         ]
       }
   '';
-  propagatedBuildInputs = with pkgs.python313Packages; [
-    jinja2
-    matplotlib
-    pandas
-  ];
+  propagatedBuildInputs = pythonDeps;
   pyproject = false;
   src = ./.;
   version = "0.0.0";
