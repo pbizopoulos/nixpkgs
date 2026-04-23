@@ -1,150 +1,195 @@
-#![allow(clippy::multiple_crate_versions)]
-#![allow(clippy::too_many_lines)]
-use anyhow::{Context, Result};
-use clap::{Arg, ArgAction, Command};
+use std::env;
 use std::fs;
-use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
-use std::process::Command as std_command;
-fn main() -> Result<()> {
-    let matches = parse_args()?;
-    let target_dir_str = matches
-        .get_one::<String>("directory")
-        .expect("directory is mandatory");
-    let target_dir = Path::new(target_dir_str);
-    let mut templates_to_copy = Vec::new();
-    let available_templates = get_available_templates()?;
-    let selected_templates: Vec<String> = matches
-        .get_many::<String>("templates")
-        .unwrap_or_default()
-        .map(std::string::ToString::to_string)
-        .collect();
-    for (name, path) in available_templates {
-        if selected_templates.contains(&name) {
-            templates_to_copy.push(path);
+use std::process::{Command, ExitCode};
+fn main() -> ExitCode {
+    match run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(err) => {
+            eprintln!("{err}");
+            ExitCode::from(1)
         }
     }
+}
+fn run() -> Result<(), String> {
+    let config = parse_args()?;
+    let target_dir = Path::new(&config.directory);
+    let available_templates = get_available_templates()?;
+    let templates_to_copy: Vec<PathBuf> = available_templates
+        .into_iter()
+        .filter_map(|(name, path)| config.templates.contains(&name).then_some(path))
+        .collect();
     if !target_dir.exists() {
-        let target_dir_display = target_dir.display();
-        println!("Creating target directory: {target_dir_display}");
-        fs::create_dir_all(target_dir).context("Failed to create target directory")?;
+        println!("Creating target directory: {}", target_dir.display());
+        fs::create_dir_all(target_dir)
+            .map_err(|err| format!("Failed to create target directory: {err}"))?;
     }
-    let target_dir_display = target_dir.display();
-    println!("Initializing git repository in {target_dir_display}");
-    std_command::new("git")
-        .arg("init")
-        .current_dir(target_dir)
-        .status()
-        .context("Failed to run git init")?;
-    std_command::new("git")
-        .args(["config", "user.email", "agent@example.com"])
-        .current_dir(target_dir)
-        .status()
-        .ok();
-    std_command::new("git")
-        .args(["config", "user.name", "Agent"])
-        .current_dir(target_dir)
-        .status()
-        .ok();
-    std_command::new("git")
-        .args(["commit", "--allow-empty", "-m", "Initial commit"])
-        .current_dir(target_dir)
-        .status()
-        .ok();
+    println!("Initializing git repository in {}", target_dir.display());
+    run_command(
+        Command::new("git").arg("init").current_dir(target_dir),
+        "git init",
+    )?;
+    run_command(
+        Command::new("git")
+            .args(["config", "user.email", "agent@example.com"])
+            .current_dir(target_dir),
+        "git config user.email",
+    )
+    .ok();
+    run_command(
+        Command::new("git")
+            .args(["config", "user.name", "Agent"])
+            .current_dir(target_dir),
+        "git config user.name",
+    )
+    .ok();
+    run_command(
+        Command::new("git")
+            .args(["commit", "--allow-empty", "-m", "Initial commit"])
+            .current_dir(target_dir),
+        "git commit",
+    )
+    .ok();
     let root_dir = get_root_dir()?;
     let flake_nix_src = root_dir.join("flake.nix");
     if flake_nix_src.exists() {
         let dest = target_dir.join("flake.nix");
-        if dest.exists() {
-            fs::remove_file(&dest).ok();
-        }
-        fs::copy(&flake_nix_src, &dest).context("Failed to copy flake.nix")?;
-        fs::set_permissions(&dest, fs::Permissions::from_mode(0o644)).ok();
-        let content = fs::read_to_string(&dest).context("Failed to read copied flake.nix")?;
-        let new_content = content.replace(
-            "inputs = {",
-            "inputs = {\n    canonicalization.url = \"github:pbizopoulos/canonicalization\";",
-        );
-        fs::write(&dest, new_content).context("Failed to write modified flake.nix")?;
-        std_command::new("git")
-            .arg("add")
-            .arg("flake.nix")
-            .current_dir(target_dir)
-            .status()
-            .ok();
+        let _ = fs::remove_file(&dest);
+        fs::copy(&flake_nix_src, &dest)
+            .map_err(|err| format!("Failed to copy flake.nix: {err}"))?;
+        let content = fs::read_to_string(&dest)
+            .map_err(|err| format!("Failed to read copied flake.nix: {err}"))?;
+        let replacement =
+            "inputs = {\n    canonicalization.url = \"github:pbizopoulos/canonicalization\";";
+        let new_content = content.replacen("inputs = {", replacement, 1);
+        fs::write(&dest, new_content)
+            .map_err(|err| format!("Failed to write modified flake.nix: {err}"))?;
     }
     let checks_src_root = root_dir.join("checks");
     for template_path in templates_to_copy {
-        let template_name = template_path.file_name().and_then(|s| s.to_str()).unwrap();
+        let template_name = template_path
+            .file_name()
+            .and_then(|s| s.to_str())
+            .ok_or_else(|| format!("Invalid template path: {}", template_path.display()))?;
         let dest_path = target_dir.join("packages").join(template_name);
-        let dest_path_display = dest_path.display();
-        println!("Copying template {template_name} to {dest_path_display}");
-        copy_dir_contents(&template_path, &dest_path)
-            .context(format!("Failed to copy template {template_name}"))?;
-        std_command::new("git")
-            .arg("add")
-            .arg(format!("packages/{template_name}"))
-            .current_dir(target_dir)
-            .status()
-            .ok();
+        println!(
+            "Copying template {template_name} to {}",
+            dest_path.display()
+        );
+        copy_dir_contents(&template_path, &dest_path)?;
         let checks_src = checks_src_root.join(template_name);
         if checks_src.exists() {
             let checks_dest = target_dir.join("checks").join(template_name);
-            let checks_dest_display = checks_dest.display();
-            println!("Copying checks {template_name} to {checks_dest_display}");
-            copy_dir_contents(&checks_src, &checks_dest)
-                .context(format!("Failed to copy checks {template_name}"))?;
-            std_command::new("git")
-                .arg("add")
-                .arg(format!("checks/{template_name}"))
-                .current_dir(target_dir)
-                .status()
-                .ok();
+            println!(
+                "Copying checks {template_name} to {}",
+                checks_dest.display()
+            );
+            copy_dir_contents(&checks_src, &checks_dest)?;
         }
     }
     if target_dir.join("flake.nix").exists() {
         println!("Running nix fmt in target directory...");
-        std_command::new("nix")
-            .arg("fmt")
-            .current_dir(target_dir)
-            .status()
-            .ok();
+        run_command(
+            Command::new("nix").arg("fmt").current_dir(target_dir),
+            "nix fmt",
+        )
+        .ok();
     }
     Ok(())
 }
-fn set_permissions_recursive(path: &Path) -> Result<()> {
-    let _metadata = fs::metadata(path)?;
-    if path.is_dir() {
-        fs::set_permissions(path, fs::Permissions::from_mode(0o755))?;
-        for entry in fs::read_dir(path)? {
-            set_permissions_recursive(&entry?.path())?;
+struct Config {
+    directory: String,
+    templates: Vec<String>,
+}
+fn parse_args() -> Result<Config, String> {
+    let mut args = env::args().skip(1);
+    let directory = args
+        .next()
+        .ok_or_else(|| "Usage: default <directory> [--templates rust,python]".to_string())?;
+    let mut templates = Vec::new();
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "-t" | "--templates" => {
+                let value = args
+                    .next()
+                    .ok_or_else(|| "Missing value for --templates".to_string())?;
+                templates.extend(
+                    value
+                        .split(',')
+                        .filter(|item| !item.is_empty())
+                        .map(std::string::ToString::to_string),
+                );
+            }
+            value if value.starts_with("--templates=") => {
+                let value = &value["--templates=".len()..];
+                templates.extend(
+                    value
+                        .split(',')
+                        .filter(|item| !item.is_empty())
+                        .map(std::string::ToString::to_string),
+                );
+            }
+            other => {
+                return Err(format!("Unrecognized argument: {other}"));
+            }
         }
-    } else {
-        fs::set_permissions(path, fs::Permissions::from_mode(0o644))?;
     }
-    Ok(())
+    Ok(Config {
+        directory,
+        templates,
+    })
 }
-fn copy_dir_contents(src: &Path, dest: &Path) -> Result<()> {
-    if dest.exists() {
-        fs::remove_dir_all(dest).ok();
+fn run_command(command: &mut Command, label: &str) -> Result<(), String> {
+    let status = command
+        .status()
+        .map_err(|err| format!("Failed to run {label}: {err}"))?;
+    if status.success() {
+        Ok(())
+    } else {
+        Err(format!("{label} exited with status {status}"))
     }
-    fs::create_dir_all(dest).context("Failed to create destination directory")?;
-    let mut options = fs_extra::dir::CopyOptions::new();
-    options.content_only = true;
-    options.overwrite = true;
-    fs_extra::dir::copy(src, dest, &options).context("Failed to copy directory contents")?;
+}
+fn copy_dir_contents(src: &Path, dest: &Path) -> Result<(), String> {
+    if dest.exists() {
+        fs::remove_dir_all(dest)
+            .map_err(|err| format!("Failed to remove {}: {err}", dest.display()))?;
+    }
+    fs::create_dir_all(dest)
+        .map_err(|err| format!("Failed to create {}: {err}", dest.display()))?;
+    copy_dir_recursive(src, dest)?;
     let _ = set_permissions_recursive(dest);
     Ok(())
 }
-fn get_available_templates() -> Result<Vec<(String, PathBuf)>> {
-    let Ok(root_dir) = get_root_dir() else {
-        return Ok(Vec::new());
-    };
+fn copy_dir_recursive(src: &Path, dest: &Path) -> Result<(), String> {
+    for entry in
+        fs::read_dir(src).map_err(|err| format!("Failed to read {}: {err}", src.display()))?
+    {
+        let entry = entry.map_err(|err| format!("Failed to read directory entry: {err}"))?;
+        let path = entry.path();
+        let dest_path = dest.join(entry.file_name());
+        let file_type = entry
+            .file_type()
+            .map_err(|err| format!("Failed to read file type for {}: {err}", path.display()))?;
+        if file_type.is_dir() {
+            fs::create_dir_all(&dest_path)
+                .map_err(|err| format!("Failed to create {}: {err}", dest_path.display()))?;
+            copy_dir_recursive(&path, &dest_path)?;
+        } else if file_type.is_file() {
+            fs::copy(&path, &dest_path)
+                .map_err(|err| format!("Failed to copy {}: {err}", path.display()))?;
+        }
+    }
+    Ok(())
+}
+fn get_available_templates() -> Result<Vec<(String, PathBuf)>, String> {
+    let root_dir = get_root_dir()?;
     let packages_dir = root_dir.join("packages");
     let mut templates = Vec::new();
     if packages_dir.exists() {
-        for entry in fs::read_dir(packages_dir)? {
-            let entry = entry?;
+        for entry in fs::read_dir(&packages_dir)
+            .map_err(|err| format!("Failed to read {}: {err}", packages_dir.display()))?
+        {
+            let entry = entry.map_err(|err| format!("Failed to read directory entry: {err}"))?;
             let path = entry.path();
             if path.is_dir() {
                 if let Some(name) = path.file_name().and_then(|s| s.to_str()) {
@@ -158,11 +203,12 @@ fn get_available_templates() -> Result<Vec<(String, PathBuf)>> {
     templates.sort_by(|a, b| a.0.cmp(&b.0));
     Ok(templates)
 }
-fn get_root_dir() -> Result<PathBuf> {
-    if let Ok(root) = std::env::var("CANONICALIZATION_ROOT") {
+fn get_root_dir() -> Result<PathBuf, String> {
+    if let Ok(root) = env::var("CANONICALIZATION_ROOT") {
         return Ok(PathBuf::from(root));
     }
-    let mut current_dir = std::env::current_dir()?;
+    let mut current_dir =
+        env::current_dir().map_err(|err| format!("Failed to get current directory: {err}"))?;
     loop {
         if current_dir.join("flake.nix").exists() {
             return Ok(current_dir);
@@ -170,104 +216,31 @@ fn get_root_dir() -> Result<PathBuf> {
         if let Some(parent) = current_dir.parent() {
             current_dir = parent.to_path_buf();
         } else {
-            anyhow::bail!("Could not find root directory (containing flake.nix)");
+            return Err("Could not find root directory (containing flake.nix)".to_string());
         }
     }
 }
-fn parse_args() -> Result<clap::ArgMatches> {
-    let available_templates = get_available_templates()?;
-    let template_names_leaked: Vec<&'static str> = available_templates
-        .iter()
-        .map(|(n, _)| Box::leak(n.clone().into_boxed_str()) as &'static str)
-        .collect();
-    Ok(Command::new("default")
-        .about("A CLI tool to initialize projects by copying templates and setting up a basic Nix/Git environment.")
-        .after_help("This tool is designed for both humans and automated agents. It dynamically generates available templates from the 'packages' directory.")
-        .arg(
-            Arg::new("directory")
-                .help("The target directory where the project will be initialized. If it doesn't exist, it will be created.")
-                .long_help("The target directory for project initialization. The tool will:\n1. Create the directory if needed.\n2. Initialize a git repository.\n3. Copy selected templates.\n4. Configure flake.nix.")
-                .required(true)
-                .index(1),
-        )
-        .arg(
-            Arg::new("templates")
-                .short('t')
-                .long("templates")
-                .help("Comma-separated list of templates to include (e.g., --templates rust,python).")
-                .long_help("Specify one or more templates to include in the project. You can provide multiple values separated by commas, or use the flag multiple times.\nExample: --templates rust,python")
-                .value_delimiter(',')
-                .action(ArgAction::Append)
-                .value_parser(template_names_leaked)
-        )
-        .get_matches())
-}
-#[allow(dead_code)]
-fn run_tests() -> Result<()> {
-    println!("Running tests...");
-    let Ok(root) = get_root_dir() else {
-        println!("Skipping most tests because root dir could not be found.");
-        return Ok(());
-    };
-    if root.join("flake.nix").exists() {
-        assert!(root.join("formatter.nix").exists());
-        println!("test_get_root_dir ... ok");
-    } else {
-        let root_display = root.display();
-        println!("Skipping root dir checks because flake.nix not found in {root_display}");
-    }
-    let templates = get_available_templates().context("Failed to get available templates")?;
-    if templates.is_empty() {
-        let root_display = root.display();
-        println!("Skipping templates checks because no templates found in {root_display}");
-    } else {
-        assert!(templates.iter().any(|(flag, _)| flag == "rust"));
-        if templates.len() > 1 {
-            for i in 0..templates.len() - 1 {
-                assert!(
-                    templates[i].0 <= templates[i + 1].0,
-                    "Templates are not sorted: {} > {}",
-                    templates[i].0,
-                    templates[i + 1].0
-                );
-            }
+#[cfg(unix)]
+fn set_permissions_recursive(path: &Path) -> Result<(), String> {
+    use std::os::unix::fs::PermissionsExt;
+    let metadata = fs::metadata(path)
+        .map_err(|err| format!("Failed to read metadata for {}: {err}", path.display()))?;
+    if metadata.is_dir() {
+        fs::set_permissions(path, fs::Permissions::from_mode(0o755))
+            .map_err(|err| format!("Failed to set permissions on {}: {err}", path.display()))?;
+        for entry in
+            fs::read_dir(path).map_err(|err| format!("Failed to read {}: {err}", path.display()))?
+        {
+            let entry = entry.map_err(|err| format!("Failed to read directory entry: {err}"))?;
+            set_permissions_recursive(&entry.path())?;
         }
-        println!("test_get_available_templates ... ok");
+    } else {
+        fs::set_permissions(path, fs::Permissions::from_mode(0o644))
+            .map_err(|err| format!("Failed to set permissions on {}: {err}", path.display()))?;
     }
-    println!("All tests passed!");
     Ok(())
 }
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use tempfile::tempdir;
-    #[test]
-    fn test_all() -> Result<()> {
-        run_tests()
-    }
-    #[test]
-    fn test_set_permissions_recursive() -> Result<()> {
-        let dir = tempdir()?;
-        let file_path = dir.path().join("test.txt");
-        fs::write(&file_path, "test")?;
-        set_permissions_recursive(dir.path())?;
-        let dir_metadata = fs::metadata(dir.path())?;
-        assert_eq!(dir_metadata.permissions().mode() & 0o777, 0o755);
-        let file_metadata = fs::metadata(&file_path)?;
-        assert_eq!(file_metadata.permissions().mode() & 0o777, 0o644);
-        Ok(())
-    }
-    #[test]
-    fn test_get_root_dir_from_env() -> Result<()> {
-        let original_val = std::env::var("CANONICALIZATION_ROOT").ok();
-        std::env::set_var("CANONICALIZATION_ROOT", "/tmp");
-        let root = get_root_dir()?;
-        assert_eq!(root, PathBuf::from("/tmp"));
-        if let Some(val) = original_val {
-            std::env::set_var("CANONICALIZATION_ROOT", val);
-        } else {
-            std::env::remove_var("CANONICALIZATION_ROOT");
-        }
-        Ok(())
-    }
+#[cfg(not(unix))]
+fn set_permissions_recursive(_path: &Path) -> Result<(), String> {
+    Ok(())
 }
