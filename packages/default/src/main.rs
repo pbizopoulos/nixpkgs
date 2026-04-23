@@ -1,8 +1,12 @@
+use pprof::ProfilerGuard;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 fn main() -> ExitCode {
+    if env::var("DEBUG").as_deref() == Ok("1") {
+        return profile_main();
+    }
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
@@ -10,6 +14,20 @@ fn main() -> ExitCode {
             ExitCode::from(1)
         }
     }
+}
+fn profile_main() -> ExitCode {
+    let guard = ProfilerGuard::new(100).expect("Failed to start profiler");
+    let status = match run() {
+        Ok(()) => ExitCode::SUCCESS,
+        Err(err) => {
+            eprintln!("{err}");
+            ExitCode::from(1)
+        }
+    };
+    if let Ok(report) = guard.report().build() {
+        println!("{report:?}");
+    }
+    status
 }
 fn run() -> Result<(), String> {
     let config = parse_args()?;
@@ -57,6 +75,12 @@ fn run() -> Result<(), String> {
         let _ = fs::remove_file(&dest);
         fs::copy(&flake_nix_src, &dest)
             .map_err(|err| format!("Failed to copy flake.nix: {err}"))?;
+        let mut permissions = fs::metadata(&dest)
+            .map_err(|err| format!("Failed to read copied flake.nix metadata: {err}"))?
+            .permissions();
+        permissions.set_readonly(false);
+        fs::set_permissions(&dest, permissions)
+            .map_err(|err| format!("Failed to make copied flake.nix writable: {err}"))?;
         let content = fs::read_to_string(&dest)
             .map_err(|err| format!("Failed to read copied flake.nix: {err}"))?;
         let replacement =

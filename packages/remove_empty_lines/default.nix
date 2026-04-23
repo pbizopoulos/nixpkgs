@@ -71,7 +71,7 @@ let
 in
 pkgs.rustPlatform.buildRustPackage {
   inherit pname;
-  cargoHash = "sha256-bZSRMaBgBx8kwqNNoxHnHuyENoHWydWw3egqFdGZFfo=";
+  cargoHash = "sha256-llEsDXO3PNV6sdIIjLbvVMvStoSXBeL+VzmZL/YrJZk=";
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;

@@ -11,6 +11,7 @@ let
         pkgs.cargo-llvm-cov
         pkgs.cargo-mutants
         pkgs.coreutils
+        pkgs.git
         pkgs.llvmPackages.clang
         pkgs.llvmPackages.llvm
         pkgs.pkg-config
@@ -82,7 +83,7 @@ pkgs.rustPlatform.buildRustPackage {
     pkgs.openssl
     pkgs.zlib
   ];
-  cargoHash = "sha256-rTjBv800ZzIx656m8q1XQaTKpmF/F1JAtLN/HtDdEkM=";
+  cargoHash = "sha256-qvh3OYctJVL6ALONkDJmfrZoVYoRvr1IWkzRW2YEaBs=";
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;

@@ -1,5 +1,6 @@
 [dependencies]
 colored = "2.1.0"
+pprof = "0.15.0"
 
 [lints.clippy]
 all = {level = "deny", priority = -1}

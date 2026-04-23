@@ -1,10 +1,15 @@
 #![allow(clippy::multiple_crate_versions)]
 use anyhow::{Context, Result};
 use ignore::WalkBuilder;
+use pprof::ProfilerGuard;
 use std::fs;
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 fn main() -> Result<()> {
+    if std::env::var("DEBUG").as_deref() == Ok("1") {
+        profile_tests()?;
+        return Ok(());
+    }
     let args: Vec<String> = std::env::args().skip(1).collect();
     if args.is_empty() {
         process_path(Path::new("."));
@@ -12,6 +17,14 @@ fn main() -> Result<()> {
         for arg in args {
             process_path(Path::new(&arg));
         }
+    }
+    Ok(())
+}
+fn profile_tests() -> Result<()> {
+    let guard = ProfilerGuard::new(100).context("Failed to start profiler")?;
+    run_tests()?;
+    if let Ok(report) = guard.report().build() {
+        println!("{report:?}");
     }
     Ok(())
 }
