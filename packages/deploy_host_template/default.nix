@@ -7,7 +7,6 @@ let
     secrets.secrets.file = ../../secrets/secrets.age;
   };
   packageRelativePath = "packages/deploy_host_template";
-  repoSrc = ../..;
 in
 pkgs.writeShellApplication {
   name = builtins.baseNameOf ./.;
@@ -34,7 +33,7 @@ pkgs.writeShellApplication {
     workdir=$(mktemp -d)
     trap 'rm -rf "$workdir"' EXIT
     mkdir -p "$state_dir"
-    cp -r ${repoSrc}/. "$workdir/"
+    cp -r ${../..}/. "$workdir/"
     chmod -R u+w "$workdir"
     work_package_dir="$workdir/${packageRelativePath}"
     rm -rf "$work_package_dir/.terraform" "$work_package_dir/.terraform.lock.hcl"

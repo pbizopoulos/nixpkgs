@@ -3,19 +3,20 @@
 }:
 let
   pname = baseNameOf ./.;
-  runtimePath = pkgs.lib.makeBinPath [
-    pkgs.cargo
-    pkgs.cargo-llvm-cov
-    pkgs.cargo-mutants
-    pkgs.coreutils
-    pkgs.llvmPackages.clang
-    pkgs.llvmPackages.llvm
-    pkgs.rustc
-    pkgs.stdenv.cc
-  ];
   wrapperScript = pkgs.writeShellScript "${pname}-wrapper" ''
     set -euo pipefail
-    export PATH='${runtimePath}':"$PATH"
+    export PATH='${
+      pkgs.lib.makeBinPath [
+        pkgs.cargo
+        pkgs.cargo-llvm-cov
+        pkgs.cargo-mutants
+        pkgs.coreutils
+        pkgs.llvmPackages.clang
+        pkgs.llvmPackages.llvm
+        pkgs.rustc
+        pkgs.stdenv.cc
+      ]
+    }':"$PATH"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
