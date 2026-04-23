@@ -4,10 +4,11 @@
   ...
 }:
 let
-  name = "default";
-  inherit (inputs.self.packages.${pkgs.stdenv.system}.${name}) cargoDeps;
+  checkName = builtins.baseNameOf ./.;
+  packageName = "default";
+  inherit (inputs.self.packages.${pkgs.stdenv.system}.${packageName}) cargoDeps;
 in
-pkgs.runCommand "${name}"
+pkgs.runCommand "${checkName}"
   {
     nativeBuildInputs = [
       pkgs.cargo
@@ -15,7 +16,7 @@ pkgs.runCommand "${name}"
       pkgs.rustc
       pkgs.stdenv.cc
     ];
-    src = ../../packages/${name};
+    src = ../../packages/${packageName};
   }
   ''
     cp -R --no-preserve=mode "$src" "$PWD/workspace"

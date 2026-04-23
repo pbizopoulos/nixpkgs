@@ -4,18 +4,19 @@
   ...
 }:
 let
-  name = "python_latex_template";
+  checkName = builtins.baseNameOf ./.;
+  packageName = "python_latex_template";
 in
-pkgs.runCommand "${name}"
+pkgs.runCommand "${checkName}"
   {
     nativeBuildInputs = [
       (pkgs.python313.withPackages (
-        _: inputs.self.packages.${pkgs.stdenv.system}.${name}.propagatedBuildInputs
+        _: inputs.self.packages.${pkgs.stdenv.system}.${packageName}.propagatedBuildInputs
       ))
       pkgs.python313Packages.pyinstrument
       pkgs.texliveFull
     ];
-    src = ../../packages/${name};
+    src = ../../packages/${packageName};
   }
   ''
     export HOME="$PWD"

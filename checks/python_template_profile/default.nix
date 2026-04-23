@@ -4,17 +4,18 @@
   ...
 }:
 let
-  name = "python_template";
+  checkName = builtins.baseNameOf ./.;
+  packageName = "python_template";
 in
-pkgs.runCommand "${name}"
+pkgs.runCommand "${checkName}"
   {
     nativeBuildInputs = [
       (pkgs.python312.withPackages (
-        _: inputs.self.packages.${pkgs.stdenv.system}.${name}.propagatedBuildInputs
+        _: inputs.self.packages.${pkgs.stdenv.system}.${packageName}.propagatedBuildInputs
       ))
       pkgs.python312Packages.pyinstrument
     ];
-    src = ../../packages/${name};
+    src = ../../packages/${packageName};
   }
   ''
     export HOME="$PWD"

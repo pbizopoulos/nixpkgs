@@ -4,14 +4,15 @@
   ...
 }:
 let
-  name = "check_repository_directory_structure";
+  checkName = builtins.baseNameOf ./.;
+  packageName = "check_repository_directory_structure";
   pkgConfigPath = pkgs.lib.makeSearchPathOutput "dev" "lib/pkgconfig" [
     pkgs.openssl
     pkgs.zlib
   ];
-  inherit (inputs.self.packages.${pkgs.stdenv.system}.${name}) cargoDeps;
+  inherit (inputs.self.packages.${pkgs.stdenv.system}.${packageName}) cargoDeps;
 in
-pkgs.runCommand "${name}"
+pkgs.runCommand "${checkName}"
   {
     buildInputs = [
       pkgs.openssl
@@ -28,7 +29,7 @@ pkgs.runCommand "${name}"
       pkgs.rustc
       pkgs.stdenv.cc
     ];
-    src = ../../packages/${name};
+    src = ../../packages/${packageName};
   }
   ''
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
