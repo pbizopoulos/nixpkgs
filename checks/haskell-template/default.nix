@@ -19,25 +19,23 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    build_dir="$PWD"
-    workspace="$build_dir/workspace"
-    coverage_dir="$build_dir/coverage"
-    hpcdir="$build_dir/hpc"
-    export HOME="$build_dir"
+    workspace="$PWD/workspace"
+    coverage_dir="$PWD/coverage"
+    hpcdir="$PWD/hpc"
+    export HOME="$PWD"
     rm -rf "$workspace" "$coverage_dir" "$hpcdir"
-    cp -R "$src" "$workspace"
-    chmod -R u+w "$workspace"
-    mkdir -p "$coverage_dir/html" "$hpcdir"
+    mkdir -p "$workspace" "$coverage_dir/html" "$hpcdir"
+    cp -R --no-preserve=mode "$src"/. "$workspace"
     cd "$workspace"
     "${debugGhc}/bin/ghc" \
       -fhpc \
       -hpcdir "$hpcdir" \
-      -outputdir "$build_dir" \
-      -odir "$build_dir" \
-      -hidir "$build_dir" \
-      -o "$build_dir/$name" \
+      -outputdir "$PWD" \
+      -odir "$PWD" \
+      -hidir "$PWD" \
+      -o "$PWD/$name" \
       Main.hs
-    HPCTIXFILE="$coverage_dir/$name.tix" DEBUG=1 "$build_dir/$name"
+    HPCTIXFILE="$coverage_dir/$name.tix" DEBUG=1 "$PWD/$name"
     "${debugGhc}/bin/hpc" markup "$coverage_dir/$name.tix" \
       --hpcdir="$hpcdir" \
       --destdir="$coverage_dir/html"

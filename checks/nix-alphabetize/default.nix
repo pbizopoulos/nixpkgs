@@ -23,21 +23,20 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    build_dir="$PWD"
-    coverage_dir="$build_dir/coverage"
-    hpcdir="$build_dir/hpc"
-    export HOME="$build_dir"
+    coverage_dir="$PWD/coverage"
+    hpcdir="$PWD/hpc"
+    export HOME="$PWD"
     rm -rf "$coverage_dir" "$hpcdir"
     mkdir -p "$coverage_dir/html" "$hpcdir"
     "${debugGhc}/bin/ghc" \
       -fhpc \
       -hpcdir "$hpcdir" \
-      -outputdir "$build_dir" \
-      -odir "$build_dir" \
-      -hidir "$build_dir" \
-      -o "$build_dir/$name" \
+      -outputdir "$PWD" \
+      -odir "$PWD" \
+      -hidir "$PWD" \
+      -o "$PWD/$name" \
       "$src/Main.hs"
-    HPCTIXFILE="$coverage_dir/$name.tix" DEBUG=1 "$build_dir/$name"
+    HPCTIXFILE="$coverage_dir/$name.tix" DEBUG=1 "$PWD/$name"
     "${debugGhc}/bin/hpc" markup "$coverage_dir/$name.tix" \
       --hpcdir="$hpcdir" \
       --destdir="$coverage_dir/html"
