@@ -26,12 +26,9 @@ pkgs.runCommand "${name}"
     install -Dm644 "${cargoDeps}/.cargo/config.toml" "$PWD/workspace/.cargo/config.toml"
     substituteInPlace "$PWD/workspace/.cargo/config.toml" \
       --replace-fail "@vendor@" "${cargoDeps}"
-    mkdir -p "$PWD/coverage"
     cd "$PWD/workspace"
-    cargo llvm-cov --locked --no-report
-    cargo llvm-cov report --html --output-dir "$PWD/coverage/html"
-    cargo llvm-cov report --summary-only | tee "$PWD/coverage/summary.txt"
-    cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$PWD/tmp" || mutation_status=$?
+    cargo llvm-cov --locked
+    cargo mutants --no-config --colors never --no-times --all-logs --caught --unviable --cap-lints true --jobs 1 --output "$PWD/tmp" || mutation_status=$?
     case "''${mutation_status:-0}" in
       0 | 2) ;;
       *) exit "$mutation_status" ;;
