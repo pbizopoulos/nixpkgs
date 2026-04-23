@@ -2,14 +2,14 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  exit-codes = pkgs.python312Packages.buildPythonPackage rec {
+  exit-codes = pkgs.python3Packages.buildPythonPackage rec {
     format = "wheel";
     pname = "exit_codes";
     propagatedBuildInputs = [ ];
     pythonImportsCheck = [
       pname
     ];
-    src = pkgs.python312Packages.fetchPypi rec {
+    src = pkgs.python3Packages.fetchPypi rec {
       inherit
         pname
         version
@@ -21,28 +21,43 @@ let
     };
     version = "1.3.0";
   };
+  qprompt = pkgs.python3Packages.buildPythonPackage rec {
+    pname = "qprompt";
+    pyproject = false;
+    src = pkgs.python3Packages.fetchPypi rec {
+      inherit
+        pname
+        version
+        ;
+      sha256 = "a375510899d7ccec143e919aef41c853afc61d9a43426c206595362d981cd171";
+    };
+    version = "0.16.3";
+  };
 in
-pkgs.python312Packages.buildPythonPackage rec {
+pkgs.python3Packages.buildPythonApplication rec {
   format = "wheel";
+  meta.mainProgram = "cosmic-ray";
   pname = "cosmic_ray";
   propagatedBuildInputs = [
     exit-codes
-    pkgs.python312Packages.aiohttp
-    pkgs.python312Packages.anybadge
-    pkgs.python312Packages.click
-    pkgs.python312Packages.decorator
-    pkgs.python312Packages.gitpython
-    pkgs.python312Packages.parso
-    pkgs.python312Packages.rich
-    pkgs.python312Packages.sqlalchemy
-    pkgs.python312Packages.stevedore
-    pkgs.python312Packages.toml
-    pkgs.python312Packages.yattag
+    pkgs.python3Packages.aiohttp
+    pkgs.python3Packages.anybadge
+    pkgs.python3Packages.attrs
+    pkgs.python3Packages.click
+    pkgs.python3Packages.decorator
+    pkgs.python3Packages.gitpython
+    pkgs.python3Packages.parso
+    pkgs.python3Packages.rich
+    pkgs.python3Packages.sqlalchemy
+    pkgs.python3Packages.stevedore
+    pkgs.python3Packages.toml
+    pkgs.python3Packages.yattag
+    qprompt
   ];
   pythonImportsCheck = [
-    pname
+    "cosmic_ray"
   ];
-  src = pkgs.python312Packages.fetchPypi rec {
+  src = pkgs.python3Packages.fetchPypi rec {
     inherit
       pname
       version
