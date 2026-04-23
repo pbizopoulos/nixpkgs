@@ -5,7 +5,6 @@
 }:
 let
   name = builtins.baseNameOf ./.;
-  package = inputs.self.packages.${pkgs.stdenv.system}.${name};
 in
 pkgs.runCommand "${name}"
   {
@@ -22,28 +21,24 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    build_dir="$PWD"
-    workspace="$build_dir/workspace"
-    export HOME="$build_dir"
+    export HOME="$PWD"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    coverage_dir="$build_dir/coverage"
-    cp -R "$src" "$workspace"
-    chmod -R u+w "$workspace"
-    cp -R "${package.cargoDeps}/.cargo" "$workspace/"
-    substituteInPlace "$workspace/.cargo/config.toml" \
-      --replace-fail "@vendor@" "${package.cargoDeps}"
-    mkdir -p "$coverage_dir"
-    cd "$workspace"
+    cp -R "$src" "$PWD/workspace"
+    chmod -R u+w "$PWD/workspace"
+    cp -R "${inputs.self.packages.${pkgs.stdenv.system}.${name}.cargoDeps}/.cargo" "$PWD/workspace/"
+    substituteInPlace "$PWD/workspace/.cargo/config.toml" \
+      --replace-fail "@vendor@" "${inputs.self.packages.${pkgs.stdenv.system}.${name}.cargoDeps}"
+    mkdir -p "$PWD/coverage"
+    cd "$PWD/workspace"
     cargo llvm-cov clean --workspace
     cargo llvm-cov --locked --no-report
-    cargo llvm-cov report --html --output-dir "$coverage_dir/html"
-    cargo llvm-cov report --summary-only | tee "$coverage_dir/summary.txt"
-    mkdir -p "$build_dir/tmp"
-    rm -rf "$build_dir/tmp/mutants.out"
+    cargo llvm-cov report --html --output-dir "$PWD/coverage/html"
+    cargo llvm-cov report --summary-only | tee "$PWD/coverage/summary.txt"
+    mkdir -p "$PWD/tmp"
     set +e
-    cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$build_dir/tmp"
+    cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$PWD/tmp"
     mutation_status=$?
     set -e
     if [ "$mutation_status" -ne 0 ] && [ "$mutation_status" -ne 2 ]; then
