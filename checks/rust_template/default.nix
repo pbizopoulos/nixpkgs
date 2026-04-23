@@ -29,9 +29,8 @@ pkgs.runCommand "${name}"
     cd "$PWD/workspace"
     cargo llvm-cov
     cargo mutants || mutation_status=$?
-    case "''${mutation_status:-0}" in
-      0 | 2) ;;
-      *) exit "$mutation_status" ;;
-    esac
+    if [ "''${mutation_status:-0}" != 0 ] && [ "''${mutation_status:-0}" != 2 ]; then
+      exit "$mutation_status"
+    fi
     touch "$out"
   ''
