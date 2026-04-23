@@ -6,12 +6,6 @@
 let
   name = builtins.baseNameOf ./.;
   package = inputs.self.packages.${pkgs.stdenv.system}.${name};
-  cargoVendorConfig = pkgs.writeText "cargo-config.toml" ''
-    [source.vendored-source-registry-0]
-    directory = "${package.cargoDeps}/source-registry-0"
-    [source.crates-io]
-    replace-with = "vendored-source-registry-0"
-  '';
 in
 pkgs.runCommand "${name}"
   {
@@ -31,19 +25,16 @@ pkgs.runCommand "${name}"
     build_dir="$PWD"
     workspace="$build_dir/workspace"
     export HOME="$build_dir"
-    export CARGO_HOME="$build_dir/cargo-home"
-    export CARGO_NET_OFFLINE=true
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
     export CARGO_TARGET_DIR="$build_dir/target"
     coverage_dir="$build_dir/coverage"
-    rm -rf "$workspace"
     cp -R "$src" "$workspace"
     chmod -R u+w "$workspace"
-    mkdir -p "$CARGO_HOME"
-    install -m644 ${cargoVendorConfig} "$CARGO_HOME/config.toml"
-    rm -rf "$coverage_dir"
+    cp -R "${package.cargoDeps}/.cargo" "$workspace/"
+    substituteInPlace "$workspace/.cargo/config.toml" \
+      --replace-fail "@vendor@" "${package.cargoDeps}"
     mkdir -p "$coverage_dir"
     cd "$workspace"
     cargo llvm-cov clean --workspace
