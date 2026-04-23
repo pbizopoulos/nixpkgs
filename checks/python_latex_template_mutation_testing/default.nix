@@ -4,17 +4,13 @@
   ...
 }:
 let
-  name = builtins.baseNameOf ./.;
+  name = "python_latex_template";
 in
 pkgs.runCommand "${name}"
   {
     nativeBuildInputs = [
       (pkgs.python313.withPackages (
-        _:
-        inputs.self.packages.${pkgs.stdenv.system}.${name}.propagatedBuildInputs
-        ++ [
-          pkgs.python313Packages.coverage
-        ]
+        _: inputs.self.packages.${pkgs.stdenv.system}.${name}.propagatedBuildInputs
       ))
       inputs.self.packages.${pkgs.stdenv.system}.cosmic_ray
       pkgs.texliveFull
@@ -24,8 +20,6 @@ pkgs.runCommand "${name}"
   ''
     export HOME="$PWD"
     export PYTHON_LATEX_TEMPLATE_ASSETS="$src"
-    DEBUG=1 coverage run --source="$src" "$src/main.py"
-    coverage report
     workspace="$PWD/workspace"
     rm -rf "$workspace"
     mkdir -p "$workspace"
