@@ -25,11 +25,10 @@ pkgs.runCommand "${name}"
   ''
     export HOME="$PWD"
     workspace="$PWD/workspace"
-    coverage_root="$workspace/coverage"
     config_file="$workspace/cosmic-ray.toml"
     session_file="$workspace/cosmic-ray.sqlite"
     rm -rf "$workspace"
-    mkdir -p "$workspace" "$coverage_root"
+    mkdir -p "$workspace"
     cp -r "$src"/. "$workspace"
     cd "$workspace"
     DEBUG=1 coverage run --source=. main.py
