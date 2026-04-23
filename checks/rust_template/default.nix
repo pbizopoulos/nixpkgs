@@ -5,7 +5,7 @@
 }:
 let
   name = builtins.baseNameOf ./.;
-  inherit (inputs.self.packages.${pkgs.stdenv.system}.${name}) cargoDeps;
+  inherit (inputs.self.packages.${pkgs.stdenv.system}.${builtins.baseNameOf ./.}) cargoDeps;
 in
 pkgs.runCommand "${name}"
   {
@@ -22,16 +22,15 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
-    workspace="$PWD/workspace"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    cp -R --no-preserve=mode "$src" "$workspace"
-    install -Dm644 "${cargoDeps}/.cargo/config.toml" "$workspace/.cargo/config.toml"
-    substituteInPlace "$workspace/.cargo/config.toml" \
+    cp -R --no-preserve=mode "$src" "$PWD/workspace"
+    install -Dm644 "${cargoDeps}/.cargo/config.toml" "$PWD/workspace/.cargo/config.toml"
+    substituteInPlace "$PWD/workspace/.cargo/config.toml" \
       --replace-fail "@vendor@" "${cargoDeps}"
     mkdir -p "$PWD/coverage"
-    cd "$workspace"
+    cd "$PWD/workspace"
     cargo llvm-cov --locked --no-report
     cargo llvm-cov report --html --output-dir "$PWD/coverage/html"
     cargo llvm-cov report --summary-only | tee "$PWD/coverage/summary.txt"
