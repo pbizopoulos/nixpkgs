@@ -19,11 +19,7 @@ pkgs.runCommand "${checkName}"
   }
   ''
     export HOME="$PWD"
-    workspace="$PWD/workspace"
-    rm -rf "$workspace"
-    mkdir -p "$workspace"
-    cp -R --no-preserve=mode "$src"/. "$workspace"
-    cd "$workspace"
+    cd "$src"
     DEBUG=1 pyinstrument main.py
     touch "$out"
   ''
