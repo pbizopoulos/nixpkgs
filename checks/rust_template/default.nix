@@ -28,7 +28,6 @@ pkgs.runCommand "${name}"
     export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
-    export CARGO_TARGET_DIR="$build_dir/target"
     coverage_dir="$build_dir/coverage"
     cp -R "$src" "$workspace"
     chmod -R u+w "$workspace"
