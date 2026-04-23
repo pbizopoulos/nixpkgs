@@ -13,6 +13,7 @@ pkgs.runCommand "${checkName}"
     nativeBuildInputs = [
       inputs.self.packages.${pkgs.stdenv.system}.${packageName}
       pkgs.git
+      pkgs.perf
     ];
     src = repoRoot;
   }
@@ -20,6 +21,8 @@ pkgs.runCommand "${checkName}"
     export HOME="$PWD"
     workspace="$PWD/workspace"
     mkdir -p "$workspace/target"
-    CANONICALIZATION_ROOT="$src" DEBUG=1 default "$workspace/target" --templates rust
+    perf record --call-graph dwarf -o perf.data -- \
+      env CANONICALIZATION_ROOT="$src" default "$workspace/target" --templates rust
+    perf report --stdio -i perf.data
     touch "$out"
   ''

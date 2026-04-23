@@ -83,7 +83,7 @@ pkgs.rustPlatform.buildRustPackage {
     pkgs.openssl
     pkgs.zlib
   ];
-  cargoHash = "sha256-qvh3OYctJVL6ALONkDJmfrZoVYoRvr1IWkzRW2YEaBs=";
+  cargoHash = "sha256-fCa2ITVSNmdt45RBW/NqpERS5BrCMri+P3aRE+9qezE=";
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;

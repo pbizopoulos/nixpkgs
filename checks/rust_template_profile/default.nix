@@ -10,12 +10,13 @@ in
 pkgs.runCommand "${checkName}"
   {
     nativeBuildInputs = [
-      pkgs.pprof
+      pkgs.perf
       inputs.self.packages.${pkgs.stdenv.system}.${packageName}
     ];
     src = ../../packages/${packageName};
   }
   ''
-    DEBUG=1 rust_template
+    perf record --call-graph dwarf -o perf.data -- rust_template
+    perf report --stdio -i perf.data
     touch "$out"
   ''

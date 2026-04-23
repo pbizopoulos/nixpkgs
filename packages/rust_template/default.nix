@@ -2,7 +2,7 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.rustPlatform.buildRustPackage rec {
-  cargoHash = "sha256-gXRGXItul4G9T8MQe6x+JhCAmunbelhEMGwo5QdhFR8=";
+  cargoHash = "sha256-eYbFGvryzvF0Px0Iyfaws3fwWbSKUn/montDzNymyBc=";
   doCheck = pkgs.stdenv.isLinux;
   env.RUSTFLAGS = "-D warnings";
   meta.mainProgram = pname;

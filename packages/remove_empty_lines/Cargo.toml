@@ -2,7 +2,6 @@
 ignore = "0.4"
 anyhow = "1.0"
 content_inspector = "0.2"
-pprof = "0.15.0"
 tempfile = "3.8"
 
 [package]

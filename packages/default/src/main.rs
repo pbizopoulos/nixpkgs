@@ -1,12 +1,8 @@
-use pprof::ProfilerGuard;
 use std::env;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, ExitCode};
 fn main() -> ExitCode {
-    if env::var("DEBUG").as_deref() == Ok("1") {
-        return profile_main();
-    }
     match run() {
         Ok(()) => ExitCode::SUCCESS,
         Err(err) => {
@@ -14,20 +10,6 @@ fn main() -> ExitCode {
             ExitCode::from(1)
         }
     }
-}
-fn profile_main() -> ExitCode {
-    let guard = ProfilerGuard::new(100).expect("Failed to start profiler");
-    let status = match run() {
-        Ok(()) => ExitCode::SUCCESS,
-        Err(err) => {
-            eprintln!("{err}");
-            ExitCode::from(1)
-        }
-    };
-    if let Ok(report) = guard.report().build() {
-        println!("{report:?}");
-    }
-    status
 }
 fn run() -> Result<(), String> {
     let config = parse_args()?;

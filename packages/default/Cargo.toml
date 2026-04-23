@@ -1,6 +1,3 @@
-[dependencies]
-pprof = "0.15.0"
-
 [package]
 name = "default"
 version = "0.1.0"

@@ -3,7 +3,6 @@
 #![allow(clippy::needless_pass_by_value)]
 use clap::Parser;
 use git2::{Repository, StatusOptions};
-use pprof::ProfilerGuard;
 use regex::Regex;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -119,10 +118,6 @@ fn validate_fastapi_package_layout(
 }
 use std::time::{SystemTime, UNIX_EPOCH};
 fn main() {
-    if std::env::var("DEBUG").as_deref() == Ok("1") {
-        profile_tests();
-        return;
-    }
     let args = Args::parse();
     let flake_nix_path = args.flake_nix_path;
     let lock_path = std::env::temp_dir().join("check_repository_directory_structure.lock");
@@ -155,60 +150,6 @@ fn main() {
             std::process::exit(1);
         }
     }
-}
-fn profile_tests() {
-    let guard = ProfilerGuard::new(100).expect("Failed to start profiler");
-    profile_repository_check();
-    if let Ok(report) = guard.report().build() {
-        println!("{report:?}");
-    }
-}
-fn profile_repository_check() {
-    use std::fs;
-    use std::process::Command;
-    let temp_dir = std::env::temp_dir().join("check-repository-directory-structure-profile");
-    if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir).unwrap();
-    }
-    fs::create_dir_all(&temp_dir).unwrap();
-    Command::new("git")
-        .arg("init")
-        .arg("-b")
-        .arg("main")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to init git");
-    Command::new("git")
-        .args(["config", "user.email", "test@example.com"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    Command::new("git")
-        .args(["config", "user.name", "Test User"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    fs::write(temp_dir.join("flake.nix"), "test").unwrap();
-    Command::new("git")
-        .arg("add")
-        .arg("flake.nix")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to add flake.nix");
-    Command::new("git")
-        .arg("commit")
-        .arg("-m")
-        .arg("initial commit")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to commit");
-    let flake_nix_path = temp_dir.join("flake.nix");
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(
-        result.is_ok(),
-        "Expected Ok, but got Err: {:?}",
-        result.err()
-    );
 }
 fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Vec<String>> {
     if std::env::var("NIX_BUILD_TOP").is_ok() {
