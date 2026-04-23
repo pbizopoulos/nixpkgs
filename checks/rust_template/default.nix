@@ -35,10 +35,8 @@ pkgs.runCommand "${name}"
     cargo llvm-cov --locked --no-report
     cargo llvm-cov report --html --output-dir "$PWD/coverage/html"
     cargo llvm-cov report --summary-only | tee "$PWD/coverage/summary.txt"
-    set +e
-    cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$PWD/tmp"
-    mutation_status=$?
-    set -e
+    mutation_status=0
+    cargo mutants --no-config --colors never --cap-lints true --jobs 1 --output "$PWD/tmp" || mutation_status=$?
     if [ "$mutation_status" -ne 0 ] && [ "$mutation_status" -ne 2 ]; then
       exit "$mutation_status"
     fi
