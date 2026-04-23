@@ -28,7 +28,7 @@ pkgs.runCommand "${name}"
       --replace-fail "@vendor@" "${cargoDeps}"
     cd "$PWD/workspace"
     cargo llvm-cov --locked
-    cargo mutants --no-config --colors never --no-times --all-logs --caught --unviable --cap-lints true --jobs 1 --output "$PWD/tmp" || mutation_status=$?
+    cargo mutants || mutation_status=$?
     case "''${mutation_status:-0}" in
       0 | 2) ;;
       *) exit "$mutation_status" ;;
