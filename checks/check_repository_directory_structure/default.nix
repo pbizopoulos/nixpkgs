@@ -21,6 +21,8 @@ pkgs.runCommand "${name}"
       pkgs.cargo
       pkgs.cargo-llvm-cov
       pkgs.cargo-mutants
+      pkgs.coreutils
+      pkgs.llvmPackages.clang
       pkgs.git
       pkgs.llvmPackages.llvm
       pkgs.pkg-config
@@ -30,6 +32,7 @@ pkgs.runCommand "${name}"
     src = ../../packages/${name};
   }
   ''
+    export LIBCLANG_PATH='${pkgs.llvmPackages.libclang.lib}/lib'
     export PKG_CONFIG_PATH='${pkgConfigPath}'
     export LLVM_COV='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-cov"}'
     export LLVM_PROFDATA='${pkgs.lib.getExe' pkgs.llvmPackages.llvm "llvm-profdata"}'
