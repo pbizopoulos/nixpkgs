@@ -30,7 +30,9 @@ pkgs.runCommand "${checkName}"
     cd "$workspace"
     cat > cosmic-ray.toml <<'EOF'
     [cosmic-ray]
-    module-path = ["manage.py", "django_template", "starter"]
+    module-path = [
+      "starter/views.py",
+    ]
     timeout = 10.0
     excluded-modules = ["**/tests/**"]
     test-command = "DEBUG=1 python3 manage.py test"
