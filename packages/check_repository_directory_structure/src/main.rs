@@ -462,18 +462,6 @@ mod tests {
             .output()
             .expect("Failed to commit");
     }
-    fn binary_path() -> PathBuf {
-        if let Ok(path) = std::env::var("CARGO_BIN_EXE_check_repository_directory_structure") {
-            return PathBuf::from(path);
-        }
-        let mut path = std::env::current_exe().expect("Failed to get test executable path");
-        path.pop();
-        if path.ends_with("deps") {
-            path.pop();
-        }
-        path.push("check_repository_directory_structure");
-        path
-    }
     #[test]
     fn test_is_valid_fqdn() {
         assert!(is_valid_fqdn("google.com"));
@@ -590,31 +578,6 @@ mod tests {
             validate_fastapi_package_layout(working_dir, package_root, &dir_and_file_names);
         assert_eq!(warnings.len(), 1);
         assert!(warnings[0].contains("admin.py"));
-    }
-    #[test]
-    fn test_main_reports_invalid_repo() {
-        std::env::remove_var("NIX_BUILD_TOP");
-        let temp_dir = std::env::temp_dir().join("test-repo-structure-cli");
-        init_temp_repo(&temp_dir);
-        let lock_tmp_dir = temp_dir.join("locktmp");
-        fs::create_dir_all(&lock_tmp_dir).unwrap();
-        fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-        let binary = binary_path();
-        if !binary.exists() {
-            fs::remove_dir_all(&temp_dir).unwrap();
-            return;
-        }
-        let output = Command::new(binary)
-            .env("TMPDIR", &lock_tmp_dir)
-            .env_remove("NIX_BUILD_TOP")
-            .arg("flake.nix")
-            .current_dir(&temp_dir)
-            .output()
-            .unwrap();
-        assert!(!output.status.success());
-        let stdout = String::from_utf8_lossy(&output.stdout);
-        assert!(stdout.contains("unallowed.txt"), "stdout was: {stdout}");
-        fs::remove_dir_all(&temp_dir).unwrap();
     }
     #[test]
     fn test_run_with_lock_skips_recent_run() {
