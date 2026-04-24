@@ -55,38 +55,34 @@ fn remove_empty_lines(path: &Path) -> Result<()> {
     }
     Ok(())
 }
-#[allow(dead_code)]
-fn run_tests() -> Result<()> {
-    use tempfile::tempdir;
-    println!("Running tests...");
-    let dir = tempdir()?;
-    let root = dir.path();
-    let file1_path = root.join("test.txt");
-    fs::write(&file1_path, "line1\n\nline2\n   \nline3\n")?;
-    let gitignore_path = root.join(".gitignore");
-    fs::write(&gitignore_path, "ignored.txt\n")?;
-    let ignored_path = root.join("ignored.txt");
-    fs::write(&ignored_path, "should be ignored\n\n")?;
-    let binary_path = root.join("binary.bin");
-    fs::write(&binary_path, [0, 15, 255, 0, 1, 2, 3])?;
-    process_path(root);
-    let content1 = fs::read_to_string(&file1_path)?;
-    assert_eq!(content1, "line1\nline2\nline3\n");
-    println!("test_remove_empty_lines ... ok");
-    let content_ignored = fs::read_to_string(&ignored_path)?;
-    assert_eq!(content_ignored, "should be ignored\n\n");
-    println!("test_respect_gitignore ... ok");
-    let content_binary = fs::read(&binary_path)?;
-    assert_eq!(content_binary, vec![0, 15, 255, 0, 1, 2, 3]);
-    println!("test_skip_binary ... ok");
-    println!("All tests passed!");
-    Ok(())
-}
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::env;
     #[test]
-    fn test_all() -> Result<()> {
-        run_tests()
+    fn test_main_and_process_path() -> Result<()> {
+        use tempfile::tempdir;
+        let dir = tempdir()?;
+        let root = dir.path();
+        let file1_path = root.join("test.txt");
+        fs::write(&file1_path, "line1\n\nline2\n   \nline3\n")?;
+        let gitignore_path = root.join(".gitignore");
+        fs::write(&gitignore_path, "ignored.txt\n")?;
+        let ignored_path = root.join("ignored.txt");
+        fs::write(&ignored_path, "should be ignored\n\n")?;
+        let binary_path = root.join("binary.bin");
+        fs::write(&binary_path, [0, 15, 255, 0, 1, 2, 3])?;
+        let previous_dir = env::current_dir()?;
+        env::set_current_dir(root)?;
+        let result = main();
+        env::set_current_dir(previous_dir)?;
+        result?;
+        let content1 = fs::read_to_string(&file1_path)?;
+        assert_eq!(content1, "line1\nline2\nline3\n");
+        let content_ignored = fs::read_to_string(&ignored_path)?;
+        assert_eq!(content_ignored, "should be ignored\n\n");
+        let content_binary = fs::read(&binary_path)?;
+        assert_eq!(content_binary, vec![0, 15, 255, 0, 1, 2, 3]);
+        Ok(())
     }
 }

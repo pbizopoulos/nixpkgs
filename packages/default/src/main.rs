@@ -20,36 +20,23 @@ fn run() -> Result<(), String> {
         .filter_map(|(name, path)| config.templates.contains(&name).then_some(path))
         .collect();
     if !target_dir.exists() {
-        println!("Creating target directory: {}", target_dir.display());
+        log_progress(format_args!(
+            "Creating target directory: {}",
+            target_dir.display()
+        ));
         fs::create_dir_all(target_dir)
             .map_err(|err| format!("Failed to create target directory: {err}"))?;
     }
-    println!("Initializing git repository in {}", target_dir.display());
+    log_progress(format_args!(
+        "Initializing git repository in {}",
+        target_dir.display()
+    ));
     run_command(
-        Command::new("git").arg("init").current_dir(target_dir),
+        Command::new("git")
+            .args(["init", "-b", "main"])
+            .current_dir(target_dir),
         "git init",
     )?;
-    run_command(
-        Command::new("git")
-            .args(["config", "user.email", "agent@example.com"])
-            .current_dir(target_dir),
-        "git config user.email",
-    )
-    .ok();
-    run_command(
-        Command::new("git")
-            .args(["config", "user.name", "Agent"])
-            .current_dir(target_dir),
-        "git config user.name",
-    )
-    .ok();
-    run_command(
-        Command::new("git")
-            .args(["commit", "--allow-empty", "-m", "Initial commit"])
-            .current_dir(target_dir),
-        "git commit",
-    )
-    .ok();
     let root_dir = get_root_dir()?;
     let flake_nix_src = root_dir.join("flake.nix");
     if flake_nix_src.exists() {
@@ -78,23 +65,23 @@ fn run() -> Result<(), String> {
             .and_then(|s| s.to_str())
             .ok_or_else(|| format!("Invalid template path: {}", template_path.display()))?;
         let dest_path = target_dir.join("packages").join(template_name);
-        println!(
+        log_progress(format_args!(
             "Copying template {template_name} to {}",
             dest_path.display()
-        );
+        ));
         copy_dir_contents(&template_path, &dest_path)?;
         let checks_src = checks_src_root.join(template_name);
         if checks_src.exists() {
             let checks_dest = target_dir.join("checks").join(template_name);
-            println!(
+            log_progress(format_args!(
                 "Copying checks {template_name} to {}",
                 checks_dest.display()
-            );
+            ));
             copy_dir_contents(&checks_src, &checks_dest)?;
         }
     }
     if target_dir.join("flake.nix").exists() {
-        println!("Running nix fmt in target directory...");
+        log_progress(format_args!("Running nix fmt in target directory..."));
         run_command(
             Command::new("nix").arg("fmt").current_dir(target_dir),
             "nix fmt",
@@ -153,6 +140,11 @@ fn run_command(command: &mut Command, label: &str) -> Result<(), String> {
         Ok(())
     } else {
         Err(format!("{label} exited with status {status}"))
+    }
+}
+fn log_progress(message: std::fmt::Arguments<'_>) {
+    if env::var("CANONICALIZATION_VERBOSE").as_deref() == Ok("1") {
+        println!("{message}");
     }
 }
 fn copy_dir_contents(src: &Path, dest: &Path) -> Result<(), String> {

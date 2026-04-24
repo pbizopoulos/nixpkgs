@@ -21,8 +21,8 @@ fn is_dash_case(name: &str) -> bool {
     let re = Regex::new(r"^[a-z0-9]+([-.][a-z0-9]+)*$").unwrap();
     re.is_match(name)
 }
-fn should_ignore_untracked_path(path: &str) -> bool {
-    path == ".codex"
+fn should_skip_recent_run(now: u64, last_run: u64) -> bool {
+    now - last_run < 5
 }
 fn package_root(rel_path: &Path) -> Option<PathBuf> {
     let components: Vec<_> = rel_path
@@ -121,6 +121,20 @@ fn main() {
     let args = Args::parse();
     let flake_nix_path = args.flake_nix_path;
     let lock_path = std::env::temp_dir().join("check_repository_directory_structure.lock");
+    let now = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+    match run_with_lock(flake_nix_path, &lock_path, now) {
+        #[allow(clippy::ignored_unit_patterns)]
+        Ok(()) => std::process::exit(0),
+        Err(warnings) => {
+            println!("{}", warnings.join("\n"));
+            std::process::exit(1);
+        }
+    }
+}
+fn run_with_lock(flake_nix_path: String, lock_path: &Path, now: u64) -> Result<(), Vec<String>> {
     let lock_file = std::fs::OpenOptions::new()
         .read(true)
         .write(true)
@@ -130,25 +144,17 @@ fn main() {
         .expect("Failed to open lock file");
     let mut lock = fd_lock::RwLock::new(lock_file);
     let mut _guard = lock.write().expect("Failed to acquire write lock");
-    let now = SystemTime::now()
-        .duration_since(UNIX_EPOCH)
-        .unwrap()
-        .as_secs();
     let last_run_str = std::fs::read_to_string(&lock_path).unwrap_or_default();
     let last_run: u64 = last_run_str.trim().parse().unwrap_or(0);
-    if now - last_run < 5 {
-        std::process::exit(0);
+    if should_skip_recent_run(now, last_run) {
+        return Ok(());
     }
     match check_repository_directory_structure(flake_nix_path) {
-        #[allow(clippy::ignored_unit_patterns)]
         Ok(()) => {
-            std::fs::write(&lock_path, now.to_string()).unwrap();
-            std::process::exit(0)
+            std::fs::write(lock_path, now.to_string()).unwrap();
+            Ok(())
         }
-        Err(warnings) => {
-            println!("{}", warnings.join("\n"));
-            std::process::exit(1);
-        }
+        Err(warnings) => Err(warnings),
     }
 }
 fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Vec<String>> {
@@ -171,7 +177,7 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         Err(_) => return Ok(()),
     };
     for entry in statuses.iter() {
-        if entry.status().is_wt_new() && !entry.path().is_some_and(should_ignore_untracked_path) {
+        if entry.status().is_wt_new() {
             warnings.push(format!(
                 "{}: is untracked",
                 working_dir.join(entry.path().unwrap()).display()
@@ -250,7 +256,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     let names_allowed = [
         r"\.git(/.*)?",
         r"\.github/workflows/workflow\.yml",
-        r"\.codex(/.*)?",
         r"\.gitignore",
         r"CITATION\.bib",
         r"LICENSE",
@@ -399,11 +404,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
     for name in sorted_names {
         let name_str = name.to_str().unwrap();
         if !allowed_patterns.iter().any(|re| re.is_match(name_str)) {
-            if std::env::var("DEBUG").as_deref() == Ok("1") {
-                for re in &allowed_patterns {
-                    eprintln!("Pattern: {}", re.as_str());
-                }
-            }
             final_warnings.push(format!(
                 "{}: is not allowed",
                 working_dir.join(name).display()
@@ -416,179 +416,6 @@ fn check_repository_directory_structure(flake_nix_path: String) -> Result<(), Ve
         Err(final_warnings)
     }
 }
-#[allow(dead_code)]
-fn run_tests() {
-    test_is_valid_fqdn_standalone();
-    test_is_dash_case_standalone();
-    test_check_repository_directory_structure_standalone();
-}
-fn test_check_repository_directory_structure_standalone() {
-    std::env::remove_var("NIX_BUILD_TOP");
-    use std::fs;
-    use std::process::Command;
-    let temp_dir = std::env::temp_dir().join("test-repo-structure-standalone");
-    if temp_dir.exists() {
-        fs::remove_dir_all(&temp_dir).unwrap();
-    }
-    fs::create_dir_all(&temp_dir).unwrap();
-    Command::new("git")
-        .arg("init")
-        .arg("-b")
-        .arg("main")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to init git");
-    Command::new("git")
-        .args(["config", "user.email", "test@example.com"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    Command::new("git")
-        .args(["config", "user.name", "Test User"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    fs::write(temp_dir.join("flake.nix"), "test").unwrap();
-    Command::new("git")
-        .arg("add")
-        .arg("flake.nix")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to add flake.nix");
-    Command::new("git")
-        .arg("commit")
-        .arg("-m")
-        .arg("initial commit")
-        .current_dir(&temp_dir)
-        .output()
-        .expect("Failed to commit");
-    let flake_nix_path = temp_dir.join("flake.nix");
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(
-        result.is_ok(),
-        "Expected Ok, but got Err: {:?}",
-        result.err()
-    );
-    fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(result.is_err());
-    fs::remove_file(temp_dir.join("unallowed.txt")).unwrap();
-    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/app/exceptions"))
-        .unwrap();
-    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/public/styles"))
-        .unwrap();
-    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/tests/e2e")).unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/default.nix"),
-        "test",
-    )
-    .unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/.env.example"),
-        "test",
-    )
-    .unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/app/exceptions/handler.ts"),
-        "test",
-    )
-    .unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/public/styles/app.css"),
-        "test",
-    )
-    .unwrap();
-    Command::new("git")
-        .args(["add", "templates"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(
-        result.is_ok(),
-        "Expected Ok for templates, but got Err: {:?}",
-        result.err()
-    );
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/unallowed.txt"),
-        "test",
-    )
-    .unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(result.is_err());
-    fs::remove_file(temp_dir.join("templates/my-template/packages/my-pkg/unallowed.txt")).unwrap();
-    fs::create_dir_all(temp_dir.join("templates/my-template/packages/my-pkg/tests")).unwrap();
-    fs::write(
-        temp_dir.join("templates/my-template/packages/my-pkg/tests/test.ts"),
-        "test",
-    )
-    .unwrap();
-    Command::new("git")
-        .args(["add", "templates"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(
-        result.is_ok(),
-        "Expected Ok for templates/tests, but got Err: {:?}",
-        result.err()
-    );
-    fs::create_dir_all(temp_dir.join("packages/no-default")).unwrap();
-    fs::write(temp_dir.join("packages/no-default/main.py"), "test").unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(result.is_err());
-    fs::remove_dir_all(temp_dir.join("packages/no-default")).unwrap();
-    fs::remove_dir(temp_dir.join("packages")).unwrap();
-    fs::create_dir_all(temp_dir.join("hosts/my-host")).unwrap();
-    fs::write(temp_dir.join("hosts/my-host/configuration.nix"), "test").unwrap();
-    fs::write(
-        temp_dir.join("hosts/my-host/hardware-configuration.nix"),
-        "test",
-    )
-    .unwrap();
-    Command::new("git")
-        .args(["add", "hosts"])
-        .current_dir(&temp_dir)
-        .output()
-        .unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(
-        result.is_ok(),
-        "Expected Ok for hosts/configuration.nix, but got Err: {:?}",
-        result.err()
-    );
-    fs::write(temp_dir.join("hosts/my-host/.gitignore"), "test").unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(result.is_err());
-    fs::remove_file(temp_dir.join("hosts/my-host/.gitignore")).unwrap();
-    fs::create_dir_all(temp_dir.join("hosts/only-hardware")).unwrap();
-    fs::write(
-        temp_dir.join("hosts/only-hardware/hardware-configuration.nix"),
-        "test",
-    )
-    .unwrap();
-    let result = check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
-    assert!(result.is_err());
-    fs::remove_dir_all(&temp_dir).unwrap();
-    println!("test check_repository_directory_structure ... ok");
-}
-fn test_is_valid_fqdn_standalone() {
-    assert!(is_valid_fqdn("google.com"));
-    assert!(is_valid_fqdn("a.b.co"));
-    assert!(!is_valid_fqdn("google"));
-    assert!(!is_valid_fqdn("google."));
-    assert!(!is_valid_fqdn(".com"));
-    println!("test is_valid_fqdn ... ok");
-}
-fn test_is_dash_case_standalone() {
-    assert!(is_dash_case("my-package"));
-    assert!(is_dash_case("my.package"));
-    assert!(is_dash_case("package123"));
-    assert!(!is_dash_case("My-Package"));
-    assert!(!is_dash_case("my_package"));
-    println!("test is_dash_case ... ok");
-}
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -596,6 +423,9 @@ mod tests {
     use std::path::Path;
     use std::process::Command;
     fn init_temp_repo(path: &Path) {
+        init_temp_repo_on_branch(path, "main");
+    }
+    fn init_temp_repo_on_branch(path: &Path, branch: &str) {
         if path.exists() {
             fs::remove_dir_all(path).unwrap();
         }
@@ -603,7 +433,7 @@ mod tests {
         Command::new("git")
             .arg("init")
             .arg("-b")
-            .arg("main")
+            .arg(branch)
             .current_dir(path)
             .output()
             .expect("Failed to init git");
@@ -632,6 +462,18 @@ mod tests {
             .output()
             .expect("Failed to commit");
     }
+    fn binary_path() -> PathBuf {
+        if let Ok(path) = std::env::var("CARGO_BIN_EXE_check_repository_directory_structure") {
+            return PathBuf::from(path);
+        }
+        let mut path = std::env::current_exe().expect("Failed to get test executable path");
+        path.pop();
+        if path.ends_with("deps") {
+            path.pop();
+        }
+        path.push("check_repository_directory_structure");
+        path
+    }
     #[test]
     fn test_is_valid_fqdn() {
         assert!(is_valid_fqdn("google.com"));
@@ -649,17 +491,10 @@ mod tests {
         assert!(!is_dash_case("my_package"));
     }
     #[test]
-    fn test_should_ignore_untracked_path() {
-        assert!(should_ignore_untracked_path(".codex"));
-        assert!(!should_ignore_untracked_path(
-            "packages/django_template/starter/__pycache__",
-        ));
-        assert!(!should_ignore_untracked_path(
-            "packages/django_template/starter/__pycache__/views.cpython-313.pyc",
-        ));
-        assert!(!should_ignore_untracked_path(
-            "packages/django_template/starter/views.py"
-        ));
+    fn test_should_skip_recent_run() {
+        assert!(should_skip_recent_run(10, 6));
+        assert!(should_skip_recent_run(10, 9));
+        assert!(!should_skip_recent_run(10, 5));
     }
     #[test]
     fn test_package_root() {
@@ -743,6 +578,70 @@ mod tests {
         assert!(warnings.is_empty());
     }
     #[test]
+    fn test_validate_fastapi_package_layout_rejects_unlisted_file() {
+        let working_dir = Path::new("/tmp/repo");
+        let package_root = Path::new("packages/fastapi_postgres_template");
+        let dir_and_file_names = HashSet::from([
+            PathBuf::from("packages/fastapi_postgres_template/default.nix"),
+            PathBuf::from("packages/fastapi_postgres_template/main.py"),
+            PathBuf::from("packages/fastapi_postgres_template/admin.py"),
+        ]);
+        let warnings =
+            validate_fastapi_package_layout(working_dir, package_root, &dir_and_file_names);
+        assert_eq!(warnings.len(), 1);
+        assert!(warnings[0].contains("admin.py"));
+    }
+    #[test]
+    fn test_main_reports_invalid_repo() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-cli");
+        init_temp_repo(&temp_dir);
+        let lock_tmp_dir = temp_dir.join("locktmp");
+        fs::create_dir_all(&lock_tmp_dir).unwrap();
+        fs::write(temp_dir.join("unallowed.txt"), "test").unwrap();
+        let binary = binary_path();
+        if !binary.exists() {
+            fs::remove_dir_all(&temp_dir).unwrap();
+            return;
+        }
+        let output = Command::new(binary)
+            .env("TMPDIR", &lock_tmp_dir)
+            .env_remove("NIX_BUILD_TOP")
+            .arg("flake.nix")
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        assert!(!output.status.success());
+        let stdout = String::from_utf8_lossy(&output.stdout);
+        assert!(stdout.contains("unallowed.txt"), "stdout was: {stdout}");
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_run_with_lock_skips_recent_run() {
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-lock-skip");
+        if temp_dir.exists() {
+            fs::remove_dir_all(&temp_dir).unwrap();
+        }
+        fs::create_dir_all(&temp_dir).unwrap();
+        let lock_path = temp_dir.join("check_repository_directory_structure.lock");
+        let now = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        fs::write(&lock_path, (now - 1).to_string()).unwrap();
+        let result = run_with_lock(
+            temp_dir
+                .join("not-a-real-repo")
+                .join("flake.nix")
+                .to_string_lossy()
+                .to_string(),
+            &lock_path,
+            now,
+        );
+        assert!(result.is_ok());
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
     fn test_check_repository_directory_structure() {
         std::env::remove_var("NIX_BUILD_TOP");
         let temp_dir = std::env::temp_dir().join("test-repo-structure");
@@ -823,6 +722,77 @@ mod tests {
         let result =
             check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
         assert!(result.is_err());
+        fs::remove_dir_all(temp_dir.join("hosts/only-hardware")).unwrap();
+        for ignored_dir in [
+            "tmp",
+            "build",
+            "_build",
+            "deps",
+            "node_modules",
+            ".nuxt",
+            ".svelte-kit",
+            "result",
+        ] {
+            let ignored_path = temp_dir.join(ignored_dir).join("unallowed.txt");
+            fs::create_dir_all(ignored_path.parent().unwrap()).unwrap();
+            fs::write(&ignored_path, "test").unwrap();
+        }
+        Command::new("git")
+            .args(["add", "."])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let result =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string());
+        assert!(
+            result.is_ok(),
+            "Expected Ok for ignored build directories, but got Err: {:?}",
+            result.err()
+        );
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_check_repository_directory_structure_rejects_wrong_branch() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-branches");
+        init_temp_repo_on_branch(&temp_dir, "feature");
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let warnings =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string())
+                .unwrap_err();
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.contains("should have 'main' as the active branch")),
+            "Expected an active-branch warning, got: {warnings:?}"
+        );
+        fs::remove_dir_all(&temp_dir).unwrap();
+    }
+    #[test]
+    fn test_check_repository_directory_structure_rejects_extra_branch() {
+        std::env::remove_var("NIX_BUILD_TOP");
+        let temp_dir = std::env::temp_dir().join("test-repo-structure-extra-branch");
+        init_temp_repo(&temp_dir);
+        Command::new("git")
+            .args(["checkout", "-b", "feature"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        Command::new("git")
+            .args(["checkout", "main"])
+            .current_dir(&temp_dir)
+            .output()
+            .unwrap();
+        let flake_nix_path = temp_dir.join("flake.nix");
+        let warnings =
+            check_repository_directory_structure(flake_nix_path.to_str().unwrap().to_string())
+                .unwrap_err();
+        assert!(
+            warnings
+                .iter()
+                .any(|warning| warning.contains("should have only one branch")),
+            "Expected a branch-count warning, got: {warnings:?}"
+        );
         fs::remove_dir_all(&temp_dir).unwrap();
     }
     #[test]
@@ -830,7 +800,6 @@ mod tests {
         std::env::remove_var("NIX_BUILD_TOP");
         let temp_dir = std::env::temp_dir().join("test-repo-structure-django");
         init_temp_repo(&temp_dir);
-        fs::create_dir_all(temp_dir.join(".codex")).unwrap();
         let package_root = temp_dir.join("packages/django_template");
         for relative_dir in [
             "django_template",
