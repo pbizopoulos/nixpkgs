@@ -15,24 +15,17 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-def template_root() -> Path:
-    """Return the directory that stores the LaTeX template assets."""
-    script_path = Path(__file__).resolve()
+def template_root(script_path: Path) -> Path:
+    """Resolve the directory that contains ms.tex/ms.bib assets."""
     candidates = [
         script_path.parent,
-        script_path.parent.parent / script_path.name,
-        script_path.parent.parent / "python_latex_template",
+        script_path.parent.parent,
     ]
     for candidate in candidates:
         if (candidate / "ms.tex").is_file():
             return candidate
     msg = "Could not find ms.tex for the python_latex_template package."
     raise FileNotFoundError(msg)
-
-
-def output_root() -> Path:
-    """Return the root directory that should receive the tmp workspace."""
-    return Path.cwd().resolve()
 
 
 def create_figure(path: Path) -> None:
@@ -58,51 +51,52 @@ def create_table(path: Path) -> None:
             "Value": [7.50, 6.50, 16.00],
         },
     )
-    latex = frame.to_latex(index=False, float_format=lambda value: f"{value:.2f}")
+    lines = [
+        "\\begin{tabular}{lr}",
+        "\\toprule",
+        "Metric & Value \\\\",
+        "\\midrule",
+    ]
+    for row in frame.itertuples(index=False):
+        lines.append(f"{row.Metric} & {row.Value:.2f} \\\\")
+    lines.extend(["\\bottomrule", "\\end{tabular}", ""])
+    latex = "\n".join(lines)
     path.write_text(latex, encoding="utf-8")
 
 
-def create_workspace(destination_root: Path) -> Path:
-    """Populate the tmp workspace with generated artifacts and TeX sources."""
-    source_root = template_root()
+def main() -> None:
+    """Generate the build workspace and compile the PDF."""
+    destination_root = Path.cwd().resolve()
+    if not os.access(destination_root, os.W_OK):
+        destination_root = Path("/tmp/python_latex_template")
+        destination_root.mkdir(parents=True, exist_ok=True)
+    script_path = Path(__file__).resolve()
+    source_root = template_root(script_path)
     workspace = destination_root / "tmp"
     workspace.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source_root / "ms.tex", workspace / "ms.tex")
+    ms_tex = workspace / "ms.tex"
+    ms_tex.unlink(missing_ok=True)
+    shutil.copy2(source_root / "ms.tex", ms_tex)
     bib_path = source_root / "ms.bib"
     if bib_path.exists():
-        shutil.copy2(bib_path, workspace / "ms.bib")
+        ms_bib = workspace / "ms.bib"
+        ms_bib.unlink(missing_ok=True)
+        shutil.copy2(bib_path, ms_bib)
     create_figure(workspace / "figure.png")
     create_table(workspace / "table.tex")
-    return workspace
-
-
-def compile_document(workspace: Path) -> Path:
-    """Compile the LaTeX document inside the tmp workspace."""
     latexmk_bin = shutil.which("latexmk")
     if latexmk_bin is None:
         msg = "latexmk is required to compile the LaTeX template."
         raise FileNotFoundError(msg)
     subprocess.run(  # noqa: S603
-        [latexmk_bin, "-pdf", "-interaction=nonstopmode", "ms.tex"],
+        [latexmk_bin, "-pdf", "ms.tex"],
         check=True,
         cwd=workspace,
         env={**os.environ, "HOME": str(workspace)},
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
     )
-    return workspace / "ms.pdf"
-
-
-def render_document(destination_root: Path) -> Path:
-    """Build the workspace and compile the PDF."""
-    workspace = create_workspace(destination_root)
-    return compile_document(workspace)
-
-
-def main() -> None:
-    """Generate the build workspace and compile the PDF."""
-    pdf_path = render_document(output_root())
-    print(f"PDF: {pdf_path}")  # noqa: T201
+    print(f"PDF: {workspace / 'ms.pdf'}")  # noqa: T201
 
 
 if __name__ == "__main__":

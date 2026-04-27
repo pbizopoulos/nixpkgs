@@ -3,7 +3,6 @@
 }:
 let
   pythonDeps = [
-    pkgs.python313Packages.jinja2
     pkgs.python313Packages.matplotlib
     pkgs.python313Packages.pandas
   ];
@@ -11,7 +10,6 @@ in
 pkgs.python313Packages.buildPythonPackage rec {
   buildPhase = ''
     runHook preBuild
-    export HOME="$TMPDIR"
     mkdir -p "$TMPDIR/build"
     (
       cd "$TMPDIR/build"
@@ -21,9 +19,9 @@ pkgs.python313Packages.buildPythonPackage rec {
   '';
   installPhase = ''
     install -Dm755 ./main.py $out/bin/${pname}
-    install -Dm644 ./ms.tex $out/${pname}/ms.tex
-    install -Dm644 ./ms.bib $out/${pname}/ms.bib
-    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/${pname}/ms.pdf
+    install -Dm644 ./ms.tex $out/ms.tex
+    install -Dm644 ./ms.bib $out/ms.bib
+    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/ms.pdf
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [
