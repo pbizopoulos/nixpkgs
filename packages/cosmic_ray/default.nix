@@ -34,7 +34,13 @@ let
   };
 in
 pkgs.python3Packages.buildPythonApplication rec {
+  doInstallCheck = pkgs.stdenv.isLinux;
   format = "wheel";
+  installCheckPhase = ''
+    runHook preInstallCheck
+    "$out/bin/cosmic-ray" --help
+    runHook postInstallCheck
+  '';
   meta.mainProgram = "cosmic-ray";
   pname = baseNameOf ./.;
   propagatedBuildInputs = [
