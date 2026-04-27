@@ -2,10 +2,10 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
-  pythonDeps = with pkgs.python313Packages; [
-    jinja2
-    matplotlib
-    pandas
+  pythonDeps = [
+    pkgs.python313Packages.jinja2
+    pkgs.python313Packages.matplotlib
+    pkgs.python313Packages.pandas
   ];
 in
 pkgs.python313Packages.buildPythonPackage rec {
@@ -18,9 +18,9 @@ pkgs.python313Packages.buildPythonPackage rec {
   '';
   installPhase = ''
     install -Dm755 ./main.py $out/bin/${pname}
-    install -Dm644 ./ms.tex $out/share/${pname}/ms.tex
-    install -Dm644 ./ms.bib $out/share/${pname}/ms.bib
-    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/share/${pname}/ms.pdf
+    install -Dm644 ./ms.tex $out/${pname}/ms.tex
+    install -Dm644 ./ms.bib $out/${pname}/ms.bib
+    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/${pname}/ms.pdf
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [
@@ -30,7 +30,7 @@ pkgs.python313Packages.buildPythonPackage rec {
   pname = builtins.baseNameOf src;
   postFixup = ''
     wrapProgram $out/bin/${pname} \
-      --set PYTHON_LATEX_TEMPLATE_ASSETS $out/share/${pname} \
+      --set PYTHON_LATEX_TEMPLATE_ASSETS $out/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.coreutils
