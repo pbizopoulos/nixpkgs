@@ -10,16 +10,15 @@ let
   pythonEnv = pkgs.python313.withPackages (_: pythonDeps);
   runtimeScript = pkgs.writeShellScript "python_latex_template" ''
     set -euo pipefail
-    script_dir="$(cd "$(dirname "$0")" && pwd)"
-    package_root="$(cd "$script_dir/.." && pwd)"
-    destination_root="$PWD"
-    cd "$destination_root"
+    package_dir="$(cd "$(dirname "$0")/../${packageName}" && pwd)"
     rm -rf tmp
-    ${pythonEnv}/bin/python3 "$package_root/${packageName}/main.py"
-    cp "$package_root/${packageName}/ms.tex" tmp/ms.tex
-    cp "$package_root/${packageName}/ms.bib" tmp/ms.bib
-    cd tmp
-    ${pkgs.texliveFull}/bin/latexmk -pdf ms.tex >/dev/null 2>&1
+    ${pythonEnv}/bin/python3 "$package_dir/main.py"
+    cp "$package_dir/ms.tex" tmp/ms.tex
+    cp "$package_dir/ms.bib" tmp/ms.bib
+    (
+      cd tmp
+      ${pkgs.texliveFull}/bin/latexmk -pdf ms.tex
+    )
   '';
 in
 pkgs.python313Packages.buildPythonPackage rec {
