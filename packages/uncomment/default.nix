@@ -2,6 +2,12 @@
   pkgs ? import <nixpkgs> { },
 }:
 pkgs.stdenv.mkDerivation rec {
+  doInstallCheck = pkgs.stdenv.isLinux;
+  installCheckPhase = ''
+    runHook preInstallCheck
+    "$out/bin/${pname}" --help >/dev/null
+    runHook postInstallCheck
+  '';
   installPhase = ''
     runHook preInstall
     install -Dm755 ${pname} $out/bin/${pname}

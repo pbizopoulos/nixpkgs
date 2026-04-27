@@ -3,8 +3,16 @@
 }:
 pkgs.rustPlatform.buildRustPackage rec {
   cargoHash = "sha256-eYbFGvryzvF0Px0Iyfaws3fwWbSKUn/montDzNymyBc=";
-  doCheck = pkgs.stdenv.isLinux;
-  env.RUSTFLAGS = "-D warnings";
+  doInstallCheck = pkgs.stdenv.isLinux;
+  env = {
+    RUSTDOCFLAGS = "-D warnings";
+    RUSTFLAGS = "-D warnings";
+  };
+  installCheckPhase = ''
+    runHook preInstallCheck
+    $out/bin/${pname}
+    runHook postInstallCheck
+  '';
   meta.mainProgram = pname;
   pname = baseNameOf ./.;
   src = ./.;

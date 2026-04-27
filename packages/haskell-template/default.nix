@@ -16,6 +16,7 @@ pkgs.haskellPackages.mkDerivation rec {
   pname = baseNameOf ./.;
   postInstall = ''
     wrapProgram $out/bin/${pname} --run "rm -f tmp/${pname}.tix" --set-default HPCTIXFILE tmp/${pname}.tix
+    DEBUG=1 "$out/bin/${pname}" | grep -F "test ... ok"
   '';
   src = ./.;
   version = "0.0.0";

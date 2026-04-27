@@ -112,6 +112,12 @@ pkgs.stdenv.mkDerivation rec {
     ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
+  doInstallCheck = pkgs.stdenv.isLinux;
+  installCheckPhase = ''
+    runHook preInstallCheck
+    DEBUG=1 "$out/bin/${pname}" | grep -F "test ... ok"
+    runHook postInstallCheck
+  '';
   installPhase = ''
     install -Dm755 ${pname} $out/bin/${pname}
   '';

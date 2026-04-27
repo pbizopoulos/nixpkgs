@@ -7,8 +7,16 @@ pkgs.rustPlatform.buildRustPackage rec {
     pkgs.zlib
   ];
   cargoHash = "sha256-fCa2ITVSNmdt45RBW/NqpERS5BrCMri+P3aRE+9qezE=";
-  doCheck = pkgs.stdenv.isLinux;
-  env.RUSTFLAGS = "-D warnings";
+  doInstallCheck = pkgs.stdenv.isLinux;
+  env = {
+    RUSTDOCFLAGS = "-D warnings";
+    RUSTFLAGS = "-D warnings";
+  };
+  installCheckPhase = ''
+    runHook preInstallCheck
+    $out/bin/${pname}
+    runHook postInstallCheck
+  '';
   meta.mainProgram = pname;
   nativeBuildInputs = [
     pkgs.git
