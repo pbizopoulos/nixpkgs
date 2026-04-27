@@ -36,7 +36,7 @@ in
 pkgs.python3Packages.buildPythonApplication rec {
   format = "wheel";
   meta.mainProgram = "cosmic-ray";
-  pname = "cosmic_ray";
+  pname = baseNameOf ./.;
   propagatedBuildInputs = [
     exit-codes
     pkgs.python3Packages.aiohttp
@@ -54,7 +54,7 @@ pkgs.python3Packages.buildPythonApplication rec {
     qprompt
   ];
   pythonImportsCheck = [
-    "cosmic_ray"
+    pname
   ];
   src = pkgs.python3Packages.fetchPypi rec {
     inherit
