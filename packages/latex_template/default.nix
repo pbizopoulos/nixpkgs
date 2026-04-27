@@ -3,16 +3,10 @@
 }:
 pkgs.stdenv.mkDerivation rec {
   buildPhase = ''
-    export HOME=$TMPDIR
-    latexmk -pdf -interaction=nonstopmode ms.tex > /dev/null 2>&1
+    latexmk -pdf ms.tex
   '';
   installPhase = ''
-    install -Dm644 ms.pdf $out/share/ms.pdf
-    install -Dm755 /dev/stdin $out/bin/${pname} <<EOF
-    #!/usr/bin/env bash
-    echo "Hello World"
-    echo "PDF: $out/share/ms.pdf"
-    EOF
+    install -Dm644 ms.pdf $out/ms.pdf
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [
