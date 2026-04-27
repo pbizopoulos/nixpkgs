@@ -2,52 +2,36 @@
   pkgs ? import <nixpkgs> { },
 }:
 let
+  packageName = builtins.baseNameOf ./.;
   pythonDeps = [
     pkgs.python313Packages.matplotlib
     pkgs.python313Packages.pandas
   ];
+  pythonEnv = pkgs.python313.withPackages (_: pythonDeps);
+  runtimeScript = pkgs.writeShellScript "python_latex_template" ''
+    set -euo pipefail
+    script_dir="$(cd "$(dirname "$0")" && pwd)"
+    package_root="$(cd "$script_dir/.." && pwd)"
+    destination_root="$PWD"
+    cd "$destination_root"
+    rm -rf tmp
+    ${pythonEnv}/bin/python3 "$package_root/${packageName}/main.py"
+    cp "$package_root/${packageName}/ms.tex" tmp/ms.tex
+    cp "$package_root/${packageName}/ms.bib" tmp/ms.bib
+    cd tmp
+    ${pkgs.texliveFull}/bin/latexmk -pdf ms.tex >/dev/null 2>&1
+  '';
 in
 pkgs.python313Packages.buildPythonPackage rec {
-  buildPhase = ''
-    runHook preBuild
-    mkdir -p "$TMPDIR/build"
-    (
-      cd "$TMPDIR/build"
-      python3 "$src/main.py"
-      cd tmp
-      latexmk -pdf ms.tex >/dev/null 2>&1
-    )
-    runHook postBuild
-  '';
   installPhase = ''
-        mkdir -p $out/bin
-        install -Dm644 ./main.py $out/${pname}/main.py
-        install -Dm644 ./ms.tex $out/${pname}/ms.tex
-        install -Dm644 ./ms.bib $out/${pname}/ms.bib
-        install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/ms.pdf
-        cat > $out/bin/${pname} <<EOF
-    #!/usr/bin/env bash
-    set -euo pipefail
-    echo "PDF: $out/ms.pdf"
-    EOF
-        chmod +x $out/bin/${pname}
+    mkdir -p $out/bin
+    install -Dm644 ./main.py $out/${packageName}/main.py
+    install -Dm644 ./ms.tex $out/${packageName}/ms.tex
+    install -Dm644 ./ms.bib $out/${packageName}/ms.bib
+    install -Dm755 ${runtimeScript} $out/bin/${pname}
   '';
   meta.mainProgram = pname;
-  nativeBuildInputs = [
-    pkgs.makeWrapper
-    pkgs.texliveFull
-  ];
-  pname = builtins.baseNameOf src;
-  postFixup = ''
-    wrapProgram $out/bin/${pname} \
-      --prefix PATH : ${
-        pkgs.lib.makeBinPath [
-          pkgs.coreutils
-          (pkgs.python313.withPackages (_: pythonDeps))
-          pkgs.texliveFull
-        ]
-      }
-  '';
+  pname = packageName;
   propagatedBuildInputs = pythonDeps;
   pyproject = false;
   src = ./.;

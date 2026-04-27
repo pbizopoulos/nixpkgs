@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-import shutil
+import os
 from pathlib import Path
 
 import matplotlib as mpl
@@ -21,7 +21,10 @@ def create_figure(path: Path) -> None:
     axis.plot(x_values, y_values, color="#1f77b4", linewidth=2.5, marker="o")
     axis.set_xlabel("Input")
     axis.set_ylabel("Squared output")
-    axis.set_title("Python-generated figure")
+    if os.getenv("DEBUG"):
+        axis.set_title("Python-generated figure (in DEBUG mode)")
+    else:
+        axis.set_title("Python-generated figure")
     axis.grid(alpha=0.3)
     figure.tight_layout()
     figure.savefig(path, dpi=200)
@@ -52,11 +55,8 @@ def create_table(path: Path) -> None:
 
 def main() -> None:
     """Generate the build workspace artifacts for LaTeX compilation."""
-    source_root = Path(__file__).resolve().parent
     workspace = Path.cwd().resolve() / "tmp"
     workspace.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source_root / "ms.tex", workspace / "ms.tex")
-    shutil.copy2(source_root / "ms.bib", workspace / "ms.bib")
     create_figure(workspace / "figure.png")
     create_table(workspace / "table.tex")
 
