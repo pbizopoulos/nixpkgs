@@ -100,7 +100,6 @@ pkgs.stdenv.mkDerivation rec {
     -Wwrite-strings \
     -Wformat=2 \
     -fanalyzer \
-    -fsanitize=address,undefined \
     -fstack-protector-strong \
     -fstack-clash-protection \
     -D_FORTIFY_SOURCE=3 \
