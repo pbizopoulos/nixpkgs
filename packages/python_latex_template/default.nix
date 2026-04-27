@@ -20,31 +20,24 @@ pkgs.python313Packages.buildPythonPackage rec {
     runHook postBuild
   '';
   installPhase = ''
-    mkdir -p $out/bin
-    install -Dm644 ./main.py $out/${pname}/main.py
-    install -Dm644 ./ms.tex $out/${pname}/ms.tex
-    install -Dm644 ./ms.bib $out/${pname}/ms.bib
-    install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/ms.pdf
-    cat > $out/bin/${pname} <<EOF
-#!/usr/bin/env bash
-set -euo pipefail
-
-destination_root="\$PWD"
-if [ "\$#" -ge 1 ]; then
-  destination_root="\$1"
-fi
-if [ ! -w "\$destination_root" ]; then
-  destination_root="/tmp/python_latex_template"
-  mkdir -p "\$destination_root"
-fi
-
-cd "\$destination_root"
-python3 "$out/${pname}/main.py"
-cd tmp
-latexmk -pdf ms.tex >/dev/null 2>&1
-echo "PDF: \$destination_root/tmp/ms.pdf"
-EOF
-    chmod +x $out/bin/${pname}
+        mkdir -p $out/bin
+        install -Dm644 ./main.py $out/${pname}/main.py
+        install -Dm644 ./ms.tex $out/${pname}/ms.tex
+        install -Dm644 ./ms.bib $out/${pname}/ms.bib
+        install -Dm644 "$TMPDIR/build/tmp/ms.pdf" $out/ms.pdf
+        cat > $out/bin/${pname} <<EOF
+    #!/usr/bin/env bash
+    set -euo pipefail
+    destination_root="/tmp/python_latex_template-\$(id -u)"
+    mkdir -p "\$destination_root"
+    rm -rf "\$destination_root/tmp"
+    cd "\$destination_root"
+    python3 "$out/${pname}/main.py"
+    cd tmp
+    latexmk -pdf ms.tex >/dev/null 2>&1
+    echo "PDF: \$destination_root/tmp/ms.pdf"
+    EOF
+        chmod +x $out/bin/${pname}
   '';
   meta.mainProgram = pname;
   nativeBuildInputs = [

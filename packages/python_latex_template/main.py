@@ -3,7 +3,6 @@
 
 from __future__ import annotations
 
-import os
 import shutil
 from pathlib import Path
 
@@ -12,19 +11,6 @@ import matplotlib as mpl
 mpl.use("Agg")
 import matplotlib.pyplot as plt
 import pandas as pd
-
-
-def template_root(script_path: Path) -> Path:
-    """Resolve the directory that contains ms.tex/ms.bib assets."""
-    candidates = [
-        script_path.parent,
-        script_path.parent.parent,
-    ]
-    for candidate in candidates:
-        if (candidate / "ms.tex").is_file():
-            return candidate
-    msg = "Could not find ms.tex for the python_latex_template package."
-    raise FileNotFoundError(msg)
 
 
 def create_figure(path: Path) -> None:
@@ -56,8 +42,9 @@ def create_table(path: Path) -> None:
         "Metric & Value \\\\",
         "\\midrule",
     ]
-    for row in frame.itertuples(index=False):
-        lines.append(f"{row.Metric} & {row.Value:.2f} \\\\")
+    lines.extend(
+        f"{row.Metric} & {row.Value:.2f} \\\\" for row in frame.itertuples(index=False)
+    )
     lines.extend(["\\bottomrule", "\\end{tabular}", ""])
     latex = "\n".join(lines)
     path.write_text(latex, encoding="utf-8")
@@ -65,22 +52,11 @@ def create_table(path: Path) -> None:
 
 def main() -> None:
     """Generate the build workspace artifacts for LaTeX compilation."""
-    destination_root = Path.cwd().resolve()
-    if not os.access(destination_root, os.W_OK):
-        destination_root = Path("/tmp/python_latex_template")
-        destination_root.mkdir(parents=True, exist_ok=True)
-    script_path = Path(__file__).resolve()
-    source_root = template_root(script_path)
-    workspace = destination_root / "tmp"
+    source_root = Path(__file__).resolve().parent
+    workspace = Path.cwd().resolve() / "tmp"
     workspace.mkdir(parents=True, exist_ok=True)
-    ms_tex = workspace / "ms.tex"
-    ms_tex.unlink(missing_ok=True)
-    shutil.copy2(source_root / "ms.tex", ms_tex)
-    bib_path = source_root / "ms.bib"
-    if bib_path.exists():
-        ms_bib = workspace / "ms.bib"
-        ms_bib.unlink(missing_ok=True)
-        shutil.copy2(bib_path, ms_bib)
+    shutil.copy2(source_root / "ms.tex", workspace / "ms.tex")
+    shutil.copy2(source_root / "ms.bib", workspace / "ms.bib")
     create_figure(workspace / "figure.png")
     create_table(workspace / "table.tex")
 
