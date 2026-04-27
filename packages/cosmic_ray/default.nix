@@ -72,5 +72,6 @@ pkgs.python3Packages.buildPythonApplication rec {
     python = "py3";
     sha256 = "RIr35qo2W9uyVBBrkHpneVD8eF93RauaZZ1HNShbswc=";
   };
+  strictDeps = true;
   version = "8.4.6";
 }

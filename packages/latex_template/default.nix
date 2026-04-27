@@ -14,5 +14,6 @@ pkgs.stdenv.mkDerivation rec {
   ];
   pname = baseNameOf ./.;
   src = ./.;
+  strictDeps = true;
   version = "0.0.0";
 }

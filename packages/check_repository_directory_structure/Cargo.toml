@@ -5,6 +5,9 @@ git2 = "0.19"
 regex = "1.10"
 walkdir = "2.5"
 
+[lints.rust]
+unsafe_code = "forbid"
+
 [package]
 name = "check_repository_directory_structure"
 version = "0.1.0"

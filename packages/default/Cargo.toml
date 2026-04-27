@@ -1,3 +1,6 @@
+[lints.rust]
+unsafe_code = "forbid"
+
 [package]
 name = "default"
 version = "0.1.0"

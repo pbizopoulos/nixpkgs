@@ -23,5 +23,6 @@ pkgs.stdenv.mkDerivation rec {
     sha256 = "6jUmVZ5SIKRgaF6V6gy2aFu4ZgcKbhl1O7g16UcnIQQ=";
     url = "https://github.com/Goldziher/${pname}/releases/download/v${version}/${pname}-x86_64-unknown-linux-gnu.tar.gz";
   };
+  strictDeps = true;
   version = "3.0.2";
 }

@@ -4,6 +4,9 @@ anyhow = "1.0"
 content_inspector = "0.2"
 tempfile = "3.8"
 
+[lints.rust]
+unsafe_code = "forbid"
+
 [package]
 name = "remove_empty_lines"
 version = "0.1.0"

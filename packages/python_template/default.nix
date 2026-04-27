@@ -15,5 +15,6 @@ pkgs.python312Packages.buildPythonPackage rec {
   pname = builtins.baseNameOf src;
   pyproject = false;
   src = ./.;
+  strictDeps = true;
   version = "0.0.0";
 }
