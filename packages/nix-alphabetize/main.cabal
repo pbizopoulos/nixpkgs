@@ -14,4 +14,4 @@ executable nix-alphabetize
     , prettyprinter
     , temporary
     , text
-  ghc-options:   -O2 -Weverything -Werror -threaded -fhpc
+  ghc-options:   -O2 -Weverything -Werror -threaded
