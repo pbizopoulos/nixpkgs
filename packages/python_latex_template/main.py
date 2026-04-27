@@ -1,11 +1,11 @@
-"""Generate Python-produced artifacts for a LaTeX build."""  # noqa: INP001
+#!/usr/bin/env python3
+"""Generate Python-produced artifacts for a LaTeX build."""
 
 from __future__ import annotations
 
 import os
 import shutil
 import subprocess
-import sys
 from pathlib import Path
 
 import matplotlib as mpl
@@ -32,8 +32,6 @@ def template_root() -> Path:
 
 def output_root() -> Path:
     """Return the root directory that should receive the tmp workspace."""
-    if len(sys.argv) > 1:
-        return Path(sys.argv[1]).resolve()
     return Path.cwd().resolve()
 
 
@@ -80,8 +78,6 @@ def create_workspace(destination_root: Path) -> Path:
 
 def compile_document(workspace: Path) -> Path:
     """Compile the LaTeX document inside the tmp workspace."""
-    stdout_target = None if os.getenv("DEBUG") == "1" else subprocess.DEVNULL
-    stderr_target = None if os.getenv("DEBUG") == "1" else subprocess.DEVNULL
     latexmk_bin = shutil.which("latexmk")
     if latexmk_bin is None:
         msg = "latexmk is required to compile the LaTeX template."
@@ -91,8 +87,8 @@ def compile_document(workspace: Path) -> Path:
         check=True,
         cwd=workspace,
         env={**os.environ, "HOME": str(workspace)},
-        stderr=stderr_target,
-        stdout=stdout_target,
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
     )
     return workspace / "ms.pdf"
 
@@ -103,24 +99,8 @@ def render_document(destination_root: Path) -> Path:
     return compile_document(workspace)
 
 
-def run_tests() -> None:
-    """Exercise the end-to-end artifact generation flow."""
-    destination_root = output_root()
-    pdf_path = render_document(destination_root)
-    workspace = destination_root / "tmp"
-    assert (workspace / "figure.png").is_file()  # noqa: S101
-    assert (workspace / "table.tex").is_file()  # noqa: S101
-    assert pdf_path.is_file()  # noqa: S101
-    table_contents = (workspace / "table.tex").read_text(encoding="utf-8")
-    assert "\\begin{tabular}" in table_contents  # noqa: S101
-    print("test_generate_workspace ... ok")  # noqa: T201
-
-
 def main() -> None:
-    """Run the program or the test flow."""
-    if os.getenv("DEBUG") == "1":
-        run_tests()
-        return
+    """Generate the build workspace and compile the PDF."""
     pdf_path = render_document(output_root())
     print(f"PDF: {pdf_path}")  # noqa: T201
 

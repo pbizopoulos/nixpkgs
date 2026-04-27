@@ -12,7 +12,11 @@ pkgs.python313Packages.buildPythonPackage rec {
   buildPhase = ''
     runHook preBuild
     export HOME="$TMPDIR"
-    python3 ./main.py "$TMPDIR/build"
+    mkdir -p "$TMPDIR/build"
+    (
+      cd "$TMPDIR/build"
+      python3 "$src/main.py"
+    )
     runHook postBuild
   '';
   installPhase = ''
