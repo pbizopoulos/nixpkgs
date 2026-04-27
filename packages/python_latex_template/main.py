@@ -17,14 +17,15 @@ import pandas as pd
 
 def template_root() -> Path:
     """Return the directory that stores the LaTeX template assets."""
-    configured_root = os.getenv("PYTHON_LATEX_TEMPLATE_ASSETS")
-    if configured_root is not None:
-        candidate = Path(configured_root).resolve()
+    script_path = Path(__file__).resolve()
+    candidates = [
+        script_path.parent,
+        script_path.parent.parent / script_path.name,
+        script_path.parent.parent / "python_latex_template",
+    ]
+    for candidate in candidates:
         if (candidate / "ms.tex").is_file():
             return candidate
-    candidate = Path(__file__).resolve().parent
-    if (candidate / "ms.tex").is_file():
-        return candidate
     msg = "Could not find ms.tex for the python_latex_template package."
     raise FileNotFoundError(msg)
 
@@ -33,9 +34,6 @@ def output_root() -> Path:
     """Return the root directory that should receive the tmp workspace."""
     if len(sys.argv) > 1:
         return Path(sys.argv[1]).resolve()
-    configured_root = os.getenv("PYTHON_LATEX_TEMPLATE_OUTPUT_ROOT")
-    if configured_root is not None:
-        return Path(configured_root).resolve()
     return Path.cwd().resolve()
 
 

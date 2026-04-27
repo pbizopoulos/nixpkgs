@@ -12,7 +12,6 @@ pkgs.python313Packages.buildPythonPackage rec {
   buildPhase = ''
     runHook preBuild
     export HOME="$TMPDIR"
-    export PYTHON_LATEX_TEMPLATE_ASSETS="$PWD"
     python3 ./main.py "$TMPDIR/build"
     runHook postBuild
   '';
@@ -30,7 +29,6 @@ pkgs.python313Packages.buildPythonPackage rec {
   pname = builtins.baseNameOf src;
   postFixup = ''
     wrapProgram $out/bin/${pname} \
-      --set PYTHON_LATEX_TEMPLATE_ASSETS $out/${pname} \
       --prefix PATH : ${
         pkgs.lib.makeBinPath [
           pkgs.coreutils
