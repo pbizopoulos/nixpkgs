@@ -28,14 +28,7 @@ pkgs.python313Packages.buildPythonPackage rec {
         cat > $out/bin/${pname} <<EOF
     #!/usr/bin/env bash
     set -euo pipefail
-    destination_root="/tmp/python_latex_template-\$(id -u)"
-    mkdir -p "\$destination_root"
-    rm -rf "\$destination_root/tmp"
-    cd "\$destination_root"
-    python3 "$out/${pname}/main.py"
-    cd tmp
-    latexmk -pdf ms.tex >/dev/null 2>&1
-    echo "PDF: \$destination_root/tmp/ms.pdf"
+    echo "PDF: $out/ms.pdf"
     EOF
         chmod +x $out/bin/${pname}
   '';
