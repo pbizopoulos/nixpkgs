@@ -13,17 +13,12 @@ let
     package_dir="$(cd "$(dirname "$0")/../${packageName}" && pwd)"
     rm -rf tmp
     ${pythonEnv}/bin/python3 "$package_dir/main.py"
-    cp "$package_dir/ms.tex" tmp/ms.tex
-    cp "$package_dir/ms.bib" tmp/ms.bib
-    (
-      cd tmp
-      ${pkgs.texliveFull}/bin/latexmk -pdf ms.tex
-    )
+    cp "$package_dir"/ms.{tex,bib} tmp/
+    ${pkgs.texliveFull}/bin/latexmk -cd -pdf tmp/ms.tex
   '';
 in
 pkgs.python313Packages.buildPythonPackage rec {
   installPhase = ''
-    mkdir -p $out/bin
     install -Dm644 ./main.py $out/${packageName}/main.py
     install -Dm644 ./ms.tex $out/${packageName}/ms.tex
     install -Dm644 ./ms.bib $out/${packageName}/ms.bib
