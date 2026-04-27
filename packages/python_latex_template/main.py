@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import os
 import shutil
-import subprocess
 from pathlib import Path
 
 import matplotlib as mpl
@@ -65,7 +64,7 @@ def create_table(path: Path) -> None:
 
 
 def main() -> None:
-    """Generate the build workspace and compile the PDF."""
+    """Generate the build workspace artifacts for LaTeX compilation."""
     destination_root = Path.cwd().resolve()
     if not os.access(destination_root, os.W_OK):
         destination_root = Path("/tmp/python_latex_template")
@@ -84,19 +83,6 @@ def main() -> None:
         shutil.copy2(bib_path, ms_bib)
     create_figure(workspace / "figure.png")
     create_table(workspace / "table.tex")
-    latexmk_bin = shutil.which("latexmk")
-    if latexmk_bin is None:
-        msg = "latexmk is required to compile the LaTeX template."
-        raise FileNotFoundError(msg)
-    subprocess.run(  # noqa: S603
-        [latexmk_bin, "-pdf", "ms.tex"],
-        check=True,
-        cwd=workspace,
-        env={**os.environ, "HOME": str(workspace)},
-        stderr=subprocess.DEVNULL,
-        stdout=subprocess.DEVNULL,
-    )
-    print(f"PDF: {workspace / 'ms.pdf'}")  # noqa: T201
 
 
 if __name__ == "__main__":
