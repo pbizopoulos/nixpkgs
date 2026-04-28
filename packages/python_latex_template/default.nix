@@ -23,6 +23,9 @@ pkgs.python313Packages.buildPythonPackage rec {
     "$out/bin/${pname}"
     test -f "$PWD/tmp/ms.pdf"
     test -s "$PWD/tmp/ms.pdf"
+    HOME="$(mktemp -d)" DEBUG=1 coverage run --source="$src" "$src/main.py"
+    coverage report
+    HOME="$(mktemp -d)" DEBUG=1 pyinstrument "$src/main.py"
     runHook postInstallCheck
   '';
   installPhase = ''
@@ -32,10 +35,14 @@ pkgs.python313Packages.buildPythonPackage rec {
     install -Dm755 ${runtimeScript} $out/bin/${pname}
   '';
   meta.mainProgram = pname;
+  nativeInstallCheckInputs = [
+    pkgs.python313Packages.coverage
+    pkgs.python313Packages.pyinstrument
+    pkgs.texliveFull
+  ];
   pname = builtins.baseNameOf src;
   propagatedBuildInputs = pythonDeps;
   pyproject = false;
   src = ./.;
-  strictDeps = true;
   version = "0.0.0";
 }

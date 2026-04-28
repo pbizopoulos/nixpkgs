@@ -120,6 +120,23 @@ let
 in
 pkgs.python313Packages.buildPythonPackage rec {
   inherit pname;
+  doInstallCheck = pkgs.stdenv.isLinux;
+  installCheckPhase = ''
+    runHook preInstallCheck
+    export SECRET_KEY="django-insecure-template-secret-key"
+    export DATABASE_ENGINE="sqlite"
+    export EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+    coverage_root="$PWD/coverage"
+    rm -rf "$coverage_root"
+    mkdir -p "$coverage_root"
+    export DATABASE_NAME="$coverage_root/db.sqlite3"
+    export COVERAGE_FILE="$coverage_root/.coverage"
+    cd "$src"
+    DEBUG=1 coverage run --branch --source=starter,${pname} "$src/manage.py" test
+    coverage report
+    HOME="$(mktemp -d)" DEBUG=1 pyinstrument "$src/manage.py" test
+    runHook postInstallCheck
+  '';
   installPhase = ''
     mkdir -p "$out/lib/${pname}"
     cp -r ./. "$out/lib/${pname}"
@@ -129,9 +146,12 @@ pkgs.python313Packages.buildPythonPackage rec {
     ln -s "${pname}" "$out/bin/${pname}-manage"
   '';
   meta.mainProgram = pname;
+  nativeInstallCheckInputs = [
+    pkgs.python313Packages.coverage
+    pkgs.python313Packages.pyinstrument
+  ];
   propagatedBuildInputs = pythonDeps;
   pyproject = false;
   src = ./.;
-  strictDeps = true;
   version = "0.0.0";
 }

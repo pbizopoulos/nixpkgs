@@ -5,16 +5,21 @@ pkgs.python312Packages.buildPythonPackage rec {
   doInstallCheck = pkgs.stdenv.isLinux;
   installCheckPhase = ''
     runHook preInstallCheck
-    DEBUG=1 "$out/bin/${pname}" | grep -F "test ... ok"
+    HOME="$(mktemp -d)" DEBUG=1 coverage run --source="$src" "$src/main.py"
+    coverage report
+    HOME="$(mktemp -d)" DEBUG=1 pyinstrument "$src/main.py"
     runHook postInstallCheck
   '';
   installPhase = ''
     install -Dm755 ./main.py $out/bin/${pname}
   '';
   meta.mainProgram = pname;
+  nativeInstallCheckInputs = [
+    pkgs.python312Packages.coverage
+    pkgs.python312Packages.pyinstrument
+  ];
   pname = builtins.baseNameOf src;
   pyproject = false;
   src = ./.;
-  strictDeps = true;
   version = "0.0.0";
 }
