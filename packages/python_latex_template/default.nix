@@ -17,6 +17,14 @@ let
   '';
 in
 pkgs.python313Packages.buildPythonPackage rec {
+  doInstallCheck = pkgs.stdenv.isLinux;
+  installCheckPhase = ''
+    runHook preInstallCheck
+    "$out/bin/${pname}"
+    test -f "$PWD/tmp/ms.pdf"
+    test -s "$PWD/tmp/ms.pdf"
+    runHook postInstallCheck
+  '';
   installPhase = ''
     install -Dm644 ./main.py $out/bin/main.py
     install -Dm644 ./ms.tex $out/bin/ms.tex

@@ -5,6 +5,12 @@ git2 = "0.19"
 regex = "1.10"
 walkdir = "2.5"
 
+[lints.clippy]
+all = {level = "deny", priority = -1}
+pedantic = {level = "deny", priority = -1}
+nursery = {level = "deny", priority = -1}
+cargo = {level = "deny", priority = -1}
+
 [lints.rust]
 unsafe_code = "forbid"
 
