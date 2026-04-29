@@ -32,6 +32,7 @@ let
       deadnix.enable = true;
       dos2unix.enable = true;
       fourmolu.enable = true;
+      hclfmt.enable = true;
       hlint.enable = true;
       jsonfmt.enable = true;
       mdformat.enable = true;

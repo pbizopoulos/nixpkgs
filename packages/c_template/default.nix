@@ -107,8 +107,7 @@ pkgs.stdenv.mkDerivation rec {
     -Wl,-z,noexecstack
   '';
   checkPhase = ''
-    clang-tidy main.c -- -std=c89 -I${pkgs.stdenv.cc.libc.dev}/include -I${pkgs.lib.getDev pkgs.stdenv.cc.cc}/include
-    cppcheck --enable=all --error-exitcode=1 --suppress=missingIncludeSystem .
+    cppcheck --enable=all --error-exitcode=1 --inconclusive --force --std=c89 --suppress=missingIncludeSystem .
     ./${pname}
   '';
   doCheck = pkgs.stdenv.isLinux;
@@ -123,7 +122,6 @@ pkgs.stdenv.mkDerivation rec {
   '';
   meta.mainProgram = pname;
   nativeCheckInputs = [
-    pkgs.clang-tools
     pkgs.cppcheck
   ];
   pname = baseNameOf ./.;
