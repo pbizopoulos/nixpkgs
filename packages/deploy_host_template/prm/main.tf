@@ -16,14 +16,15 @@ variable "hcloud_token" {
 }
 variable "nixos_configuration_name" {
   type    = string
-  default = "template"
+  default = "default"
 }
 variable "server_name" {
   type    = string
   default = "template"
 }
 variable "output_directory" {
-  type = string
+  type    = string
+  default = "."
 }
 variable "hcloud_ssh_key_name" {
   type    = string

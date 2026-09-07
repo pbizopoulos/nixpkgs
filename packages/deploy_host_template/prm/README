@@ -1,36 +1,23 @@
-# 1st time Deploy
+# First deployment
 
-git clone git@github.com:pbizopoulos/canonicalization ~/github.com/pbizopoulos/canonicalization/
-cd ~/github.com/pbizopoulos/canonicalization/
-# server_type ~/github.com/pbizopoulos/canonicalization/packages/deploy_host_template/prm/main.tf at least cpx22
+Clone the repository and enter its root:
 
-# Domain name is optional.
-# Without a domain, the template deploys over plain HTTP and is reachable by IP/hostname.
-# If you want HTTPS, you must set your own real domain in hosts/default/configuration.nix
-# before deployment:
-# - set services.nginx.virtualHosts."<your-domain>".default = true
-# - set services.nginx.virtualHosts."<your-domain>".enableACME = true
-# - set services.nginx.virtualHosts."<your-domain>".forceSSL = true
-# - set services.nginx.virtualHosts."<your-domain>".locations."/" to proxy to your app
-# - set systemd.services.default.environment.ALLOWED_HOSTS to include your domain
-# - set systemd.services.default.environment.CSRF_TRUSTED_ORIGINS = "https://<your-domain>"
-# - add a matching security.acme configuration and email address
+    git clone git@github.com:pbizopoulos/canonicalization ~/github.com/pbizopoulos/canonicalization/
+    cd ~/github.com/pbizopoulos/canonicalization/
 
-cd prm/
-nix run github:ryantm/agenix -- -e secrets.age
-# Upload your public ssh key named default in https://console.hetzner.com/projects/<project-id>/security/sshkeys
-# Generate an API token named default in https://console.hetzner.com/projects/<project-id>/security/tokens
-# put hetnzer token in TF_VAR_hcloud_token=...
-# generate a random password for APP_KEY=...
-cd ..
-cd packages/deploy_host_template/
-nix run .#deploy_host_template
-# ssh-keyscan the prm/ipv4_address and put the key in prm/template.pub
-bash prm/agenix-rekey.sh
-cd packages/deploy_host_template/
-nix run .#deploy_host_template
+In the Hetzner project, upload the developer SSH public key under the name
+`default`, then create an API token. Supply the token directly to OpenTofu:
 
-# delete server
-rm -rf tmp/deploy_host_template.tfstate*
-# disable protection and delete server from console.hetzner
-# (if needed) Remove API token named default in https://console.hetzner.com/projects/<project-id>/security/tokens
+    export TF_VAR_hcloud_token='<token>'
+    nix run .#deploy_host_template
+
+The package stores OpenTofu data and state under
+`packages/deploy_host_template/tmp/`. The deployed server address is written to
+`packages/deploy_host_template/prm/ipv4_address`. The default NixOS
+configuration is `default`; all variables in `main.tf` remain overrideable with
+the usual `TF_VAR_<name>` environment variables.
+
+The selected Hetzner server type must satisfy the NixOS configuration's disk
+and memory requirements. To delete the server, first disable deletion and
+rebuild protection, then destroy it with OpenTofu or remove it through the
+Hetzner console.

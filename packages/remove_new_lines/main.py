@@ -21,16 +21,11 @@ def process_file(path: Path) -> None:
     if path.is_symlink() or not path.is_file():
         return
     contents = path.read_bytes()
-    if is_binary(contents):
+    if b"\0" in contents:
         return
     updated_contents = remove_new_lines(contents)
     if updated_contents != contents:
         path.write_bytes(updated_contents)
-
-
-def is_binary(contents: bytes) -> bool:
-    """Avoid rewriting files that contain a NUL byte."""
-    return b"\0" in contents
 
 
 def main() -> None:

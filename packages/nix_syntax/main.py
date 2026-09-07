@@ -71,24 +71,9 @@ def _first_error(node: Node) -> Node:
     return node
 
 
-def node_text(document: Document, node: Node) -> str:
-    """Return a node's source text."""
-    return document.text(node)
-
-
 def field(node: Node, name: str) -> Node | None:
     """Return a named grammar field."""
     return node.child_by_field_name(name)
-
-
-def named(node: Node, node_type: str | None = None) -> list[Node]:
-    """Return direct named children, optionally filtered by type."""
-    children = list(node.named_children)
-    return (
-        children
-        if node_type is None
-        else [child for child in children if child.type == node_type]
-    )
 
 
 def walk(node: Node) -> Iterable[Node]:

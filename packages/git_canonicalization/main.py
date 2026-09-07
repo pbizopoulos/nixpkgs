@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # Copyright (c) 2026- Paschalis Bizopoulos
-# ruff: noqa: C901, D101, E501, FBT001, FBT003, PLR2004, S101, S603, S607, TRY301
+# ruff: noqa: C901, D101, E501, FBT001, FBT003, PLR2004, S101, S603, TRY301
 """Check canonical home repositories and manage canonical flake repositories."""
 
 from __future__ import annotations
@@ -28,11 +28,10 @@ if TYPE_CHECKING:
     from tree_sitter import Node
 PACKAGE_KINDS = ("html", "latex", "nix", "python")
 KIND_MARKERS = {
-    "python": ("main.py",),
-    "html": ("index.html",),
-    "latex": ("ms.tex",),
+    "html": "index.html",
+    "latex": "ms.tex",
+    "python": "main.py",
 }
-KIND_SEPARATOR = dict.fromkeys(PACKAGE_KINDS, "_")
 ROOT_FILES = {
     ".github/workflows/workflow.yml",
     ".gitignore",
@@ -57,45 +56,16 @@ class Package:
     root: Path
 
 
-def run(
+def _run(
     arguments: list[str],
     cwd: Path | None = None,
     *,
-    input_text: str | None = None,
-    quiet: bool = False,
-) -> str:
-    """Run a process and preserve its diagnostic and exit status."""
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    """Run a process and preserve failures and captured output."""
     completed = subprocess.run(
         arguments,
         cwd=cwd,
-        input=input_text,
-        capture_output=True,
-        check=False,
-        text=True,
-    )
-    if completed.returncode != 0:
-        if completed.stdout:
-            print(completed.stdout, end="")  # noqa: T201
-        if completed.stderr:
-            print(completed.stderr, end="", file=sys.stderr)  # noqa: T201
-        raise SystemExit(completed.returncode)
-    if not quiet:
-        if completed.stdout:
-            print(completed.stdout, end="")  # noqa: T201
-        if completed.stderr:
-            print(completed.stderr, end="", file=sys.stderr)  # noqa: T201
-    return completed.stdout
-
-
-def git(
-    root: Path,
-    arguments: list[str],
-    *,
-    check: bool = True,
-) -> subprocess.CompletedProcess[str]:
-    """Run Git in a selected repository."""
-    completed = subprocess.run(
-        ["git", "-C", str(root), *arguments],
         capture_output=True,
         check=False,
         text=True,
@@ -107,6 +77,19 @@ def git(
             print(completed.stderr, end="", file=sys.stderr)  # noqa: T201
         raise SystemExit(completed.returncode)
     return completed
+
+
+def git(
+    root: Path,
+    arguments: list[str],
+    *,
+    check: bool = True,
+) -> subprocess.CompletedProcess[str]:
+    """Run Git in a selected repository."""
+    return _run(
+        ["git", "-C", str(root), *arguments],
+        check=check,
+    )
 
 
 def repository_root(path: Path = Path()) -> Path:
@@ -429,8 +412,8 @@ def detect_packages(root: Path) -> list[Package]:
     ):
         matches = [
             kind
-            for kind, markers in KIND_MARKERS.items()
-            if all((package_root / marker).is_file() for marker in markers)
+            for kind, marker in KIND_MARKERS.items()
+            if (package_root / marker).is_file()
         ]
         if (package_root / "main.py").exists():
             matches = [kind for kind in matches if kind != "latex"]
@@ -445,10 +428,9 @@ def detect_packages(root: Path) -> list[Package]:
     return result
 
 
-def validate_name(kind: str, name: str) -> None:
+def validate_name(name: str) -> None:
     """Enforce package naming conventions."""
-    separator = KIND_SEPARATOR[kind]
-    if not re.fullmatch(rf"[a-z0-9]+(?:{re.escape(separator)}[a-z0-9]+)*", name):
+    if not re.fullmatch(r"[a-z0-9]+(?:_[a-z0-9]+)*", name):
         msg = f"package name must use snake_case: {name}"
         raise CommandError(msg)
 
@@ -554,7 +536,7 @@ def inspect_structure(root: Path) -> tuple[list[Package], list[str]]:
     allowed = allowed_paths(root, packages)
     issues: list[str] = []
     for package in packages:
-        validate_name(package.kind, package.name)
+        validate_name(package.name)
         for relative in sorted(required_package_files(package)):
             if not (root / relative).is_file():
                 issues.extend([f"{relative}: missing required regular file"])
@@ -660,19 +642,6 @@ def _nix_string(value: str) -> str:
     return json.dumps(value).replace("${", r"\${")
 
 
-def _replace_meta_description(source: str, description: str) -> str:
-    """Replace a literal meta.description while retaining surrounding source."""
-    _document, expression = _meta_description_expression(source)
-    if expression is None or expression.type != "string_expression":
-        msg = "Python package default.nix must declare exactly one literal meta.description"
-        raise CommandError(msg)
-    encoded = source.encode("utf-8")
-    replacement = _nix_string(description).encode()
-    return (
-        encoded[: expression.start_byte] + replacement + encoded[expression.end_byte :]
-    ).decode("utf-8")
-
-
 def _meta_description_expression(
     source: str,
 ) -> tuple[nix_syntax.Document, Node | None]:
@@ -721,55 +690,6 @@ def _compact_nix(source: str) -> str:
     return " ".join(source.split())
 
 
-def _without_dependency_lists(source: str) -> str:
-    """Replace package-specific bindings with their template defaults."""
-    source = re.sub(
-        r"\{\s*inputs,\s*pkgs,\s*\.\.\.\s*\}:",
-        "{ pkgs, ... }:",
-        source,
-        count=1,
-    )
-    for dependency_name in ("nativeDeps", "pythonDeps"):
-        source, count = re.subn(
-            rf"(?s)(\b{dependency_name}\s*=\s*)\[.*?\](\s*;)",
-            r"\1[ ]\2",
-            source,
-            count=1,
-        )
-        if count != 1:
-            msg = f"Python package default.nix must declare exactly one {dependency_name} list"
-            raise CommandError(msg)
-    source, count = re.subn(
-        r"(?s)(\bshellHook\s*=\s*)(?:\".*?\"|''.*?'')(\s*;)",
-        r'\1""\2',
-        source,
-        count=1,
-    )
-    if count != 1:
-        msg = "Python package default.nix must declare exactly one shellHook string"
-        raise CommandError(msg)
-    return _replace_meta_description(source, "A Python package.")
-
-
-def _check_python_default(package: Package) -> None:
-    """Ensure generated Python definitions only customize approved package fields."""
-    actual = _read_regular(package.root / "default.nix")
-    if actual is None:
-        return
-    expected = scaffold("python", package.name, None)[
-        Path("packages") / package.name / "default.nix"
-    ]
-    if _compact_nix(_without_dependency_lists(actual)) != _compact_nix(
-        _without_dependency_lists(expected),
-    ):
-        msg = (
-            f"packages/{package.name}/default.nix: does not match the canonical "
-            "Python package template; permitted customizations are nativeDeps, "
-            "pythonDeps, shellHook, and meta.description"
-        )
-        raise CommandError(msg)
-
-
 def _check_coverage_default(root: Path, package: Package) -> None:
     """Ensure generated Python coverage checks retain their static definition."""
     check = root / "checks" / f"{package.name}_coverage" / "default.nix"
@@ -777,9 +697,8 @@ def _check_coverage_default(root: Path, package: Package) -> None:
         return
     actual = _read_regular(check)
     assert actual is not None
-    expected = _python_coverage_source(package.name)
-    current = _current_python_coverage_source()
-    if _compact_nix(actual) not in {_compact_nix(expected), _compact_nix(current)}:
+    expected = _current_python_coverage_source()
+    if _compact_nix(actual) != _compact_nix(expected):
         msg = (
             f"{check.relative_to(root)}: differs from the canonical coverage "
             "check template"
@@ -938,18 +857,6 @@ def _converge_packages(root: Path, packages: list[Package], dry_run: bool) -> bo
                 changed = True
                 if not dry_run:
                     git(root, ["rm", "-rf", "--", str(check.parent)])
-        for relative in package_files(package):
-            path = root / relative
-            if not path.exists() or path.is_symlink():
-                continue
-            executable = package.kind == "python" and relative.name == "main.py"
-            mode_matches = bool(path.stat().st_mode & 0o111) == executable
-            if not mode_matches:
-                _change(f"set mode on '{relative}'", dry_run=dry_run)
-                changed = True
-                if not dry_run:
-                    path.chmod(0o755 if executable else 0o644)
-                    git(root, ["add", "--", str(relative)])
     return changed
 
 
@@ -1271,10 +1178,6 @@ def _identifier(description: str) -> str:
     return f"behavior_{rendered}" if rendered[0].isdigit() else rendered
 
 
-def _python_coverage_source(name: str) -> str:
-    return f"""{{ inputs, pkgs, ... }}:\nlet\n  packageDrv = inputs.self.packages.${{pkgs.stdenv.system}}.{name};\n  pythonEnv = packageDrv.python.withPackages (_: packageDrv.propagatedBuildInputs ++ [ packageDrv.python.pkgs.pytest packageDrv.python.pkgs.pytest-cov ]);\nin pkgs.runCommand "{name}_coverage" {{ nativeBuildInputs = [ pythonEnv ]; src = ../../packages/{name}; }} ''\n  mkdir -p "$out/html"\n  cd "$out"\n  PACKAGE_E2E_EXECUTABLE="${{packageDrv}}/bin/{name}" python -m pytest -p no:cacheprovider --cov="$src" --cov-report "html:$out/html" "$src/main.py"\n''\n"""
-
-
 def add_package(root: Path, kind: str, name: str, description: str | None) -> None:
     """Create a package transactionally and stage its managed files."""
     if kind not in PACKAGE_KINDS:
@@ -1282,7 +1185,7 @@ def add_package(root: Path, kind: str, name: str, description: str | None) -> No
         raise CommandError(
             msg,
         )
-    validate_name(kind, name)
+    validate_name(name)
     files = scaffold(kind, name, description)
     if any((root / path).exists() for path in files):
         msg = f"package or generated check already exists: {name}"
@@ -1389,7 +1292,7 @@ def _imported_status(
         if len(identifiers) != len(set(identifiers)):
             msg = f"status document package tests collide after normalization: {name}"
             raise CommandError(msg)
-        validate_name(kind, name)
+        validate_name(name)
         validated_packages.append(
             {
                 "type": kind,
@@ -1414,29 +1317,18 @@ def initialize_home() -> None:
     """Initialize and stage the canonical home policy without cleaning."""
     root = Path.home()
     if not (root / ".git").exists():
-        run(["git", "init", str(root)], quiet=True)
+        _run(["git", "init", str(root)])
     if profile(root, "home") != "home":
         msg = "cannot initialize a flake repository as a home repository"
         raise CommandError(msg)
-    path = root / ".gitignore"
-    source = _read_regular(path) or "*\n!/.gitignore\n!/.gitmodules\n"
-    lines = source.splitlines()
-    if not lines or lines[0] != "*":
-        msg = f"{path}: must start with *"
-        raise CommandError(msg)
-    for required in ("!/.gitignore", "!/.gitmodules"):
-        if required not in lines:
-            lines.append(required)
-    _write_managed(root, Path(".gitignore"), "\n".join(lines) + "\n", dry_run=False)
+    _converge_home_ignore(root, dry_run=False)
 
 
 def _remote_is_empty(remote: str) -> bool:
     """Return whether a hosted remote advertises no heads."""
-    completed = subprocess.run(
+    completed = _run(
         ["git", "ls-remote", remote],
-        capture_output=True,
         check=False,
-        text=True,
     )
     if completed.returncode != 0:
         raise CommandError(completed.stderr.strip() or "could not read remote")
@@ -1458,7 +1350,7 @@ def initialize_flake(remote: str, status_path: str | None) -> None:
         msg = f"target already exists: {directory}"
         raise CommandError(msg)
     directory.parent.mkdir(parents=True, exist_ok=True)
-    run(["git", "clone", remote, str(directory)], quiet=True)
+    _run(["git", "clone", remote, str(directory)])
     flake = directory / "flake.nix"
     flake.write_text(
         '{ inputs.canonicalization.url = "github:pbizopoulos/canonicalization"; outputs = inputs: inputs.canonicalization.blueprint { inherit inputs; }; }\n',
@@ -1492,10 +1384,9 @@ def initialize_flake(remote: str, status_path: str | None) -> None:
             path.write_text("{ ... }: { }\n", encoding="utf-8")
     else:
         (directory / "README").write_text(readme, encoding="utf-8")
-    run(
+    _run(
         [os.environ.get("GIT_CANONICALIZATION_NIX", "nix"), "flake", "lock"],
         cwd=directory,
-        quiet=True,
     )
     detected_packages = detect_packages(directory)
     (directory / ".gitignore").write_text(
@@ -1505,10 +1396,9 @@ def initialize_flake(remote: str, status_path: str | None) -> None:
         ),
         encoding="utf-8",
     )
-    run(
+    _run(
         [os.environ.get("GIT_CANONICALIZATION_NIX", "nix"), "fmt"],
         cwd=directory,
-        quiet=True,
     )
     git(directory, ["add", "--all"])
     git(directory, ["branch", "-M", "main"])
@@ -1534,7 +1424,7 @@ def status(root: Path) -> dict[str, Any]:
         msg = "home repositories are not compatible with status"
         raise CommandError(msg)
     packages = check_flake(root, True)
-    run(
+    _run(
         [
             os.environ.get("GIT_CANONICALIZATION_NIX", "nix"),
             "build",
@@ -1542,7 +1432,6 @@ def status(root: Path) -> dict[str, Any]:
             "--no-link",
         ],
         cwd=root,
-        quiet=True,
     )
     return {
         "readme": _read_regular(root / "README"),
@@ -1662,11 +1551,6 @@ def main() -> None:
         raise SystemExit(1) from error
 
 
-def test_removed_package_kinds_are_not_supported() -> None:
-    """Reject package kinds replaced by typed or unconstrained Nix packages."""
-    assert {"haskell", "opentofu", "python-latex"}.isdisjoint(PACKAGE_KINDS)
-
-
 def test_python_package_allows_latex_resources_in_prm() -> None:
     """Classify LaTeX resources under prm as an opaque Python implementation detail."""
     with tempfile.TemporaryDirectory() as temporary_directory:
@@ -1756,17 +1640,16 @@ def test_python_scaffold_escapes_arbitrary_description() -> None:
 
 
 def test_meta_description_uses_nix_syntax() -> None:
-    """Read and replace metadata without relying on source formatting."""
+    """Read metadata and preserve literal interpolation through Nix syntax."""
     nested = '{ meta = { description = "A \\"quoted\\" description."; }; }'
     direct = '{ meta.description = "A direct description."; }'
     assert _meta_description(nested) == 'A "quoted" description.'
     assert _meta_description(direct) == "A direct description."
-    assert _replace_meta_description(nested, "A replacement.") == (
-        '{ meta = { description = "A replacement."; }; }'
-    )
-    escaped = _replace_meta_description(nested, "Literal ${value}.")
+    escaped = _nix_string("Literal ${value}.")
     assert r"Literal \${value}." in escaped
-    assert _meta_description(escaped) == "Literal ${value}."
+    assert _meta_description(f"{{ meta.description = {escaped}; }}") == (
+        "Literal ${value}."
+    )
 
 
 def test_imported_status_rejects_invalid_shapes_and_host_paths() -> None:
@@ -1815,23 +1698,15 @@ def test_python_default_allows_only_package_customization() -> None:
         source = source.replace("{ inputs, pkgs, ... }:", "{ pkgs, ... }:")
         package = Package("report", "python", package_root)
         (package_root / "default.nix").write_text(source, encoding="utf-8")
-        _check_python_default(package)
+        assert canonical_typed_default(package) == source
+        assert _source_package_issues(root, package) == []
         (package_root / "default.nix").write_text(
             source.replace('version = "0.0.0";', 'version = "1.0.0";'),
             encoding="utf-8",
         )
-        try:
-            _check_python_default(package)
-        except CommandError as error:
-            error_message = str(error)
-        else:
-            msg = "static Python package template drift was not detected"
-            raise AssertionError(msg)
-        assert error_message == (
-            "packages/report/default.nix: does not match the canonical "
-            "Python package template; permitted customizations are nativeDeps, "
-            "pythonDeps, shellHook, and meta.description"
-        )
+        assert _source_package_issues(root, package) == [
+            "packages/report/default.nix: differs from its canonical typed template",
+        ]
 
 
 def test_coverage_default_matches_current_template() -> None:
@@ -1844,7 +1719,16 @@ def test_coverage_default_matches_current_template() -> None:
             _current_python_coverage_source(),
             encoding="utf-8",
         )
-        _check_coverage_default(root, Package("report", "python", root / "report"))
+        package = Package("report", "python", root / "report")
+        _check_coverage_default(root, package)
+        (check / "default.nix").write_text("{ pkgs, ... }: pkgs.emptyFile\n")
+        try:
+            _check_coverage_default(root, package)
+        except CommandError:
+            pass
+        else:
+            msg = "noncanonical coverage definition was accepted"
+            raise AssertionError(msg)
 
 
 def test_remote_paths_and_test_names() -> None:
@@ -1861,6 +1745,25 @@ def test_gitignore_patterns_are_globally_sorted() -> None:
         {Path("z/file"), Path("a")},
         {Path("prm")},
     ) == ("*\n!/a\n!/prm/\n!/prm/**\n!/z/\n!/z/file\n")
+
+
+def test_home_initialization_uses_canonical_ignore_policy() -> None:
+    """Create required home negations and reject non-negation entries."""
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        root = Path(temporary_directory)
+        git(root, ["init", "--quiet"])
+        assert _converge_home_ignore(root, dry_run=False)
+        assert (root / ".gitignore").read_text(encoding="utf-8") == (
+            "*\n!/.gitignore\n!/.gitmodules\n"
+        )
+        (root / ".gitignore").write_text("*\nunsupported\n", encoding="utf-8")
+        try:
+            _converge_home_ignore(root, dry_run=False)
+        except CommandError:
+            pass
+        else:
+            msg = "non-negation home ignore entry was accepted"
+            raise AssertionError(msg)
 
 
 def test_git_clean_actions_use_canonical_message_style() -> None:

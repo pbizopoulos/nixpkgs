@@ -247,14 +247,14 @@ def nixos_removals(
     if not configurations:
         return {}
     unique_candidates = {
-        (path, json.dumps(value, sort_keys=True, ensure_ascii=False))
+        (path, json.dumps(value, sort_keys=True, ensure_ascii=False)): value
         for path, value in candidates
     }
     rendered = (
         "[ "
         + " ".join(
-            f"{{ path = {_path_list(path)}; value = {_render_literal(json.loads(value))}; }}"
-            for path, value in sorted(unique_candidates)
+            f"{{ path = {_path_list(path)}; value = {_render_literal(value)}; }}"
+            for (path, _serialized), value in sorted(unique_candidates.items())
         )
         + " ]"
     )

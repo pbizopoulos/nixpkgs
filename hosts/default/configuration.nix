@@ -4,9 +4,6 @@
   pkgs,
   ...
 }:
-let
-  opensshAuthorizedKeyFiles = [ ../../prm/developer.pub ];
-in
 {
   boot.loader.systemd-boot.enable = true;
   disko.devices = {
@@ -59,7 +56,6 @@ in
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
     (modulesPath + "/profiles/qemu-guest.nix")
-    inputs.agenix.nixosModules.age
     inputs.disko.nixosModules.disko
     inputs.preservation.nixosModules.default
   ];
@@ -119,7 +115,7 @@ in
     users.nixos = {
       extraGroups = [ "wheel" ];
       isNormalUser = true;
-      openssh.authorizedKeys.keyFiles = opensshAuthorizedKeyFiles;
+      openssh.authorizedKeys.keyFiles = [ ../../prm/developer.pub ];
     };
   };
   virtualisation.vmVariantWithDisko = {

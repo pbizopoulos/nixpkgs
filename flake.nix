@@ -1,9 +1,5 @@
 {
   inputs = {
-    agenix = {
-      inputs.nixpkgs.follows = "nixpkgs";
-      url = "github:ryantm/agenix";
-    };
     blueprint = {
       inputs.nixpkgs.follows = "nixpkgs";
       url = "github:numtide/blueprint";

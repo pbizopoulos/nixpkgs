@@ -1,7 +1,7 @@
 { pkgs, ... }:
 pkgs.stdenv.mkDerivation rec {
   buildInputs = [ pkgs.stdenv.cc.cc.lib ];
-  doInstallCheck = pkgs.stdenv.isLinux;
+  doInstallCheck = pkgs.stdenv.hostPlatform.isLinux;
   installCheckPhase = ''
     runHook preInstallCheck
     test -x "$out/bin/${pname}"

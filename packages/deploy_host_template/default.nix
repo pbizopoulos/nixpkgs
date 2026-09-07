@@ -1,20 +1,19 @@
 { pkgs, ... }:
 let
   pname = baseNameOf ./.;
-  providerPlugins = p: [
+  tofu = pkgs.opentofu.withPlugins (p: [
     p.hashicorp_external
     p.hashicorp_local
     p.hashicorp_null
     p.hetznercloud_hcloud
-  ];
-  runtimeDeps = [ pkgs.openssh ];
-  tofu = pkgs.opentofu.withPlugins providerPlugins;
+  ]);
 in
 pkgs.writeShellApplication {
   meta.description = "A Terraform template package for deploying a host.";
   name = pname;
-  runtimeInputs = runtimeDeps ++ [
+  runtimeInputs = [
     pkgs.git
+    pkgs.openssh
     tofu
   ];
   text = ''
