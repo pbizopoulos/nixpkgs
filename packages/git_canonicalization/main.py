@@ -712,6 +712,14 @@ def _current_python_coverage_source() -> str:
     return """{ inputs, pkgs, ... }:
 let
   checkName = baseNameOf ./.;
+  dependencyInputs = builtins.concatLists [
+    (packageDrv.buildInputs or [ ])
+    (packageDrv.checkInputs or [ ])
+    (packageDrv.nativeBuildInputs or [ ])
+    (packageDrv.nativeCheckInputs or [ ])
+    (packageDrv.propagatedBuildInputs or [ ])
+    (packageDrv.propagatedNativeBuildInputs or [ ])
+  ];
   packageDrv = inputs.self.packages.${pkgs.stdenv.system}.${packageName};
   packageName = pkgs.lib.removeSuffix "_coverage" checkName;
   pythonEnv = packageDrv.python.withPackages (
@@ -725,8 +733,7 @@ let
 in
 pkgs.runCommand checkName
   {
-    nativeBuildInputs =
-      packageDrv.nativeBuildInputs ++ packageDrv.propagatedBuildInputs ++ [ pythonEnv ];
+    nativeBuildInputs = dependencyInputs ++ [ pythonEnv ];
     src = ../.. + "/packages/${packageName}";
   }
   ''
@@ -1712,12 +1719,15 @@ def test_python_default_allows_only_package_customization() -> None:
 
 def test_coverage_default_matches_current_template() -> None:
     """Recognize the canonical generated coverage check definition."""
+    template = _current_python_coverage_source()
+    assert "dependencyInputs = builtins.concatLists" in template
+    assert "(packageDrv.nativeCheckInputs or [ ])" in template
     with tempfile.TemporaryDirectory() as temporary_directory:
         root = Path(temporary_directory)
         check = root / "checks" / "report_coverage"
         check.mkdir(parents=True)
         (check / "default.nix").write_text(
-            _current_python_coverage_source(),
+            template,
             encoding="utf-8",
         )
         package = Package("report", "python", root / "report")
