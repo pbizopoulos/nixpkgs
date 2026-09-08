@@ -462,6 +462,14 @@ def required_package_files(package: Package) -> set[Path]:
 def allowed_paths(root: Path, packages: list[Package]) -> set[Path]:
     """Compute the repository whitelist represented by .gitignore."""
     allowed = {Path(item) for item in ROOT_FILES if (root / item).exists()}
+    package_names = {package.name for package in packages}
+    coverage_checks = {
+        f"{package.name}_coverage"
+        for package in packages
+        if package.kind == "python"
+        and (package.root / "main.py").is_file()
+        and python_tests(package.root / "main.py")
+    }
     for directory, filename in (
         ("checks", "default.nix"),
         ("hosts", "configuration.nix"),
@@ -469,6 +477,14 @@ def allowed_paths(root: Path, packages: list[Package]) -> set[Path]:
         base = root / directory
         if base.is_dir():
             for child in base.iterdir():
+                if directory == "checks":
+                    if child.name in package_names:
+                        continue
+                    if (
+                        child.name.endswith("_coverage")
+                        and child.name not in coverage_checks
+                    ):
+                        continue
                 if child.is_dir() and (child / filename).exists():
                     allowed.add(Path(directory) / child.name / filename)
                     hardware = (
@@ -1621,6 +1637,44 @@ def test_repository_layout_error_explains_how_to_place_unrestricted_files() -> N
                 "secrets/secrets.age: unsupported by the canonical flake "
                 "layout; move unrestricted project files under prm/ "
                 "(for example, prm/secrets.age)"
+            ),
+        ]
+
+
+def test_package_named_check_is_not_a_canonical_coverage_check() -> None:
+    """Reject legacy checks whose names omit the required coverage suffix."""
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        root = Path(temporary_directory)
+        package = root / "packages" / "report"
+        package.mkdir(parents=True)
+        (package / "default.nix").write_text("{ }: { }\n", encoding="utf-8")
+        (package / "main.py").write_text("", encoding="utf-8")
+        check = root / "checks" / "report"
+        check.mkdir(parents=True)
+        (check / "default.nix").write_text("{ }: { }\n", encoding="utf-8")
+        _packages, issues = inspect_structure(root)
+        assert issues == [
+            (
+                "checks/report/default.nix: unsupported by the canonical flake "
+                "layout; move unrestricted project files under prm/ "
+                "(for example, prm/default.nix)"
+            ),
+        ]
+
+
+def test_orphan_coverage_check_is_not_canonical() -> None:
+    """Reject coverage checks without a tested Python package owner."""
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        root = Path(temporary_directory)
+        check = root / "checks" / "orphan_coverage"
+        check.mkdir(parents=True)
+        (check / "default.nix").write_text("{ }: { }\n", encoding="utf-8")
+        _packages, issues = inspect_structure(root)
+        assert issues == [
+            (
+                "checks/orphan_coverage/default.nix: unsupported by the canonical "
+                "flake layout; move unrestricted project files under prm/ "
+                "(for example, prm/default.nix)"
             ),
         ]
 
