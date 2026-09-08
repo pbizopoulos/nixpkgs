@@ -33,6 +33,7 @@ KIND_MARKERS = {
     "python": "main.py",
 }
 ROOT_FILES = {
+    ".forgejo/workflows/workflow.yml",
     ".github/workflows/workflow.yml",
     ".gitignore",
     "LICENSE",
@@ -1817,6 +1818,19 @@ def test_convergence_preserves_root_and_package_scratch_only() -> None:
                 ["ls-files"],
             ).stdout.splitlines()
         )
+
+
+def test_convergence_preserves_forgejo_workflow() -> None:
+    """Preserve the canonical Forgejo Actions workflow."""
+    with tempfile.TemporaryDirectory() as temporary_directory:
+        root = Path(temporary_directory)
+        _temporary_flake(root)
+        workflow = root / ".forgejo" / "workflows" / "workflow.yml"
+        workflow.parent.mkdir(parents=True)
+        workflow.write_text("name: CI\n", encoding="utf-8")
+        git(root, ["add", "--force", str(workflow.relative_to(root))])
+        check_flake(root, False)
+        assert workflow.is_file()
 
 
 def test_single_force_cleanup_rejects_nested_git_repository() -> None:
