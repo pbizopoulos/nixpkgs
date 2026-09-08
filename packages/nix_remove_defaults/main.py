@@ -354,7 +354,7 @@ def process_repository(root: Path) -> None:
             removals.update(
                 candidate_path
                 for candidate_path, value in collect_candidates(document, node)
-                if defaults.get(candidate_path, object()) == value
+                if candidate_path in defaults and defaults[candidate_path] == value
             )
         if removals:
             nix_syntax.write_if_changed(path, rewrite(document, removals))
